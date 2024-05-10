@@ -17,7 +17,7 @@ namespace SalesSystem.DAL.Repositories
             _context = dBSalesContext;
         }
 
-        public async Task<IEnumerable<Sale>> addRegistry(Sale sale)
+        public async Task<Sale> addRegistry(Sale sale)
         {
             Sale saleAdd = new Sale();
 
@@ -67,6 +67,8 @@ namespace SalesSystem.DAL.Repositories
                     transaction.Rollback();
                     throw ex;
                 }
+
+                return saleAdd;
             }
 
         }
