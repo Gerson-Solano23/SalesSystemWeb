@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace SalesSystem.DTO
 {
+    //testing
     public class DashboardDTO
     {
         public int TotalSales { get; set; }
