@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using SalesSystem.DAL.Repositories.Contract;
+using SalesSystem.DAL.Repositories;
 namespace SalesSystem.IOC
 {
-    public static class Dependencia
+    public static class Dependecy
     {
         public static void InyectarDependecias(this IServiceCollection services, IConfiguration configuration)
         {
@@ -18,6 +19,9 @@ namespace SalesSystem.IOC
             {
                 options.UseSqlServer(configuration.GetConnectionString("StringConnection"));
             });
+
+            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<ISalesRepository, SalesRepository>();
         }
     }
 }
