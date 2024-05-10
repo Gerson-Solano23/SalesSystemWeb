@@ -16,4 +16,4 @@ This project is a backend service developed in C# using .Net 7. It uses EntityFr
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/Gerson-Solano23/SalesSystemWeb.git
