@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace SalesSystem.DTO
 {
-    internal class ReportDTO
+    public class ReportDTO
     {
+        public string NumberDocument { get; set; }
+        public string PaymentType { get; set; }
+        public string DateRegistry { get; set; }
+        public string TotalSale { get; set; }
+        public string Product { get; set; }
+        public string Price { get; set; }
+        public string Total { get; set; }
+
     }
 }
