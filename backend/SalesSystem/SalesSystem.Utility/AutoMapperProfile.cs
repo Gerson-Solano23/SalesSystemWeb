@@ -80,7 +80,6 @@ namespace SalesSystem.Utility
                 .ForMember(destination => destination.Product, option => option.MapFrom(source => source.IdProductNavigation.Name))
                 .ForMember(destination => destination.Price, option => option.MapFrom(source => Convert.ToString(source.Price.Value, new CultureInfo("es-CR"))))
                 .ForMember(destination => destination.Total, option => option.MapFrom(source => Convert.ToString(source.Total.Value, new CultureInfo("es-CR"))));
-
             #endregion Report
         }
     }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DAL.Repositories;
+using SalesSystem.Utility;
 namespace SalesSystem.IOC
 {
     public static class Dependecy
@@ -22,6 +23,8 @@ namespace SalesSystem.IOC
 
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ISalesRepository, SalesRepository>();
+
+            services.AddAutoMapper(typeof(AutoMapperProfile));
         }
     }
 }
