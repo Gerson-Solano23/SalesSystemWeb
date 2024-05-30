@@ -19,4 +19,3 @@ namespace SalesSystem.DAL.Repositories.Contract
     }   
    
 }
-//1418
