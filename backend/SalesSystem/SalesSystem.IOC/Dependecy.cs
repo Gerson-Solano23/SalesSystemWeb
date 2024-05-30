@@ -14,7 +14,7 @@ namespace SalesSystem.IOC
 {
     public static class Dependecy
     {
-        public static void InyectarDependecias(this IServiceCollection services, IConfiguration configuration)
+        public static void InjectDependencies(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<DBSalesContext>(options =>
             {
