@@ -99,6 +99,7 @@ namespace SalesSystem.DAL.Repositories
 
                 throw;
             }
+            return false;
         }
         public async Task<IQueryable<TModel>> Consult(Expression<Func<TModel, bool>> filter = null)
         {
