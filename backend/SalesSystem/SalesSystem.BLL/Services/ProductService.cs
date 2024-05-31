@@ -47,14 +47,50 @@ namespace SalesSystem.BLL.Services
             }
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var productFound = await _productRepository.GetByIdAsync(id);
+
+                if (productFound == null)
+                {
+                    throw new TaskCanceledException("Product not exist");
+                }
+
+                bool result = await _productRepository.DeleteAsync(productFound);
+
+                if (!result)
+                {
+                    throw new TaskCanceledException("Unable to delete product");
+                }
+                return result;  
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
-        public Task<ProductDTO> Get(int id)
+        public async Task<ProductDTO> Get(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var productFound = await _productRepository.GetByIdAsync(id);
+
+                if (productFound == null)
+                {
+                    throw new TaskCanceledException("Product not exist");
+                }
+
+                return _mapper.Map<ProductDTO>(productFound);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<List<ProductDTO>> List()
@@ -69,14 +105,35 @@ namespace SalesSystem.BLL.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
 
-        public Task<bool> Update(ProductDTO entity)
+        public async Task<bool> Update(ProductDTO entity)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var productFound = await _productRepository.GetByIdAsync(entity.IdProduct);
+
+                if (productFound == null)
+                {
+                    throw new TaskCanceledException("Product not exist");
+                }
+
+                var product = _mapper.Map<Product>(entity);
+
+                bool result = await _productRepository.UpdateAsync(product);
+                if (!result)
+                {
+                    throw new TaskCanceledException("Unable to update product");
+                }
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }
