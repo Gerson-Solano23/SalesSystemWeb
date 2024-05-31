@@ -60,7 +60,7 @@ namespace SalesSystem.BLL.Services
                     throw new TaskCanceledException("User not exist");
                 }
 
-                bool result = await _usuarioRepository.UpdateAsync(userFound);
+                bool result = await _usuarioRepository.DeleteAsync(userFound);
 
                 if (result)
                 {
