@@ -141,7 +141,7 @@ namespace SalesSystem.BLL.Services
             }
         }
 
-        public async Task<SessionDTO> ValidateCredencials(string email, string password)
+        public async Task<SessionDTO> ValidateCredentials(string email, string password)
         {
             SessionDTO session = new SessionDTO();
             try
