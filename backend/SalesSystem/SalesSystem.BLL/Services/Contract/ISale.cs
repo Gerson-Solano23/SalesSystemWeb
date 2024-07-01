@@ -9,8 +9,11 @@ namespace SalesSystem.BLL.Services.Contract
 {
     public interface ISale
     {
-        Task<List<SaleDTO>> List();
         Task<SaleDTO> Create(SaleDTO entity);
+
+        Task<List<SaleDTO>> History(string searchBy, string saleNumber, string Startdate, string endDate);
+
+        Task<List<ReportDTO>> Report(string startDate, string endDate);
 
     }
 }

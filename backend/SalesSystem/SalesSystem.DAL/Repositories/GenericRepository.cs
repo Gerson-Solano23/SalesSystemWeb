@@ -16,7 +16,7 @@ namespace SalesSystem.DAL.Repositories
         {
             _context = dBSalesContext;
         }
-        public async Task<TModel> AddAsync(TModel entity)
+        public async Task<TModel> CreateAsync(TModel entity)
         {
             try
             {

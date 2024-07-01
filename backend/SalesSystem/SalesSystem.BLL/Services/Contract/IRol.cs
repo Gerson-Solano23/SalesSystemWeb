@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SalesSystem.BLL.Services.Contract
 {
-    public interface IRolService
+    public interface IRol
     {
         Task<List<RolDTO>> List();
     }

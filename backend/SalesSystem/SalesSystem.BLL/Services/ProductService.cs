@@ -27,7 +27,7 @@ namespace SalesSystem.BLL.Services
         {
             try
             {
-                var product = await _productRepository.AddAsync(_mapper.Map<Product>(entity));
+                var product = await _productRepository.CreateAsync(_mapper.Map<Product>(entity));
 
                 if (product.IdProduct == 0)
                 {
@@ -51,7 +51,7 @@ namespace SalesSystem.BLL.Services
         {
             try
             {
-                var productFound = await _productRepository.GetByIdAsync(id);
+                var productFound = await _productRepository.GetByIdAsync(id); 
 
                 if (productFound == null)
                 {
@@ -113,6 +113,7 @@ namespace SalesSystem.BLL.Services
         {
             try
             {
+                var productEntity = _mapper.Map<Product>(entity);
                 var productFound = await _productRepository.GetByIdAsync(entity.IdProduct);
 
                 if (productFound == null)
@@ -120,9 +121,13 @@ namespace SalesSystem.BLL.Services
                     throw new TaskCanceledException("Product not exist");
                 }
 
-                var product = _mapper.Map<Product>(entity);
+                productFound.IdCategory = productEntity.IdCategory;
+                productFound.Name = productEntity.Name;
+                productFound.Price = productEntity.Price;
+                productFound.Stock = productEntity.Stock;
+                productFound.Status = productEntity.Status;
 
-                bool result = await _productRepository.UpdateAsync(product);
+                bool result = await _productRepository.UpdateAsync(productFound);
                 if (!result)
                 {
                     throw new TaskCanceledException("Unable to update product");

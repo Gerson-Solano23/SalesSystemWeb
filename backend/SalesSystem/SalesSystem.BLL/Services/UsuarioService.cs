@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SalesSystem.BLL.Services
 {
-    public class UsuarioService : IUsuarioService
+    public class UsuarioService : IUsuario
     {
 
         private readonly IGenericRepository<Usuario> _usuarioRepository;
@@ -28,7 +28,7 @@ namespace SalesSystem.BLL.Services
         {
             try
             {
-                var user = await _usuarioRepository.AddAsync(_mapper.Map<Usuario>(entity));
+                var user = await _usuarioRepository.CreateAsync(_mapper.Map<Usuario>(entity));
 
                 if (user.IdUser == 0)
                 {

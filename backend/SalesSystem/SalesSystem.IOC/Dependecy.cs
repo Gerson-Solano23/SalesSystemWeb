@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DAL.Repositories;
 using SalesSystem.Utility;
+using SalesSystem.BLL.Services.Contract;
+using SalesSystem.BLL.Services;
+
 namespace SalesSystem.IOC
 {
     public static class Dependecy
@@ -25,6 +28,14 @@ namespace SalesSystem.IOC
             services.AddScoped<ISalesRepository, SalesRepository>();
 
             services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            services.AddScoped<IRol, RolService>();
+            services.AddScoped<IUsuario, UsuarioService>();
+            services.AddScoped<ICategory, CategoryService>();
+            services.AddScoped<IProduct, ProductService>();
+            services.AddScoped<ISale, SaleService>();
+            services.AddScoped<IDashBoard, DashBoardService>();
+            services.AddScoped<IMenu, MenuService>();
         }
     }
 }

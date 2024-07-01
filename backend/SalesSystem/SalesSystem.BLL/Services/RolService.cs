@@ -12,7 +12,7 @@ using SalesSystem.Entity;
 
 namespace SalesSystem.BLL.Services
 {
-    public class RolService
+    public class RolService : IRol
     {
         private readonly IGenericRepository<Rol> _rolRepository;
         

@@ -27,10 +27,10 @@ namespace SalesSystem.BLL.Services
         {
             try
             {
-                var queryUsuario = await _categoryRepository.Consult();
-                var categoryList = queryUsuario.Include(rol => rol.IdCategory).ToList();
+                var queryUsuario = await _categoryRepository.GetAllAsync();
+                //var categoryList = queryUsuario.Include(rol => rol.IdCategory).ToList();
 
-                return _mapper.Map<List<CategoryDTO>>(categoryList);
+                return _mapper.Map<List<CategoryDTO>>(queryUsuario);
             }
             catch (Exception ex)
             {

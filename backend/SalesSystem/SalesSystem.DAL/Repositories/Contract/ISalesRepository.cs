@@ -9,6 +9,7 @@ namespace SalesSystem.DAL.Repositories.Contract
 {
     public interface ISalesRepository:IGenericRepository<Sale>
     {
-        Task<Sale> addRegistry(Sale sale);
+        Task<Sale>  addRegistry(Sale sale);
+        //Task addRegistry(SalesSystem.DTO.SaleDTO saleDTO);
     }
 }

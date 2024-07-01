@@ -14,22 +14,33 @@ namespace SalesSystem.BLL.Services
 {
     public class MenuService : IMenu
     {
+        private readonly IGenericRepository<Usuario> _userRepository;
+        private readonly IGenericRepository<MenuRol> _menuRolRepository;
         private readonly IGenericRepository<Menu> _menuRepository;
         private readonly IMapper _mapper;
 
-        public MenuService(IGenericRepository<Menu> repositoryMenu, IMapper mapper)
+        public MenuService(IGenericRepository<Usuario> userRepository, IGenericRepository<MenuRol> menuRolRepository, IGenericRepository<Menu> menuRepository, IMapper mapper)
         {
+            _userRepository = userRepository;
+            _menuRolRepository = menuRolRepository;
+            _menuRepository = menuRepository;
             _mapper = mapper;
-            _menuRepository = repositoryMenu;
         }
 
-        public async Task<List<MenuDTO>> List()
+        public async Task<List<MenuDTO>> List(int idUser)
         {
+            IQueryable<Usuario> userTB = await _userRepository.Consult(x => x.IdUser == idUser);
+            IQueryable<MenuRol> menuRolTB = await _menuRolRepository.Consult();
+            IQueryable<Menu> manuTB = await _menuRepository.Consult();
+
             try
             {
-                var query = await _menuRepository.Consult();
+                IQueryable<Menu> resultTB = (from u in userTB
+                                             join mr in menuRolTB on u.IdRol equals mr.IdRol
+                                             join m in manuTB on mr.IdMenu equals m.IdMenu 
+                                             select m).AsQueryable();
 
-                var menuList = query.Include(rol => rol.IdMenu).ToList();
+                var menuList = resultTB.ToList();
 
                 return _mapper.Map<List<MenuDTO>>(menuList);
             }

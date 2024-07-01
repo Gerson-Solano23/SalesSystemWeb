@@ -8,7 +8,7 @@ using SalesSystem.DTO;
 
 namespace SalesSystem.BLL.Services.Contract
 {
-    public interface IUsuarioService
+    public interface IUsuario
     {
         Task<List<UsuarioDTO>> List();
         Task<SessionDTO> ValidateCredentials(string email, string password);
