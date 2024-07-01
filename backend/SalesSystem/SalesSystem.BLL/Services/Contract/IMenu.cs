@@ -9,6 +9,6 @@ namespace SalesSystem.BLL.Services.Contract
 {
     public interface IMenu
     {
-        Task<List<MenuDTO>> List();
+        Task<List<MenuDTO>> List(int idUser);
     }
 }
