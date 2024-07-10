@@ -105,6 +105,7 @@ namespace SalesSystem.API.Controllers
         }
 
         [HttpPut]
+        [Route("Update")]
         public async Task<IActionResult> Update(UsuarioDTO entity)
         {
             var response = new Response<bool>();
@@ -122,6 +123,7 @@ namespace SalesSystem.API.Controllers
         }
 
         [HttpDelete]
+        [Route("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var response = new Response<bool>();

@@ -17,7 +17,8 @@ namespace SalesSystem.API.Controllers
             _productService = productService;
         }
 
-        [HttpGet("ListProducts")]
+        [HttpGet]
+        [Route("List")]
         public async Task<IActionResult> List()
         {
             var response = new Response<List<ProductDTO>>();
@@ -35,7 +36,8 @@ namespace SalesSystem.API.Controllers
             }
         }
 
-        [HttpGet("GetProduct")]
+        [HttpGet]
+        [Route("Get")]
         public async Task<IActionResult> Get(int id)
         {
             var response = new Response<ProductDTO>();
@@ -54,6 +56,7 @@ namespace SalesSystem.API.Controllers
         }
 
         [HttpPost]
+        [Route("Create")]
         public async Task<IActionResult> Create(ProductDTO entity)
         {
             var response = new Response<ProductDTO>();
@@ -72,6 +75,7 @@ namespace SalesSystem.API.Controllers
         }
 
         [HttpPut]
+        [Route("Update")]
         public async Task<IActionResult> Update(ProductDTO entity)
         {
             var response = new Response<ProductDTO>();
@@ -89,6 +93,7 @@ namespace SalesSystem.API.Controllers
         }
 
         [HttpDelete]
+        [Route("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var response = new Response<bool>();

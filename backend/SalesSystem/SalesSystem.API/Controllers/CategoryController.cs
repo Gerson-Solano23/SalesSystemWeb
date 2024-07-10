@@ -17,7 +17,8 @@ namespace SalesSystem.API.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpGet("List")]
+        [HttpGet]
+        [Route("List")]
         public async Task<IActionResult> List()
         {
             var response = new Response<List<CategoryDTO>>();

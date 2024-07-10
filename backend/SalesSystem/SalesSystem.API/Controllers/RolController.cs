@@ -18,6 +18,7 @@ namespace SalesSystem.API.Controllers
         }
 
         [HttpGet]
+        [Route("List")]
         public async Task<IActionResult> List()
         {
             var response = new Response<List<RolDTO>>();
