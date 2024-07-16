@@ -57,7 +57,7 @@ namespace SalesSystem.API.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create(ProductDTO entity)
+        public async Task<IActionResult> Create([FromBody] ProductDTO entity)
         {
             var response = new Response<ProductDTO>();
             try
@@ -76,7 +76,7 @@ namespace SalesSystem.API.Controllers
 
         [HttpPut]
         [Route("Update")]
-        public async Task<IActionResult> Update(ProductDTO entity)
+        public async Task<IActionResult> Update([FromBody] ProductDTO entity)
         {
             var response = new Response<ProductDTO>();
             try
