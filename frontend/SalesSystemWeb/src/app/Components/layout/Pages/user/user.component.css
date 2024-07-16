@@ -1,0 +1,35 @@
+/* .demo-table {
+    width: 100%;
+  }
+  
+  .mat-mdc-row .mat-mdc-cell {
+    border-bottom: 1px solid transparent;
+    border-top: 1px solid transparent;
+    cursor: pointer;
+  }
+  
+  .mat-mdc-row:hover .mat-mdc-cell {
+    border-color: currentColor;
+  }
+  
+  .demo-row-is-clicked {
+    font-weight: bold;
+  }
+   */
+
+table{
+  width: 100%;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+.responsive-table-container {
+  overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
+}
+.table-btn-actions { 
+  justify-content: space-around;
+  width: 115px;
+  /* align-items: end; */
+}

@@ -1,0 +1,57 @@
+<h2 mat-dialog-title>{{actionTitle}} Product</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="formProduct">
+        <mat-grid-list cols="1" rowHeight="80px">
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Name</mat-label>
+                <input matInput autocomplete="off" placeholder="Name" formControlName="name">
+                <mat-icon matSuffix>account-box</mat-icon>
+            </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Id Category</mat-label>
+                <mat-select formControlName="idCategory">
+                    <mat-option *ngFor="let category of categoryList" [value]="category.idCategory">{{category.name}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            </mat-grid-tile>
+<!-- attach_money -->
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>stock</mat-label>
+                <input matInput autocomplete="off" placeholder="stock" formControlName="stock" type="number">
+                <mat-icon matSuffix>stock</mat-icon>
+            </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Price</mat-label>
+                <input matInput autocomplete="off" placeholder="Price" formControlName="price" type="number">
+                <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                    <mat-option value="1">Active</mat-option>
+                    <mat-option value="0">Inactive</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>rol</mat-icon>
+            </mat-form-field>
+            </mat-grid-tile>
+
+        </mat-grid-list>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close color="warn">Cancel</button>
+    <button mat-flat-button color="primary" [disabled]="formProduct.invalid" (click)="createOrUpdateProduct()">{{actionTitle}}</button>
+</mat-dialog-actions>

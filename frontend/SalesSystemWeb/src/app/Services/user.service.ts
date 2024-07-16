@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../enviroments/enviroments';
+import { environment } from '../enviroments/enviroments';
 import { ResponseApi } from '../Interfaces/response-api';
 import { User } from '../Interfaces/user';
 import { Login } from '../Interfaces/login';
@@ -11,7 +11,6 @@ import { Login } from '../Interfaces/login';
 })
 export class UserService {
   private urlAPI: string = environment.apiURL + 'Usuario/';
-
   constructor(private http:HttpClient) { }
 
   login(login:Login):Observable<ResponseApi>{
@@ -27,10 +26,10 @@ export class UserService {
   }
 
   updateUser(user:User):Observable<ResponseApi>{
-    return this.http.put<ResponseApi>(`${this.urlAPI}}Update`,user);
+    return this.http.put<ResponseApi>(`${this.urlAPI}Update`,user);
   }
 
   deleteUser(Id:number):Observable<ResponseApi>{
-    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete/${Id}`);
+    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete?id=${Id}`);
   }
 }

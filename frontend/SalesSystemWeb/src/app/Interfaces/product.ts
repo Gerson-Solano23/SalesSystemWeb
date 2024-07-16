@@ -1,9 +1,9 @@
 export interface Product {
-    IdProduct: number,
-    Name: string,
-    IdCategory: number,
-    CategoryDescription: string,
-    Stock: number,
-    Price: string,
-    Status: number
+    idProduct: number,
+    name: string,
+    idCategory: number,
+    categoryDescription: string,
+    stock: number,
+    price: string,
+    status: number
 }

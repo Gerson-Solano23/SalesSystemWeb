@@ -1,0 +1,170 @@
+
+.footerCardLogin {
+    text-align: center;
+    padding-top: 15px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.input-group {
+    width: 100%;
+}
+
+
+.loginCard {
+    text-align: center;
+    padding-bottom: 15px;
+}
+
+/* Imagen de perfil */
+.loginCard-img {
+    width: 200px; 
+    height: 200px; 
+    border-radius: 50%; 
+    display: block; 
+    margin: 0 auto;
+    padding-bottom: 2px;
+}
+
+/* Estilo global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilo del cuerpo */
+.body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #6f86d6, #cfd3e6);
+    margin: 0; /* Asegúrate de que no hay márgenes en el body */
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 800px;
+    width: 100%;
+    height: auto; /* Permite que el contenedor crezca verticalmente */
+    margin: 20px; /* Añade margen para asegurar espacio en pantallas pequeñas */
+}
+
+/* Sección izquierda */
+.left {
+    background: #f8f9fa;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+}
+
+.left .illustration {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Sección derecha */
+.right {
+    padding: 40px;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+form {
+    width: 100%;
+}
+
+/* Grupo de entradas */
+.input-group {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.forgot, .create-account {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.forgot:hover, .create-account:hover {
+    text-decoration: underline;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        max-width: 100%;
+        margin: 10px;
+    }
+
+    .left, .right {
+        width: 100%;
+        padding: 20px;
+    }
+    
+    .right {
+        padding-top: 0;
+    }
+
+    
+    /* Asegurar que los inputs estén en una columna */
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .input-group input, button {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+}

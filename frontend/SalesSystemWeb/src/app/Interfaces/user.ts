@@ -1,9 +1,9 @@
 export interface User {
-    IdUser:number,
-    FullName:string,
-    Email:string,
-    IdRol:number,
-    RolDescription:string,
-    Password:string,
-    Status:number
+    idUser:number,
+    fullName:string,
+    email:string,
+    idRol:number,
+    rolDescription:string,
+    password:string,
+    status:number
 }

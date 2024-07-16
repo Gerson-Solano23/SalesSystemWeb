@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>{{actionTitle}} User</h2>
+
+<mat-dialog-content>
+    <form [formGroup]="formUser">
+        <mat-grid-list cols="1" rowHeight="80px">
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Full Name</mat-label>
+                <input matInput autocomplete="off" placeholder="Full Name" formControlName="FullName">
+                <mat-icon matSuffix>account-box</mat-icon>
+            </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput autocomplete="off" placeholder="Email" formControlName="Email">
+                <mat-icon matSuffix>mail</mat-icon>
+            </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Id Rol</mat-label>
+                <mat-select formControlName="IdRol">
+                    <mat-option *ngFor="let rol of rolsList" [value]="rol.idRol">{{rol.name}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            </mat-grid-tile>
+
+
+            <mat-grid-tile>
+                <mat-form-field class="" appearance="outline">
+                    <mat-label>Password</mat-label>
+                    <input [type]="hidePassword ? 'password' : 'text'" formControlName="Password" matInput autocomplete="off">
+                    <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+                        <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                </mat-form-field>
+            </mat-grid-tile>
+
+            <mat-grid-tile>
+                <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="Status">
+                    <mat-option value="1">Active</mat-option>
+                    <mat-option value="0">Inactive</mat-option>
+                </mat-select>
+                <mat-icon matSuffix>rol</mat-icon>
+            </mat-form-field>
+            </mat-grid-tile>
+
+        </mat-grid-list>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close color="warn">Cancel</button>
+    <button mat-flat-button color="primary" [disabled]="formUser.invalid" (click)="createOrUpdateUser()">{{actionTitle}}</button>
+</mat-dialog-actions>
