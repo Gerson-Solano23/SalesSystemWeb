@@ -1,47 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SalesSystem.DAL.Repositories.Contract;
-using SalesSystem.DAL.DbSalesContext;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SalesSystem.DAL.DbSalesContext;
+using SalesSystem.DAL.Repositories.Contract;
+
 namespace SalesSystem.DAL.Repositories
 {
     public class GenericRepository<TModel> : IGenericRepository<TModel> where TModel : class
     {
         private readonly DBSalesContext _context;
+
         public GenericRepository(DBSalesContext dBSalesContext)
         {
             _context = dBSalesContext;
         }
+
         public async Task<TModel> CreateAsync(TModel entity)
         {
             try
             {
-                _context.Set<TModel>().Add(entity);
+                await _context.Set<TModel>().AddAsync(entity);
                 await _context.SaveChangesAsync();
                 return entity;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                // Agregar logging aquí
+                throw new Exception($"Error creating entity: {ex.Message}", ex);
             }
-        }   
+        }
 
         public async Task<List<TModel>> GetAllAsync()
         {
             try
             {
-                List<TModel> modelList = await _context.Set<TModel>().ToListAsync();
-                return modelList;
+                return await _context.Set<TModel>().AsNoTracking().ToListAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                // Agregar logging aquí
+                throw new Exception($"Error getting all entities: {ex.Message}", ex);
             }
         }
 
@@ -49,13 +50,12 @@ namespace SalesSystem.DAL.Repositories
         {
             try
             {
-                TModel model = await _context.Set<TModel>().FindAsync(filter);
-                return model;
+                return await _context.Set<TModel>().AsNoTracking().FirstOrDefaultAsync(filter);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                // Agregar logging aquí
+                throw new Exception($"Error getting entity: {ex.Message}", ex);
             }
         }
 
@@ -63,14 +63,16 @@ namespace SalesSystem.DAL.Repositories
         {
             try
             {
-                return await _context.Set<TModel>().FindAsync(id);
+                var keyName = _context.Model.FindEntityType(typeof(TModel)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
+                return await _context.Set<TModel>().AsNoTracking().SingleOrDefaultAsync(e => EF.Property<int>(e, keyName) == id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                // Agregar logging aquí
+                throw new Exception($"Error getting entity by id: {ex.Message}", ex);
             }
         }
+
 
         public async Task<bool> UpdateAsync(TModel entity)
         {
@@ -80,12 +82,13 @@ namespace SalesSystem.DAL.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                // Agregar logging aquí
+                throw new Exception($"Error updating entity: {ex.Message}", ex);
             }
         }
+
         public async Task<bool> DeleteAsync(TModel entity)
         {
             try
@@ -94,24 +97,23 @@ namespace SalesSystem.DAL.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                // Agregar logging aquí
+                throw new Exception($"Error deleting entity: {ex.Message}", ex);
             }
-            return false;
         }
+
         public async Task<IQueryable<TModel>> Consult(Expression<Func<TModel, bool>> filter = null)
         {
             try
             {
-                IQueryable<TModel> queryEntity = filter == null? _context.Set<TModel>() : _context.Set<TModel>().Where(filter);
-                return queryEntity;
+                return filter == null ? _context.Set<TModel>().AsNoTracking() : _context.Set<TModel>().AsNoTracking().Where(filter);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                // Agregar logging aquí
+                throw new Exception($"Error consulting entities: {ex.Message}", ex);
             }
         }
     }

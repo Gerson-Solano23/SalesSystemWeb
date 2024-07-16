@@ -28,6 +28,10 @@ namespace SalesSystem.BLL.Services
         {
             try
             {
+                if (!await ValidateEmail(entity.Email))
+                {
+                    throw new TaskCanceledException("Email already exists");
+                }
                 var user = await _usuarioRepository.CreateAsync(_mapper.Map<Usuario>(entity));
 
                 if (user.IdUser == 0)
@@ -52,7 +56,7 @@ namespace SalesSystem.BLL.Services
         public async Task<bool> Delete(int id)
         {
             try
-            {            
+            {
                 var userFound = await _usuarioRepository.GetByIdAsync(id);
 
                 if (userFound == null)
@@ -62,7 +66,7 @@ namespace SalesSystem.BLL.Services
 
                 bool result = await _usuarioRepository.DeleteAsync(userFound);
 
-                if (result)
+                if (result == false)
                 {
                     throw new TaskCanceledException("Failed to delete");
                 }
@@ -126,7 +130,7 @@ namespace SalesSystem.BLL.Services
 
                 bool result = await _usuarioRepository.UpdateAsync(userEntity);
 
-                if (result)
+                if (!result)
                 {
                     throw new TaskCanceledException("Failed to update");
                 }
@@ -155,7 +159,33 @@ namespace SalesSystem.BLL.Services
                 else
                 {
                     Usuario usuario = query.Include(rol => rol.IdRolNavigation).First();
+                    if ((bool)usuario.Status == false)
+                    {
+                        throw new TaskCanceledException("User is inactive");
+                    }
                     return _mapper.Map<SessionDTO>(usuario);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> ValidateEmail(string email)
+        {
+            try
+            {
+                var query = await _usuarioRepository.Consult(x => x.Email == email);
+
+                if (query.FirstOrDefault() == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
             catch (Exception ex)

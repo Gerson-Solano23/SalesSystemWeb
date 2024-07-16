@@ -33,7 +33,7 @@ public partial class DBSalesContext : DbContext
 
     public virtual DbSet<SaleDetail> SaleDetails { get; set; }
 
-    public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<Usuario> Usuario { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

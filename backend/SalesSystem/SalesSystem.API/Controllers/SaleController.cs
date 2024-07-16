@@ -59,6 +59,7 @@ namespace SalesSystem.API.Controllers
             }
         }
         [HttpPost]
+        [Route("Create")]
         public async Task<IActionResult> Create([FromBody] SaleDTO entity)
         {
             var response = new Response<SaleDTO>();

@@ -87,7 +87,7 @@ namespace SalesSystem.API.Controllers
 
         [HttpPost]
         [Route("Create")]
-        public async Task<IActionResult> Create(UsuarioDTO entity)
+        public async Task<IActionResult> Create([FromBody] UsuarioDTO entity)
         {
             var response = new Response<UsuarioDTO>();
             try
@@ -106,7 +106,7 @@ namespace SalesSystem.API.Controllers
 
         [HttpPut]
         [Route("Update")]
-        public async Task<IActionResult> Update(UsuarioDTO entity)
+        public async Task<IActionResult> Update([FromBody] UsuarioDTO entity)
         {
             var response = new Response<bool>();
             try
