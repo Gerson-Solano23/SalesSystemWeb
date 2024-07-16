@@ -1,0 +1,20 @@
+.icon-and-text {
+    display: flex;
+    align-items: center;
+}
+
+.menu-color-font {
+    color: #417bb6;
+    background: linear-gradient(135deg, #417bb6, #cfd3e6);
+}
+
+
+.mat-list-item-active {
+    background-color: #e0e0e0; /* Cambia el color de fondo según tus preferencias */
+    font-weight: bold; /* Cambia el estilo de fuente si es necesario */
+  }
+  
+
+.icons-menu {
+    margin-right: 5px;
+}

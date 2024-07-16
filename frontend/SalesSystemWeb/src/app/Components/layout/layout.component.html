@@ -1,1 +1,66 @@
-<p>layout works!</p>
+<mat-toolbar class="menu-color-font" >
+    <mat-toolbar-row>  
+      <button mat-icon-button (click)="sidenav.toggle();">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <button mat-button style="font-size: 20px; color: azure;" routerLink="/pages" (click)="selectMenuItem('')">
+        GreateShop
+    </button>
+    </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-sidenav-container>
+  <mat-sidenav #sidenav opened="true" mode="side" style="width: 200px;">
+    <mat-nav-list >
+     <mat-list-item routerLink="/pages/dashboard" (click)="selectMenuItem('dashboard')" [class.mat-list-item-active]="selectedMenuItem === 'dashboard'">
+      <div class="icon-and-text">
+        <mat-icon mat-list-icon class="icons-menu">dashboard</mat-icon>
+        <div mat-line>Dashboard</div>
+      </div>
+     </mat-list-item>
+
+      <mat-list-item routerLink="/pages/users" (click)="selectMenuItem('users')" [class.mat-list-item-active]="selectedMenuItem === 'users'">
+        <div class="icon-and-text">
+          <mat-icon mat-list-icon class="icons-menu">group</mat-icon>
+          <div mat-line>User</div>
+        </div>
+      </mat-list-item>
+
+      <mat-list-item routerLink="/pages/products" (click)="selectMenuItem('products')" [class.mat-list-item-active]="selectedMenuItem === 'products'">
+        <div class="icon-and-text">
+          <mat-icon mat-list-icon class="icons-menu">collections_bookmark</mat-icon>
+          <div mat-line>Products</div>
+        </div>
+      </mat-list-item>
+
+      <mat-list-item routerLink="/pages/sale" (click)="selectMenuItem('sale')" [class.mat-list-item-active]="selectedMenuItem === 'sale'">
+        <div class="icon-and-text">
+          <mat-icon mat-list-icon class="icons-menu">currency_exchange</mat-icon>
+          <div mat-line>Sales</div>
+        </div>
+      </mat-list-item>
+
+      <mat-list-item routerLink="/pages/salesHistory" (click)="selectMenuItem('salesHistory')" [class.mat-list-item-active]="selectedMenuItem === 'salesHistory'">
+        <div class="icon-and-text">
+          <mat-icon mat-list-icon class="icons-menu">edit_note</mat-icon>
+          <div mat-line>Sales History</div>
+        </div>
+      </mat-list-item>
+
+      <mat-list-item routerLink="/pages/reports" (click)="selectMenuItem('reports')" [class.mat-list-item-active]="selectedMenuItem === 'reports'">
+        <div class="icon-and-text">
+          <mat-icon mat-list-icon class="icons-menu">receipt</mat-icon>
+          <div mat-line>Reports</div>
+        </div>
+      </mat-list-item>
+
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div style="height: 90vh;">
+      <router-outlet></router-outlet>      
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
