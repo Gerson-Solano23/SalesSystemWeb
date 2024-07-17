@@ -58,7 +58,7 @@ export class ModalProductComponent implements OnInit{
         name: this.productData.name,
         idCategory: this.productData.idCategory,
         stock: this.productData.stock,
-        price: this.productData.price,
+        price: this.productData.price.toString(),
         status: this.productData.status.toString()
       });
       
@@ -72,7 +72,7 @@ export class ModalProductComponent implements OnInit{
       idCategory: this.formProduct.value.idCategory,
       categoryDescription:"",
       stock: this.formProduct.value.stock,
-      price: this.formProduct.value.price,
+      price: this.formProduct.value.price.toString(),
       status: parseInt(this.formProduct.value.status)
     }
     if (this.productData == null) {

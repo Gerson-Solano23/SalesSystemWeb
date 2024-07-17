@@ -26,6 +26,6 @@ export class ProductService {
   }
 
   deleteproduct(Idproduct:number):Observable<ResponseApi>{
-    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete/${Idproduct}`);
+    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete?id=${Idproduct}`);
   }
 }
