@@ -10,5 +10,6 @@ namespace SalesSystem.BLL.Services.Contract
     public interface IDashBoard
     {
         Task<DashboardDTO> Summary();
+        Task<DashboardDTO> monthSummary();
     }
 }

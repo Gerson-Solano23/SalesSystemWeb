@@ -172,10 +172,10 @@ public partial class DBSalesContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("dateRegistry");
-            entity.Property(e => e.NumeroDocumento)
+            entity.Property(e => e.numberDocument)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("numero_Documento");
+                .HasColumnName("numberDocument");
             entity.Property(e => e.PaymentType)
                 .HasMaxLength(50)
                 .IsUnicode(false)

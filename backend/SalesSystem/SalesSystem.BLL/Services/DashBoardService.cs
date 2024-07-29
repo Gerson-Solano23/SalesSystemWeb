@@ -99,7 +99,7 @@ namespace SalesSystem.BLL.Services
                 // Filter sales for the last week using the ReturnSales method
                 var saleTable = ReturnSales(_querySale, -7);
                 // Group sales by date and count the total sales per day
-                result = saleTable.GroupBy(x => x.DateRegistry.Value.Date).OrderBy(x => x.Key).Select(s => new { date = s.Key.ToString("ss/MM/yyyy"), total = s.Count() })
+                result = saleTable.GroupBy(x => x.DateRegistry.Value.Date).OrderBy(x => x.Key).Select(s => new { date = s.Key.ToString("dd/MM/yyyy"), total = s.Count() })
                     .ToDictionary(keySelector: r=> r.date, elementSelector: r=> r.total);
             }
 

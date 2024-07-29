@@ -8,7 +8,7 @@ namespace SalesSystem.DTO
 {
     public class ReportDTO
     {
-        public string NumberDocument { get; set; }
+        public string numberDocument { get; set; }
         public string PaymentType { get; set; }
         public string DateRegistry { get; set; }
         public string TotalSale { get; set; }

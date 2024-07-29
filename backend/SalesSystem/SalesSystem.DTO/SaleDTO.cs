@@ -9,7 +9,7 @@ namespace SalesSystem.DTO
     public class SaleDTO
     {
         public int IdSale { get; set; }
-        public string? NumeroDocumento { get; set; }
+        public string? numberDocument { get; set; }
         public string? PaymentType { get; set; }
         public string? Total_Text { get; set; }
         public string? DateRegistry { get; set; }

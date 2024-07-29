@@ -67,7 +67,7 @@ namespace SalesSystem.BLL.Services
                 }
                 else
                 {
-                    ResultList = await query.Where(x => x.NumeroDocumento == saleNumber
+                    ResultList = await query.Where(x => x.numberDocument == saleNumber
                                                  ).Include(ds => ds.SaleDetails)
                                                  .ThenInclude(p => p.IdProductNavigation)
                                                  .ToListAsync();

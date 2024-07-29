@@ -54,11 +54,14 @@ namespace SalesSystem.Utility
             #region Sale
             CreateMap<Sale, SaleDTO>()
                 .ForMember(destination => destination.Total_Text, option => option.MapFrom(source => Convert.ToString(source.Total.Value, new CultureInfo("es-CR"))))
-                .ForMember(destination => destination.DateRegistry, option => option.MapFrom(source => source.DateRegistry.Value.ToString("dd/MM/yyyy")));
+                .ForMember(destination => destination.DateRegistry, option => option.MapFrom(source => source.DateRegistry.HasValue ? source.DateRegistry.Value.ToString("dd/MM/yyyy") : string.Empty));
 
             CreateMap<SaleDTO, Sale>()
-                .ForMember(destination => destination.Total, option => option.MapFrom(source => Convert.ToDecimal(source.Total_Text, new CultureInfo("es-CR"))));
+                .ForMember(destination => destination.Total, option => option.MapFrom(source => Convert.ToDecimal(source.Total_Text, new CultureInfo("es-CR"))))
+                .ForMember(destination => destination.DateRegistry, option => option.MapFrom(source =>
+                    string.IsNullOrEmpty(source.DateRegistry) ? (DateTime?)null : DateTime.ParseExact(source.DateRegistry, "dd/MM/yyyy", CultureInfo.InvariantCulture)));
             #endregion Sale
+
 
             #region SaleDetail
             CreateMap<SaleDetail, SaleDetailDTO>()
@@ -74,7 +77,7 @@ namespace SalesSystem.Utility
             #region Report
             CreateMap<SaleDetail, ReportDTO>()
                 .ForMember(destination => destination.DateRegistry, option => option.MapFrom(source => source.IdSaleNavigation.DateRegistry.Value.ToString("dd/MM/yyyy")))
-                .ForMember(destination => destination.NumberDocument, option => option.MapFrom(source => source.IdSaleNavigation.NumeroDocumento))
+                .ForMember(destination => destination.numberDocument, option => option.MapFrom(source => source.IdSaleNavigation.numberDocument))
                 .ForMember(destination => destination.PaymentType, option => option.MapFrom(source => source.IdSaleNavigation.PaymentType))
                 .ForMember(destination => destination.TotalSale, option => option.MapFrom(source => Convert.ToString(source.IdSaleNavigation.Total, new CultureInfo("es-CR"))))
                 .ForMember(destination => destination.Product, option => option.MapFrom(source => source.IdProductNavigation.Name))

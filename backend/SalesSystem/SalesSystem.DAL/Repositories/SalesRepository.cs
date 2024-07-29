@@ -52,7 +52,7 @@ namespace SalesSystem.DAL.Repositories
 
                     numeroVenta = numeroVenta.Substring(numeroVenta.Length - numbersQuantity, numbersQuantity);
 
-                    sale.NumeroDocumento = numeroVenta;
+                    sale.numberDocument = numeroVenta;
 
                     await _context.AddAsync(sale);
                     await _context.SaveChangesAsync();

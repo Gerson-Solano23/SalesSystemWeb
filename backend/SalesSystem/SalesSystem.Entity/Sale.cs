@@ -7,7 +7,7 @@ public partial class Sale
 {
     public int IdSale { get; set; }
 
-    public string? NumeroDocumento { get; set; }
+    public string? numberDocument { get; set; }
 
     public string? PaymentType { get; set; }
 

@@ -36,5 +36,25 @@ namespace SalesSystem.API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet]
+        [Route("monthSummary")]
+        public async Task<IActionResult> MonthSummary()
+        {
+            var response = new Response<DashboardDTO>();
+
+            try
+            {
+                response.status = true;
+                response.data = await _dashBoardService.Summary();
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.message = ex.Message;
+                return BadRequest(response);
+            }
+        }
     }
 }
