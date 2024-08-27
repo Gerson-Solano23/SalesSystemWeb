@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
@@ -6,19 +7,23 @@ using SalesSystem.DTO;
 
 namespace SalesSystem.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SaleController : ControllerBase
     {
         private readonly ISale _saleService;
-
-        public SaleController(ISale saleService)
+        private readonly IFileDownload _fileDownload;
+        //public List<ReportDTO> ReportTEMP = new List<ReportDTO>();
+        public SaleController(ISale saleService, IFileDownload fileDownload)
         {
             _saleService = saleService;
+            _fileDownload = fileDownload;
         }
 
         [HttpGet]
         [Route("History")]
+        [Authorize(Policy = "Admin_Supervisor_Employee")]
         public async Task<IActionResult> History(string searchBy, string? saleNumber, string? Startdate, string? endDate)
         {
             var response = new Response<List<SaleDTO>>();
@@ -40,7 +45,8 @@ namespace SalesSystem.API.Controllers
         }
         [HttpGet]
         [Route("Report")]
-        public async Task<IActionResult> Report(string? Startdate, string? endDate)
+        [Authorize(Policy = "Admin_Supervisor")]
+        public async Task<IActionResult> Report(string? Startdate, string? endDate, int idUser)
         {
             var response = new Response<List<ReportDTO>>();
 
@@ -49,7 +55,8 @@ namespace SalesSystem.API.Controllers
             {
                 response.status = true;
                 response.data = await _saleService.Report(Startdate, endDate);
-
+                Task.Run(() => _fileDownload.runTaskFileExcel(idUser));
+                
                 return Ok(response);
             }
             catch (Exception ex)
@@ -60,6 +67,7 @@ namespace SalesSystem.API.Controllers
         }
         [HttpPost]
         [Route("Create")]
+        [Authorize(Policy = "Admin_Supervisor_Employee")]
         public async Task<IActionResult> Create([FromBody] SaleDTO entity)
         {
             var response = new Response<SaleDTO>();

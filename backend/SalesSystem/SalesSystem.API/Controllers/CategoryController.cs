@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
@@ -6,6 +7,7 @@ using SalesSystem.DTO;
 
 namespace SalesSystem.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
@@ -19,6 +21,7 @@ namespace SalesSystem.API.Controllers
 
         [HttpGet]
         [Route("List")]
+        [Authorize(Policy = "Admin_Supervisor_Employee")]
         public async Task<IActionResult> List()
         {
             var response = new Response<List<CategoryDTO>>();
