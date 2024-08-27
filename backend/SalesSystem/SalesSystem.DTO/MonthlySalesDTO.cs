@@ -8,7 +8,7 @@ namespace SalesSystem.DTO
 {
     public class MonthlySalesDTO
     {
-        public string? Month { get; set; }
+        public string? Week { get; set; }
         public int? Total { get; set; }
     }
 }
