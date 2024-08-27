@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SalesSystem.DTO\SalesSystem.DTO.csproj" />
     <ProjectReference Include="..\SalesSystem.Entity\SalesSystem.Entity.csproj" />
   </ItemGroup>
 
