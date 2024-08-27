@@ -15,5 +15,7 @@ namespace SalesSystem.BLL.Services.Contract
 
         Task<List<ReportDTO>> Report(string startDate, string endDate);
 
+        List<ReportDTO> getList();
+
     }
 }

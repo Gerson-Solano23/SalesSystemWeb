@@ -18,7 +18,7 @@ namespace SalesSystem.BLL.Services
         private readonly ISalesRepository _saleRepository;
         private readonly IGenericRepository<SaleDetail> _saleDetailsRespository;
         private readonly IMapper _mapper;
-
+        public static List<ReportDTO> ReportTEMP { get; set; }
         public SaleService(ISalesRepository saleRepository, IGenericRepository<SaleDetail> saleDetailsRespository, IMapper mapper)
         {
             _saleRepository = saleRepository;
@@ -101,9 +101,14 @@ namespace SalesSystem.BLL.Services
 
                 throw;
             }
-
-            return _mapper.Map<List<ReportDTO>>(ResultList);
+            ReportTEMP = _mapper.Map<List<ReportDTO>>(ResultList);
+            return ReportTEMP;
         }
 
+
+        public List<ReportDTO> getList()
+        {
+            return ReportTEMP;
+        }
     }
 }
