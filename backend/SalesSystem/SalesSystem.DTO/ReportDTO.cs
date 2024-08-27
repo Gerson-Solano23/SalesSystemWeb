@@ -14,6 +14,7 @@ namespace SalesSystem.DTO
         public string TotalSale { get; set; }
         public string Product { get; set; }
         public string Price { get; set; }
+        public string quantity { get; set; }
         public string Total { get; set; }
 
     }
