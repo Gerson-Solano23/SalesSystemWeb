@@ -12,6 +12,8 @@ using SalesSystem.DAL.Repositories;
 using SalesSystem.Utility;
 using SalesSystem.BLL.Services.Contract;
 using SalesSystem.BLL.Services;
+using SalesSystem.DTO;
+using Microsoft.AspNetCore.Http;
 
 namespace SalesSystem.IOC
 {
@@ -36,6 +38,12 @@ namespace SalesSystem.IOC
             services.AddScoped<ISale, SaleService>();
             services.AddScoped<IDashBoard, DashBoardService>();
             services.AddScoped<IMenu, MenuService>();
+            services.AddScoped<IFileDownload, FileDownloadService>();
+            services.AddScoped<ISendEmail, EmailSenderService>();
+            services.AddScoped<IUploadS3File, UploadFileService>();
+            //services.AddScoped<IFormFile, UploadFileService>();
+            
+
         }
     }
 }
