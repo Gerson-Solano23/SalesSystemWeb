@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SalesSystem.Entity;
-
+using SalesSystem.DTO;
+using Microsoft.Data.SqlClient;
+using System.Globalization;
 namespace SalesSystem.DAL.DbSalesContext;
 
 public partial class DBSalesContext : DbContext
@@ -35,6 +37,85 @@ public partial class DBSalesContext : DbContext
 
     public virtual DbSet<Usuario> Usuario { get; set; }
 
+    public virtual DbSet<S3DetailsFile> S3DetailsFile { get; set; }
+
+    public virtual DbSet<TopProductsDTO> TopProductsDTO { get; set; }
+    public async Task<List<TopProductsDTO>> getTopTenProductsMonthly(int month, int year)
+    {
+        try
+        {
+            var monthParam = new SqlParameter("@month", month);
+            var yearParam = new SqlParameter("@year", year);
+            // Llama al procedimiento almacenado utilizando FromSqlRawAsync
+            var listTopProducts = await this.TopProductsDTO.FromSqlRaw("EXEC CSP_TopProducts_Monthly @month, @year", monthParam, yearParam).ToListAsync();
+
+            // Si el procedimiento almacenado devuelve usuarios, devuelve el primero (o null si no hay ninguno)
+            return listTopProducts;
+        }
+        catch (Exception ex)
+        {
+            // Maneja cualquier excepción que pueda ocurrir durante la ejecución del SP
+            throw;
+        }
+    }
+    public async Task<List<TopProductsDTO>> getTopTenProductsLastWeek()
+    {
+        try
+        {
+            // Llama al procedimiento almacenado utilizando FromSqlRawAsync
+            var listTopProducts = await this.TopProductsDTO.FromSqlRaw("EXEC CSP_TopProducts_LastWeek").ToListAsync();
+
+            return listTopProducts;
+        }
+        catch (Exception ex)
+        {
+            // Maneja cualquier excepción que pueda ocurrir durante la ejecución del SP
+            throw;
+        }
+    }
+    public async Task<List<TopProductsDTO>> getTopTenProductsYearly(int year)
+    {
+        try
+        {
+            var yearParam = new SqlParameter("@year", year);
+            // Llama al procedimiento almacenado utilizando FromSqlRawAsync
+            var listTopProducts = await this.TopProductsDTO.FromSqlRaw("EXEC CSP_TopProducts_Yearly  @year", yearParam).ToListAsync();
+
+            // Si el procedimiento almacenado devuelve usuarios, devuelve el primero (o null si no hay ninguno)
+            return listTopProducts;
+        }
+        catch (Exception ex)
+        {
+            // Maneja cualquier excepción que pueda ocurrir durante la ejecución del SP
+            throw;
+        }
+    }
+    public async Task<List<TopProductsDTO>> getTopTenProductsRangeDates(string startDate, string endDate)
+    {
+        try
+        {
+            DateTime dateStart = DateTime.ParseExact(startDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+            DateTime dateEnd = DateTime.ParseExact(endDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+
+            string formattedStartDate = dateStart.ToString("yyyy-MM-dd");
+            string formattedEndDate = dateEnd.ToString("yyyy-MM-dd");
+
+            var startDateParam = new SqlParameter("@startDate", formattedStartDate);
+            var endDateParam = new SqlParameter("@endDate", formattedEndDate);
+
+            var listTopProducts = await this.TopProductsDTO
+                .FromSqlRaw("EXEC CSP_TopProducts_RangeDates @startDate, @endDate", startDateParam, endDateParam)
+                .ToListAsync();
+
+            return listTopProducts;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    //CSP_TopProducts_RangeDates
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
