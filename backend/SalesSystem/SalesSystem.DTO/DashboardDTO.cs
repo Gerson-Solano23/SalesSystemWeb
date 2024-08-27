@@ -12,5 +12,6 @@ namespace SalesSystem.DTO
         public string TotalRevenue { get; set; }
         public int TotalProducts { get; set; }
         public List<WeeklySalesDTO> SalesLastWeek { get; set; }
+        public List<TopProductsDTO> topProducts { get; set; }
     }
 }
