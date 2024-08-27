@@ -21,12 +21,14 @@
     "@angular/platform-browser": "^18.0.0",
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
+    "bootstrap": "^5.3.3",
     "chart.js": "^4.4.3",
     "moment": "^2.29.4",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.12.2",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
+    "xlsx-style": "^0.8.13",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {

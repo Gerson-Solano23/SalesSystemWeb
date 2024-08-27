@@ -37,8 +37,10 @@
               }
             ],
             "styles": [
-              "@angular/material/prebuilt-themes/azure-blue.css",
-              "src/styles.css"
+               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "@angular/material/prebuilt-themes/cyan-orange.css",
+              "src/styles.scss"
+             
             ],
             "scripts": []
           },
@@ -97,11 +99,15 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "@angular/material/prebuilt-themes/azure-blue.css",
-              "src/styles.css"
+            "styles": [       
+              "@angular/material/prebuilt-themes/cyan-orange.css",
+              "src/styles.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/@popperjs/core/dist/umd/popper.min.js",
+              "SalesSystemWeb/node_modules/bootstrap/dist/js/bootstrap.min.js"
+            ]
           }
         }
       }
