@@ -87,18 +87,18 @@ namespace SalesSystem.BLL.Services
             var ResultList = new List<SaleDetail>();
             try
             {
-                DateTime StartDate = DateTime.ParseExact(startDate, "dd/MM/yyyy", new CultureInfo("es-CR"));
-                DateTime EndDate = DateTime.ParseExact(endDate, "dd/MM/yyyy", new CultureInfo("es-CR"));
+                // Cambia el formato aquí a "yyyy-MM-dd"
+                DateTime StartDate = DateTime.ParseExact(startDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime EndDate = DateTime.ParseExact(endDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
 
                 ResultList = await query.Include(p => p.IdProductNavigation)
                     .Include(s => s.IdSaleNavigation)
-                    .Where(x=>x.IdSaleNavigation.DateRegistry.Value.Date >= StartDate.Date && 
-                     x.IdSaleNavigation.DateRegistry.Value.Date <= EndDate.Date)
+                    .Where(x => x.IdSaleNavigation.DateRegistry.Value.Date >= StartDate.Date &&
+                        x.IdSaleNavigation.DateRegistry.Value.Date <= EndDate.Date)
                     .ToListAsync();
             }
             catch (Exception)
             {
-
                 throw;
             }
             ReportTEMP = _mapper.Map<List<ReportDTO>>(ResultList);

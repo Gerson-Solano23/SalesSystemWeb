@@ -13,7 +13,7 @@ using SalesSystem.Utility;
 using SalesSystem.BLL.Services.Contract;
 using SalesSystem.BLL.Services;
 using SalesSystem.DTO;
-using Microsoft.AspNetCore.Http;
+using Microsoft.ML;
 
 namespace SalesSystem.IOC
 {
@@ -40,9 +40,15 @@ namespace SalesSystem.IOC
             services.AddScoped<IMenu, MenuService>();
             services.AddScoped<IFileDownload, FileDownloadService>();
             services.AddScoped<ISendEmail, EmailSenderService>();
+            // services.AddSingleton<IUploadS3File, UploadFileService>();
             services.AddScoped<IUploadS3File, UploadFileService>();
+
+            services.AddScoped<IDataPrediction, DataPredictionService>();
+         
+            services.AddSingleton<MLContext>(sp => new MLContext());
             //services.AddScoped<IFormFile, UploadFileService>();
-            
+            services.AddSingleton<IWeeklyTask, WeeklyTaskService>();
+            services.AddHostedService<WeeklyTaskService>();
 
         }
     }

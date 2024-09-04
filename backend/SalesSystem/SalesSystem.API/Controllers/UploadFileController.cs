@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.HPSF;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
+using SalesSystem.Entity;
 
 namespace SalesSystem.API.Controllers
 {
@@ -21,21 +23,21 @@ namespace SalesSystem.API.Controllers
         [HttpPost]
         [Route("UploadFile")]
         [Authorize(Policy = "Admin_Supervisor")]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
+        public async Task<IActionResult> UploadFile([FromForm] byte[] fileData, string fileName, string fileContentType)
         {
             var response = new Response<string>();
             try
             {
-                if (file == null)
+                if (fileData == null)
                 {
                     response.status = false;
                     response.message = "File not found";
                     return BadRequest(response);
                 }
 
-                
 
-                if (await _uploadS3File.UploadFile(file))
+
+                if (await _uploadS3File.UploadFile(fileData, fileName, fileContentType))
                 {
                     response.status = true;
                     response.message = "File uploaded successfully";
@@ -130,6 +132,38 @@ namespace SalesSystem.API.Controllers
                 response.message = ex.Message;
                 return BadRequest(response);
             }
+        }
+
+        [HttpGet]
+        [Route("getReportsPerMonth")]
+        [Authorize(Policy = "Admin_Supervisor")]
+        public async Task<IActionResult> getReportsPerMonth(string month, string year)
+        {
+            var response = new Response<List<string>>();
+            try
+            {
+                var list = await _uploadS3File.getListFilesPerMonth(month, year);
+                if (list != null)
+                {
+                    response.status = true;
+                    response.data = list;
+                    return Ok(response);
+                }
+                else
+                {
+                    response.status = false;
+                    response.message = "Error get list files";
+                    return BadRequest(response);
+                }      
+            }
+            catch (Exception ex)
+            {
+                response.status = false;
+                response.message = ex.Message;
+                return BadRequest(response);
+            }
+
+            
         }
     }
 }

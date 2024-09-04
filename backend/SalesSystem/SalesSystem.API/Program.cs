@@ -1,6 +1,7 @@
 
-
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using SalesSystem.BLL.Services;
 using SalesSystem.IOC;
 var builder = WebApplication.CreateBuilder(args);
 string? key = Environment.GetEnvironmentVariable("CERTIFICATE_KEY");
@@ -10,7 +11,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddHostedService<WeeklyTaskService>();
 builder.Services.InjectDependencies(builder.Configuration);
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(opt =>
 {

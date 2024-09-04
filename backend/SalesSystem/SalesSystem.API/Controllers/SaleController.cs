@@ -14,11 +14,13 @@ namespace SalesSystem.API.Controllers
     {
         private readonly ISale _saleService;
         private readonly IFileDownload _fileDownload;
+        private readonly IDataPrediction _dataPrediction;
         //public List<ReportDTO> ReportTEMP = new List<ReportDTO>();
-        public SaleController(ISale saleService, IFileDownload fileDownload)
+        public SaleController(ISale saleService, IFileDownload fileDownload, IDataPrediction dataPrediction)
         {
             _saleService = saleService;
             _fileDownload = fileDownload;
+            _dataPrediction = dataPrediction;
         }
 
         [HttpGet]
@@ -34,7 +36,7 @@ namespace SalesSystem.API.Controllers
             {
                 response.status = true;
                 response.data = await _saleService.History(searchBy, saleNumber, Startdate, endDate);
-
+               // _dataPrediction.RunModelOperations();
                 return Ok(response);
             }
             catch (Exception ex)
@@ -76,7 +78,7 @@ namespace SalesSystem.API.Controllers
             {
                 response.status = true;
                 response.data = await _saleService.Create(entity);
-
+                
                 return Ok(response);
             }
             catch (Exception ex)

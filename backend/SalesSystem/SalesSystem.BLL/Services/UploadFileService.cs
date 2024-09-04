@@ -2,8 +2,8 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using NPOI.HPSF;
 using NPOI.Util;
 using SalesSystem.BLL.Services.Contract;
@@ -11,6 +11,7 @@ using SalesSystem.DAL.DbSalesContext;
 using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.Entity;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,20 +25,20 @@ namespace SalesSystem.BLL.Services
         private readonly static string AWSECRETKEY = Environment.GetEnvironmentVariable("AWSKEYSECRET");
         private readonly static string AWSBUCKETNAME = Environment.GetEnvironmentVariable("BUCKETNAME");
 
-        private readonly DBSalesContext _dbContext;
         private readonly IGenericRepository<S3DetailsFile> _uploadFileService;
-        private IFormFile file;
 
 
-        public UploadFileService(DBSalesContext dbContext, IGenericRepository<S3DetailsFile> uploadFileService)
+        public UploadFileService(IGenericRepository<S3DetailsFile> uploadFileService)
         {
-            _dbContext = dbContext;
-            _uploadFileService = uploadFileService;           
+            _uploadFileService = uploadFileService;
         }
 
-        public async Task<bool> UploadFile(IFormFile fileData)
+        public async Task<bool> UploadFile(byte[] fileData, string fileName, string fileContentType)
         {
-            this.file = fileData;
+            if (fileData == null || fileName == null || fileContentType == null)
+            {
+                return false;
+            }
             try
             {
                 using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
@@ -52,28 +53,44 @@ namespace SalesSystem.BLL.Services
                         #6 Por ultimo al objeto inicializado de TransferUtility se utiliza la funcion / interfaz de UploadAsync pasandole el el objeto inicializado de 
                             TransferUtilityUploadRequest
                     */
-                    using (var memorystream = new MemoryStream())
+                    using (var memoryStream = new MemoryStream(fileData))
                     {
-                        this.file.CopyTo(memorystream);
                         var request = new TransferUtilityUploadRequest
                         {
-                            InputStream = memorystream,
-                            Key = this.file.FileName,
+                            InputStream = memoryStream,
+                            Key = fileName,
                             BucketName = AWSBUCKETNAME,
-                            ContentType = this.file.ContentType,
-
+                            ContentType = fileContentType
                         };
 
                         var transferUtility = new TransferUtility(amazonS3client);
                         await transferUtility.UploadAsync(request);
                     }
+
+                    //using (MemoryStream stream = new MemoryStream(fileData))
+                    //{
+
+
+                    //    var request = new TransferUtilityUploadRequest
+                    //    {
+                    //        InputStream = stream,
+                    //        Key = fileName,
+                    //        BucketName = AWSBUCKETNAME,
+                    //        ContentType = fileContentType,
+
+                    //    };
+                    //}
+                    //var transferUtility = new TransferUtility(amazonS3client);
+                    //await transferUtility.UploadAsync(request);
+
                 }
                 S3DetailsFile fileDetails = new S3DetailsFile();
-                fileDetails.FileName = this.file.FileName;
-                fileDetails.FileType = this.file.ContentType;
+                fileDetails.FileDate = DateTime.UtcNow;
+                fileDetails.FileName = fileName;
+                fileDetails.FileType = fileContentType;
 
 
-                var file = await _uploadFileService.CreateAsync(fileDetails);
+                S3DetailsFile file = await _uploadFileService.CreateAsync(fileDetails);
                 if (file != null)
                 {
                     return true;
@@ -91,38 +108,40 @@ namespace SalesSystem.BLL.Services
         }
         public async Task<bool> DeleteFile(string fileName)
         {
+            bool result = false;
             try
             {
-                using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
+                S3DetailsFile fileDetails = new S3DetailsFile();
+
+                var query = await _uploadFileService.Consult();
+                fileDetails = query.FirstOrDefaultAsync(x => x.FileName == fileName).Result;
+                var response = await _uploadFileService.DeleteAsync(fileDetails);
+                //_dbContext.S3DetailsFile.Remove(fileDetails);
+                if (response == true)
                 {
-                    var transferUtility = new TransferUtility(amazonS3client);
-                    await transferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest()
+                    using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
                     {
-                        BucketName = AWSBUCKETNAME,
-                        Key = fileName
+                        var transferUtility = new TransferUtility(amazonS3client);
+                        await transferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest()
+                        {
+                            BucketName = AWSBUCKETNAME,
+                            Key = fileName
 
-                    });
-
-
+                        });
+                    }
                 }
 
-                using (var context = new DBSalesContext())
-                {
+                
 
-                    S3DetailsFile fileDetails = new S3DetailsFile();
-                    fileDetails = await context.S3DetailsFile.FirstOrDefaultAsync(x => x.FileName.ToLower() == fileName.ToLower());
+                result = true;
 
-                    context.S3DetailsFile.Remove(fileDetails);
-                    context.SaveChanges();
-                }
 
-                return true;
+
+                return result;
 
             }
             catch (Exception)
             {
-                return false;
-
                 throw;
             }
         }
@@ -154,12 +173,26 @@ namespace SalesSystem.BLL.Services
                     await response.ResponseStream.CopyToAsync(memoryStream);
                     byte[] fileData = memoryStream.ToArray();
 
-                   
+
                     return fileData;
                 }
             }
         }
 
-       
+        public async Task<List<string>> getListFilesPerMonth(string month, string year)
+        {
+            try
+            {
+                var list = await _uploadFileService.Consult();
+                return list.Where(x => x.FileDate.Value.Month.ToString() == month && x.FileDate.Value.Year.ToString() == year).Select(x => x.FileName).ToList();
+                //Where(x => x.FileDate.Value.Month.ToString() == month && x.FileDate.Value.Year.ToString() == year).Select(x => x.FileName).ToListAsync();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

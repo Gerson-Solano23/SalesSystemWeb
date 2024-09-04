@@ -16,5 +16,7 @@ namespace SalesSystem.BLL.Services.Contract
 
         bool DeleteFile(int idUser);
 
+        Task<byte[]> GetExcelFile(List<ReportDTO> list);
+
     }
 }
