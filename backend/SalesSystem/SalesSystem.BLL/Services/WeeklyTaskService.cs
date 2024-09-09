@@ -34,18 +34,19 @@ namespace SalesSystem.BLL.Services
                     var fileDownload = scope.ServiceProvider.GetRequiredService<IFileDownload>();
 
                     DateTime now = DateTime.Now;
-                    CultureInfo ci = CultureInfo.CurrentCulture;
+                    CultureInfo ci = new CultureInfo("es-CR");
                     Calendar calendar = ci.Calendar;
-
+                    
                     DayOfWeek firstDayOfWeek = ci.DateTimeFormat.FirstDayOfWeek;
                     CalendarWeekRule weekRule = ci.DateTimeFormat.CalendarWeekRule;
 
                     int weekOfYear = calendar.GetWeekOfYear(now, weekRule, firstDayOfWeek);
-
+                    string date = "Week-"+weekOfYear;
+                    date+="-"+ now.ToString("yyyy-MM-dd");
                     var firstDateOfWeek = FirstDateOfWeek(now.Year, weekOfYear);
                     var lastDateOfWeek = GetLastDayOfWeek(now.Year, weekOfYear);
 
-                    var listReports = await sale.Report(firstDateOfWeek.ToString("yyyy-MM-dd"), lastDateOfWeek.ToString("yyyy-MM-dd"));
+                    var listReports = await sale.Report(firstDateOfWeek.ToString("dd/MM/yyyy"), lastDateOfWeek.ToString("dd/MM/yyyy"));
 
                     if (listReports.Count > 0)
                     {
@@ -53,7 +54,7 @@ namespace SalesSystem.BLL.Services
                         if (file != null)
                         {
                             byte[] fileBytes = file;
-                            string fileName = "myfile.xlsx";
+                            string fileName = "Report_"+date+".xlsx";
                             string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                          
 
@@ -100,11 +101,12 @@ namespace SalesSystem.BLL.Services
                 else
                 {
                     // Espera hasta el siguiente día para verificar
-                    await Task.Delay(TimeSpan.FromDays(7), stoppingToken);
+                    await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
                 }
             }
 
             _logger.LogInformation("WeeklyTaskService is stopping.");
+
         }
 
         public static DateTime GetLastDayOfWeek(int year, int weekNumber)

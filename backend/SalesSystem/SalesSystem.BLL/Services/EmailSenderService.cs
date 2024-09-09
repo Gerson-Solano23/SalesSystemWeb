@@ -15,7 +15,7 @@ namespace SalesSystem.BLL.Services
     public class EmailSenderService : ISendEmail
     {
         private static string emailAdress = "greateindustries@outlook.com";
-        private static string password = "c.o.m.oHKT2310";
+        private static string password = Environment.GetEnvironmentVariable("PASSGREATEINDUSTRIES");
 
         public async Task<bool> SendEmail(EmailDTO email)
         {

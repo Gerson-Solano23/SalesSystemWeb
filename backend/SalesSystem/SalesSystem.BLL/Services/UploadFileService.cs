@@ -128,14 +128,9 @@ namespace SalesSystem.BLL.Services
                             Key = fileName
 
                         });
+                        result = true;
                     }
                 }
-
-                
-
-                result = true;
-
-
 
                 return result;
 
