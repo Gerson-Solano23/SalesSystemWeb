@@ -16,11 +16,12 @@ namespace SalesSystem.BLL.Services
     {
         private readonly IGenericRepository<Product> _productRepository;
         private readonly IMapper _mapper;
-
-        public ProductService(IGenericRepository<Product> repositoryProduct, IMapper mapper)
+        private readonly ISendEmail sendEmail;
+        public ProductService(IGenericRepository<Product> repositoryProduct, IMapper mapper, ISendEmail send)
         {
             _mapper = mapper;
             _productRepository = repositoryProduct;
+            sendEmail = send;
         }
 
         public async Task<ProductDTO> Create(ProductDTO entity)
@@ -100,7 +101,12 @@ namespace SalesSystem.BLL.Services
                 var query = await _productRepository.Consult();
 
                 var productList = query.Include(x => x.IdCategoryNavigation).ToList();
-
+                productList.AddRange(productList);
+                var listFilter = productList.Where(x => x.Stock == 0);
+                if (listFilter.Count() > 0)
+                {
+                    //sendEmail.notifyStockCero(_mapper.Map<List<ProductDTO>>(listFilter.ToList()));
+                }
                 return _mapper.Map<List<ProductDTO>>(productList.ToList());
             }
             catch (Exception)

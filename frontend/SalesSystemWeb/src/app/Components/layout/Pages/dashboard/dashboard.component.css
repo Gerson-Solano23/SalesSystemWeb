@@ -1,0 +1,81 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.subtitle-card-totals {
+    font-size: 1.2em;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    display: ruby-text;
+}
+
+@media (max-width: 1024px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.example-month-picker .mat-calendar-period-button {
+    pointer-events: none;
+  }
+  
+  .example-month-picker .mat-calendar-arrow {
+    display: none;
+  }
+
+.mat-sort-header-container {
+    align-items: center;
+}
+.topHeaderTitle{
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: ruby-text;
+}
+
+.form-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 15px;
+}
+
+mat-form-field, .search-button, .export-button {
+    flex: 1 1 calc(25% - 30px); /* Por defecto, ocupa 25% del ancho menos el gap */
+}
+
+.search-button {
+    margin-top: 10px;
+    min-width: 100px; /* Ancho mínimo para evitar que se haga muy angosto */
+}
+
+@media (max-width: 800px) {
+    mat-form-field, .search-button {
+        flex: 1 1 calc(50% - 30px); /* En pantallas medianas, ocupa 50% del ancho menos el gap */
+    }
+}
+
+@media (max-width: 600px) { 
+    mat-form-field, .search-button {
+        flex: 1 1 100%; /* Ocupa el 100% del ancho */
+        margin-right: 0;
+    }
+    .search-button{
+        width: 100%;
+    }
+}
+
+.icon-mat-tab{
+    width: 35px !important;
+}

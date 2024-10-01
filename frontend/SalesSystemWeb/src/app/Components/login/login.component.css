@@ -17,6 +17,7 @@ form {
 .loginCard {
     text-align: center;
     padding-bottom: 15px;
+    background: rgba(11, 41, 54, 0.7);
 }
 
 /* Imagen de perfil */
@@ -42,16 +43,25 @@ form {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #6f86d6, #cfd3e6);
+   
     margin: 0; /* Asegúrate de que no hay márgenes en el body */
+}
+.imgFondo {
+    position: absolute; /* Asegura que la imagen esté fija en el fondo */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Ancho completo de la ventana */
+    height: 100vh; /* Alto completo de la ventana */
+    object-fit: cover; /* Ajusta la imagen para cubrir todo el fondo */
+    z-index: -1; /* Asegura que esté detrás de otros elementos */
 }
 
 /* Contenedor principal */
 .container {
     display: flex;
-    background: #fff;
+    background: rgba(34, 94, 121, 0.7); 
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    
     overflow: hidden;
     max-width: 800px;
     width: 100%;
@@ -61,7 +71,7 @@ form {
 
 /* Sección izquierda */
 .left {
-    background: #f8f9fa;
+
     padding: 40px;
     display: flex;
     justify-content: center;
@@ -87,7 +97,12 @@ form {
     align-items: center;
 }
 
-
+img{
+    mask-image: linear-gradient(
+        black 90%,
+        transparent
+    );
+}
 form {
     width: 100%;
 }

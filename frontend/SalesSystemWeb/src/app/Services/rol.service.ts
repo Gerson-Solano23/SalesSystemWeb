@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../enviroments/enviroments';
 import { ResponseApi } from '../Interfaces/response-api';
@@ -14,6 +14,17 @@ export class RolService {
   constructor(private http:HttpClient) { }
 
   listRoles():Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}List`);
+    return this.http.get<ResponseApi>(`${this.urlAPI}List`, {headers: this.getDateToken()});
+  }
+
+  getDateToken() {
+    // Recuperar el token desde el localStorage
+    const token = localStorage.getItem('authToken');
+
+    // Crear las cabeceras incluyendo el token Bearer
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return headers;
   }
 }

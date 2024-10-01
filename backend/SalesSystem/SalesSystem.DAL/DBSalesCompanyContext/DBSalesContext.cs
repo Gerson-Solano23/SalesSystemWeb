@@ -219,6 +219,10 @@ public partial class DBSalesContext : DbContext
                 .HasDefaultValueSql("((1))")
                 .HasColumnName("status");
             entity.Property(e => e.Stock).HasColumnName("stock");
+            entity.Property(e => e.img)
+                .HasMaxLength(1000)
+                .IsUnicode(false)
+                .HasColumnName("img");
 
             entity.HasOne(d => d.IdCategoryNavigation).WithMany(p => p.Products)
                 .HasForeignKey(d => d.IdCategory)

@@ -1,9 +1,9 @@
 export interface Report {
-    NumberDocument: string,
-    PaymentType: string,
-    DateRegistry: string,
-    TotalSale: string,
-    Product: string,
-    Price: string,
-    Total: string
+    numberDocument: string,
+    paymentType: string,
+    dateRegistry: string,
+    totalSale: string,
+    product: string,
+    price: string,
+    total: string
 }

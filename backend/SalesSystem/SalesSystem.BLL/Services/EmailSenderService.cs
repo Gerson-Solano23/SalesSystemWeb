@@ -16,6 +16,7 @@ namespace SalesSystem.BLL.Services
     {
         private static string emailAdress = "greateindustries@outlook.com";
         private static string password = Environment.GetEnvironmentVariable("PASSGREATEINDUSTRIES");
+        private static string emailNotification = Environment.GetEnvironmentVariable("MYOWNEMAIL");
 
         public async Task<bool> SendEmail(EmailDTO email)
         {
@@ -197,6 +198,90 @@ namespace SalesSystem.BLL.Services
             pdfStream.Close();
 
             return bytesFile;
+        }
+
+        public async Task<bool> notifyStockCero(List<ProductDTO> list)
+        {
+            bool result = false;
+            try
+            {
+                var messageNotify = new MailMessage();
+                using (SmtpClient client = new SmtpClient())
+                {
+                    client.Host = "smtp-mail.outlook.com";
+                    client.Port = 587; // The Port SSL/TLS
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = new NetworkCredential(emailAdress, password);
+                    client.EnableSsl = true; // Enable SSL/TLS
+
+                    //Make the message and componet about that 
+                    using (messageNotify = new MailMessage())
+                    {
+                        messageNotify.From = new MailAddress(emailAdress);
+                        messageNotify.To.Add(emailNotification);
+                        messageNotify.Subject = "ALERT STOCK - GREATE INDUSTRIES S.A";
+
+                        string tablaProductos = "<table style='border-collapse: collapse; width: 100%;'>";
+                        tablaProductos += "<tr style='background-color: #f2f2f2;'><th style='border: 1px solid #ddd; padding: 8px;'>Producto</th><th style='border: 1px solid #ddd; padding: 8px;'>Stock</th><th style='border: 1px solid #ddd; padding: 8px;'>Status</th></tr>";
+                        string status = "Active";
+                        foreach (var producto in list)
+                        {
+                            if (producto.Status == 1) {
+                                status = "Active";
+                            }
+                            else
+                            {
+                                status = "Inactive";
+                            }
+                            tablaProductos += $"<tr><td style='border: 1px solid #ddd; padding: 8px;'>{producto.Name}</td><td style='border: 1px solid #ddd; padding: 8px;'>{producto.Stock}</td><td style='border: 1px solid #ddd; padding: 8px;'>{status}</td></tr>";
+                        }
+
+                        tablaProductos += "</table>";
+                        messageNotify.Body = @"
+                                <html lang='es'>
+                                <head>
+                                    <meta charset=""UTF-8"">
+                                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                                    <title>Tabla de productos</title>
+                                    <style>
+                                        table {
+                                            width: 100%;
+                                            border-collapse: collapse;
+                                        }
+                                        th, td {
+                                            border: 1px solid #ddd;
+                                            padding: 8px;
+                                            text-align: left;
+                                        }
+                                        th {
+                                            background-color: #f2f2f2;
+                                        }
+                                    </style>
+                                </head>
+                                    <body>
+                                        <h1 style='color: blue;'>LIST OF PRODUCTS WITH CERO STOCK</h1>
+ 
+                                        <div style='background-color: lightgray; padding: 10px;'>
+                                              " + tablaProductos + @"
+                                        </div>
+
+                                    </body>
+                                </html>";
+
+                        // Indicar que el cuerpo es HTML
+                        messageNotify.IsBodyHtml = true;
+                        //message.Attachments.Add(attachment);
+                        await client.SendMailAsync(messageNotify);
+                        result = true;
+                    }
+                }
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

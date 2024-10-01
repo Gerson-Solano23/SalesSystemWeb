@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DTO;
@@ -10,6 +11,7 @@ namespace SalesSystem.API.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
+
     public class SaleController : ControllerBase
     {
         private readonly ISale _saleService;
@@ -26,6 +28,7 @@ namespace SalesSystem.API.Controllers
         [HttpGet]
         [Route("History")]
         [Authorize(Policy = "Admin_Supervisor_Employee")]
+        [EnableRateLimiting("fixed")]
         public async Task<IActionResult> History(string searchBy, string? saleNumber, string? Startdate, string? endDate)
         {
             var response = new Response<List<SaleDTO>>();
@@ -36,7 +39,7 @@ namespace SalesSystem.API.Controllers
             {
                 response.status = true;
                 response.data = await _saleService.History(searchBy, saleNumber, Startdate, endDate);
-               // _dataPrediction.RunModelOperations();
+               //_dataPrediction.RunModelOperations();
                 return Ok(response);
             }
             catch (Exception ex)

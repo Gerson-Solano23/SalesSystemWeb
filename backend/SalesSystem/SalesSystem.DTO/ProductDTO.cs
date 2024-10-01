@@ -15,5 +15,7 @@ namespace SalesSystem.DTO
         public int? Stock { get; set; }
         public string? Price { get; set; }
         public byte? Status { get; set; }
+
+        public string? img { get; set; }
     }
 }

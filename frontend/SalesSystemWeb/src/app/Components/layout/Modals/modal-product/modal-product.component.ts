@@ -36,6 +36,7 @@ export class ModalProductComponent implements OnInit{
       stock: ['', Validators.required],
       price: ['', Validators.required],
       status: ['', Validators.required],
+      img: ['', Validators.required],
     });
     if (this.productData != null) {
       this.actionTitle = 'Edit';
@@ -59,7 +60,8 @@ export class ModalProductComponent implements OnInit{
         idCategory: this.productData.idCategory,
         stock: this.productData.stock,
         price: this.productData.price.toString(),
-        status: this.productData.status.toString()
+        status: this.productData.status.toString(),
+        img: this.productData.img.toString()
       });
       
     }
@@ -73,7 +75,8 @@ export class ModalProductComponent implements OnInit{
       categoryDescription:"",
       stock: this.formProduct.value.stock,
       price: this.formProduct.value.price.toString(),
-      status: parseInt(this.formProduct.value.status)
+      status: parseInt(this.formProduct.value.status),
+      img: this.formProduct.value.img
     }
     if (this.productData == null) {
       this.productService.createProduct(product).subscribe({

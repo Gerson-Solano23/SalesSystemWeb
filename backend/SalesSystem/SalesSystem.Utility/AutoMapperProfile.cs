@@ -41,14 +41,17 @@ namespace SalesSystem.Utility
 
             #region Product
             CreateMap<Product, ProductDTO>()
-                .ForMember(destination => destination.CategoryDescription, option => option.MapFrom(source => source.IdCategoryNavigation.Name))
-                .ForMember(destination => destination.Price, option => option.MapFrom(source => Convert.ToString(source.Price.Value, new CultureInfo("es-CR"))))
-                .ForMember(destination => destination.Status, option => option.MapFrom(source => source.Status == true ? 1 : 0));
+               .ForMember(destination => destination.CategoryDescription, option => option.MapFrom(source => source.IdCategoryNavigation.Name))
+               .ForMember(destination => destination.Price, option => option.MapFrom(source => source.Price.HasValue ? Convert.ToString(source.Price.Value, new CultureInfo("es-CR")) : "0"))
+               .ForMember(destination => destination.Status, option => option.MapFrom(source => source.Status == true ? 1 : 0))
+               .ForMember(destination => destination.img, option => option.MapFrom(source => source.img ?? ""));
 
             CreateMap<ProductDTO, Product>()
-              .ForMember(destination => destination.IdCategoryNavigation, option => option.Ignore())
-              .ForMember(destination => destination.Price, option => option.MapFrom(source => Convert.ToDecimal(source.Price, new CultureInfo("es-CR"))))
-              .ForMember(destination => destination.Status, option => option.MapFrom(source => source.Status == 1 ? true : false));
+                .ForMember(destination => destination.IdCategoryNavigation, option => option.Ignore())
+                .ForMember(destination => destination.Price, option => option.MapFrom(source => !string.IsNullOrEmpty(source.Price) ? Convert.ToDecimal(source.Price, new CultureInfo("es-CR")) : (decimal?)null))
+                .ForMember(destination => destination.Status, option => option.MapFrom(source => source.Status == 1 ? true : false))
+                .ForMember(destination => destination.img, option => option.MapFrom(source => source.img ?? ""));
+
             #endregion Product
 
             #region Sale

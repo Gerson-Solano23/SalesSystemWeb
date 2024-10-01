@@ -24,7 +24,8 @@ namespace SalesSystem.API.Controllers
         [HttpGet]
         [Route("List")]
         [OutputCache(PolicyName = "products")]
-        [Authorize(Policy = "Admin_Supervisor")]
+        // [Authorize(Policy = "Admin_Supervisor")]
+        [AllowAnonymous]
         public async Task<IActionResult> List()
         {
             var response = new Response<List<ProductDTO>>();

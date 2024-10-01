@@ -1,0 +1,10 @@
+@use '@angular/material' as mat;
+@include mat.core();
+
+$ligth-theme: mat.define-light-theme((
+    color: (
+        primary: mat.define-palette($mat-indigo),
+        accent: mat.define-palette($mat-pink),
+        warn: mat.define-palette($mat-red)
+    )
+));

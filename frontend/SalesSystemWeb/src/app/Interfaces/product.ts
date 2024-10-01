@@ -5,5 +5,6 @@ export interface Product {
     categoryDescription: string,
     stock: number,
     price: string,
-    status: number
+    status: number,
+    img: string
 }

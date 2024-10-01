@@ -1,8 +1,10 @@
+import { SaleDetail } from "./sale-detail";
+
 export interface Sale {
-    IdSale: number,
-    NumberDocument: string,
-    PaymentType: string,
-    Total_Text: string,
-    DateRegistry: string,
-    SaleDetails: any
+    idSale: number,
+    numberDocument: string,
+    paymentType: string,
+    total_Text: string,
+    dateRegistry: string,
+    saleDetails: SaleDetail[]
 }

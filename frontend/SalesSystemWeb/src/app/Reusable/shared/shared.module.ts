@@ -26,9 +26,13 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MomentDateModule} from '@angular/material-moment-adapter';
-
-
-
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms'; // Importa FormsModule
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 @NgModule({
   declarations: [],
   imports: [
@@ -57,7 +61,12 @@ import {MomentDateModule} from '@angular/material-moment-adapter';
     MatAutocompleteModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MomentDateModule
+    MomentDateModule,
+    FormsModule,
+    MatSlideToggleModule,
+    MatButtonToggleModule,
+    MatTabsModule,
+    MatProgressSpinnerModule
   ],
   providers:[
     MatDatepickerModule,

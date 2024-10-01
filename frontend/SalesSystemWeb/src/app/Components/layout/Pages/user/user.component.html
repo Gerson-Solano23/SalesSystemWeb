@@ -1,15 +1,17 @@
-<h1 style="margin: 20px 0px 0px 40px;">Users</h1>
 
+<h2 class="title-header-page" style="margin: 20px 0px 0px 40px;">Users</h2>
+
+<mat-divider></mat-divider>
 <mat-card style="margin: 20px 40px 40px 40px;">
     <mat-card-title style="padding: 5px;">
-        <button mat-flat-button color="primary" (click)="createUser()">
+        <button mat-flat-button class="primary-button" (click)="createUser()">
             <mat-icon mat-list-icon>add</mat-icon> Add user
         </button>
     </mat-card-title>
     <mat-divider></mat-divider>
 
     <mat-card-content class="dashboard-card-content responsive-table-container">
-        <mat-form-field appearance="fill" style="padding-top: 10px;">
+        <mat-form-field appearance="fill" style="padding-top: 10px; width: 100%;">
             <mat-label>Search</mat-label>
             <input matInput (keyup)="filterResearh($event)" #input>
         </mat-form-field>
@@ -19,7 +21,7 @@
 
                 <ng-container matColumnDef="Consecutivo">
                     <th mat-header-cell *matHeaderCellDef>No.</th>
-                    <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+                    <td mat-cell *matCellDef="let element; let i = index">{{ getConsecutive(i) }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="FullName">
@@ -63,7 +65,7 @@
                 </tr>
 
             </table>
-            <mat-paginator [pageSizeOptions]="[5, 10, 50]" showFirstLastButtons></mat-paginator>
+            <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" (page)="onPageChange($event)" aria-label="Select page"></mat-paginator>
         </div>
 
     </mat-card-content>

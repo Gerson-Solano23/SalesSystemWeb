@@ -1,0 +1,42 @@
+/* You can add global styles to this file, and also import other style files */
+// @import '~@angular/material/prebuilt-themes/azure-blue.css';
+
+html, body { height: 100%;}
+body { margin: 0; font-family: Nunito, "Lato", Montserrat; }
+
+
+.danger-button{
+    background-color: #c94238;
+    color: white;
+}
+
+.warning-button{
+    background-color: #b8c922;
+    color: white;
+}
+
+.title-header-page{
+    font-weight: bolder;
+}
+
+/* styles.css */
+body {
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .dark-theme {
+    background-color: #121212;
+    color: #ffffff;
+  }
+  
+  /* Ajusta los estilos de Material Design si es necesario */
+  .dark-theme .mat-card {
+    background: #424242;
+    color: #ffffff;
+  }
+  
+  .dark-theme .mat-toolbar {
+    background: #333333;
+    color: #ffffff;
+  }
+  

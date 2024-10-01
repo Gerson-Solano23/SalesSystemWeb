@@ -1,0 +1,110 @@
+<h2 class="title-header-page" style="margin: 20px 0px 0px 40px;">Management Docs Files</h2>
+<mat-divider></mat-divider>
+
+<mat-grid-list id="list-grid-mat" [cols]="isXsScreen ? 1 : isSmScreen ? 1 : isMdScreen ? 2 : 2" rowHeight="2:1" class="element-class"  style="gap: 16px; margin-top: 10px; padding-bottom: 0 !important; display: flex; flex-wrap: wrap;">
+
+    <mat-grid-tile class="card-files-component" id="oneMatGrid" style="margin-top: calc(25% + 10px) !important;">
+      <mat-card class="mat-card-size " style="background-color: darkcyan;" id="oneMatGridCard">
+        <mat-card-header class="mat-card-header-reports">
+          <div class="header-left">History Reports</div>
+          <div id="goBackIconButton" class="header-right hide"><mat-icon (click)="goBackMainPanel()" style="cursor: pointer;">arrow_back</mat-icon></div>
+        </mat-card-header>
+        <mat-card-content class="card-mat-content" id="oneMatGridCardContent">
+          <div *ngFor="let year of years" class="col-3 doc-componetFile" style="width: 120px; height: 120px;">
+            <img class="second-column" src="/carpetaIcon.png" alt="" (click)="hideOthersLeesOne('oneMatGrid', year.viewValue)">
+            <h5 class="card-title second-column file-name" style="cursor: pointer; width: max-content;" (click)="hideOthersLeesOne('oneMatGrid', year.viewValue)">
+              {{ year.viewValue }}
+            </h5>
+            <p class="card-text"></p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile class="card-files-component" id="twoMatGrid">
+        <mat-card class="mat-card-size" style="background-color: darkslateblue; ">
+            <mat-card-header>Customers Facturs</mat-card-header>
+            <mat-card-content class="card-mat-content">
+
+            </mat-card-content>
+          </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile class="card-files-component" id="treeMatGrid" style="margin-top: calc(25% + 10px)  !important;">
+      <mat-card class="mat-card-size" style="background-color: dimgray;">
+        <mat-card-header>Contracts and Deals</mat-card-header>
+        <mat-card-content class="card-mat-content">
+
+          <form (ngSubmit)="onSubmit()" #userForm="ngForm" class="file-upload-form">
+            <div class="file-input-container">
+              <input type="file" #fileInput style="display: none" (change)="onFileSelected($event)" accept=".pdf,.txt,.docx,.xlsx">
+              <button mat-raised-button type="button" (click)="fileInput.click()" class="file-select-button">
+                <mat-icon>attach_file</mat-icon>
+                Select File
+              </button>
+              <span *ngIf="selectedFile" class="selected-file-name">{{ selectedFile.name }}</span>
+            </div>
+          
+            <div *ngIf="selectedFile" class="file-preview">
+              <mat-icon class="file-icon">description</mat-icon>
+              <span class="file-type">{{ getFileType(selectedFile) }}</span>
+            </div>
+          
+            <button mat-raised-button color="primary" type="submit" [disabled]="!selectedFile" class="submit-button">
+              <mat-icon>cloud_upload</mat-icon>
+              Upload File
+            </button>
+          </form>
+        
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+    
+
+    <mat-grid-tile class="card-files-component" id="fourMatGrid" style="margin-top: calc(25% + 10px)  !important;">
+        <mat-card class="mat-card-size" style="background-color: darkslategray;">
+            <mat-card-header>Notes Data</mat-card-header>
+            <mat-card-content class="card-mat-content"></mat-card-content>
+          </mat-card>
+    </mat-grid-tile>
+
+
+
+    <mat-grid-tile class="hide" id="fileMonthly" style="position: absolute; top: 0;  transform: translateX(-100%); height: 550px !important; width: 1000px !important;">
+       <mat-card  class="mat-card-size" style="background-color: rgba(129, 179, 179, 0.678);" id="oneMatGridCard">
+          <mat-card-header id="title-filds">Months - {{yearChoose}}</mat-card-header>
+          <mat-card-content class="card-mat-content" id="monthFilesContent">
+            <div *ngFor="let month of months" class="col-3 doc-componetFile" style="width: 120px; height: 120px;">
+              <img class="second-column img-months" src="/carpetaIcon.png" alt="" (click)="showExcelReportPerMonth(month.viewValue)">
+              <h5 class="card-title second-column file-name-months" style="cursor: pointer; width: max-content; justify-content: center; padding-left:10px;" (click)="showExcelReportPerMonth(month.viewValue)">
+                {{ month.viewValue }}
+              </h5>
+              <p class="card-text"></p>
+            </div>
+          </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+
+
+
+    <mat-grid-tile class="hide excelFiles" id="fileExcels" style="position: absolute; top: 0;  transform: translateX(-100%); height: 83vh !important; width: 75% !important; margin-top: 0px; left: 100% !important;">
+      <mat-card  class="mat-card-size" style="background-color: rgba(129, 179, 179, 0.678);" id="oneMatGridCard">
+         <mat-card-header id="title-filds">Month - {{MonthChoose}} / Year - {{yearChoose}}</mat-card-header>
+         <mat-card-content class="card-mat-content" id="ExcelFilesContent">
+           <div *ngFor="let excelFile of excelFiles" class="col-4 doc-componetFile ng-star-inserted" style="width: 120px; height: 120px;  display: flex; flex-direction: column; align-items: center; width: 150px;" (click)="downloadExcelFile(excelFile)">
+            <img class="second-column img-months" src="/xlsxIcon.png" alt="" style="width: 90px; height: 90px;">
+            <h5 class="card-title second-column file-name-months" style="cursor: pointer; width: 100%; text-align: center; word-wrap: break-word; white-space: normal; padding-left: 10px;">
+              {{excelFile}}
+            </h5>
+            <p class="card-text"></p>
+           </div>
+         </mat-card-content>
+     </mat-card>
+   </mat-grid-tile>
+
+
+
+
+  </mat-grid-list>
+

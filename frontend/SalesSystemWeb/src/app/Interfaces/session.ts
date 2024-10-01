@@ -1,6 +1,6 @@
 export interface Session {
-    IdUser: number,
-    FullName: string,
-    Email: string,
-    RolDescription: string,
+    idUser: number,
+    fullName: string,
+    email: string,
+    rolDescription: string,
 }

@@ -12,5 +12,7 @@ namespace SalesSystem.BLL.Services.Contract
         Task<bool> SendEmail(EmailDTO emailDTO);
 
         Task<byte[]> createPDFFile(EmailDTO emailDTO);
+
+        Task<bool> notifyStockCero(List<ProductDTO> list);
     }
 }

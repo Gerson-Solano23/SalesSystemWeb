@@ -1,0 +1,49 @@
+<!-- modal-example.component.html -->
+<div *ngIf="data.title === 'Products'">
+    <h2 mat-dialog-title>Productos con Stock en Cero</h2>
+    <mat-dialog-content>
+        <h4 style="font-size: large;">Products List</h4>
+        <div class="mat-elevation-z8 responsive-table-container">
+            <table mat-table [dataSource]="products">
+
+                <ng-container matColumnDef="Count">
+                    <th mat-header-cell *matHeaderCellDef>No.</th>
+                    <td mat-cell *matCellDef="let element; let i = index">{{ getConsecutive(i) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="Product">
+                    <th mat-header-cell *matHeaderCellDef>Product</th>
+                    <td mat-cell *matCellDef="let element">{{element.name}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="Stock">
+                    <th mat-header-cell *matHeaderCellDef>Stock</th>
+                    <td mat-cell *matCellDef="let element">{{element.stock}}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="tableColums"></tr>
+                <tr mat-row *matRowDef="let row; columns:tableColums;"></tr>
+            </table>
+            <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" (page)="onPageChange($event)" aria-label="Select page"></mat-paginator>
+        </div>
+    </mat-dialog-content>
+  </div>
+  
+  <div *ngIf="data.title === 'Orders'">
+    <h2 mat-dialog-title>¡Hola desde el Modal de Pedidos!</h2>
+    <mat-dialog-content>
+      <p>Este es el contenido del modal para pedidos.</p>
+    </mat-dialog-content>
+  </div>
+  
+  <div *ngIf="data.title === 'Customers'">
+    <h2 mat-dialog-title>¡Hola desde el Modal de Clientes!</h2>
+    <mat-dialog-content>
+      <p>Este es el contenido del modal para clientes.</p>
+    </mat-dialog-content>
+  </div>
+  
+  <mat-dialog-actions>
+    <button mat-button (click)="closeModal()">Cerrar</button>
+  </mat-dialog-actions>
+  

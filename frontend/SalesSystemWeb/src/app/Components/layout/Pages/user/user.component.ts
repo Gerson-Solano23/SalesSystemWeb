@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalUserComponent } from '../../Modals/modal-user/modal-user.component';
 import { User } from '../../../../Interfaces/user';
@@ -12,14 +12,16 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
-  styleUrl: './user.component.css'
+  styleUrls: ['./user.component.css', '../../../../../styles.scss']
 })
 export class UserComponent implements OnInit, AfterViewInit {
 
   columsTable: string[] = ['Consecutivo', 'FullName', 'Email', 'RolDescription', 'Status', 'Actions'];
   dataUsers: User[] = [];  
   dataListusers = new MatTableDataSource(this.dataUsers);
-
+  pageIndex: number = 0;
+  pageSize: number = 10;
+  
   @ViewChild(MatPaginator) paginator!: MatPaginator;  
 
   constructor(
@@ -32,7 +34,9 @@ export class UserComponent implements OnInit, AfterViewInit {
     this.userService.listUsers().subscribe({
       next: (response) => {
         if (response.status) {
-          this.dataListusers = response.data;
+          this.dataUsers = response.data;
+          this.dataListusers.data = this.dataUsers;
+          this.dataListusers.paginator = this.paginator;
         }else{
           this.utilityService.ShowAlert("Users not found", 'Error');
         }
@@ -41,6 +45,7 @@ export class UserComponent implements OnInit, AfterViewInit {
     });  
   }
   ngOnInit(): void {
+    this.utilityService.onlyRolOne();
     this.getListUsers();
   }
 
@@ -91,6 +96,7 @@ export class UserComponent implements OnInit, AfterViewInit {
             if (resultData.status) {
               this.utilityService.ShowAlert('User was successfully removed', 'success');
               this.getListUsers();
+              this.paginator.firstPage();
             }else{
               this.utilityService.ShowAlert('User could not be removed', 'error');
             }
@@ -100,5 +106,13 @@ export class UserComponent implements OnInit, AfterViewInit {
       }
     })
   }
+  
+  onPageChange(event: PageEvent) {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+  }
 
+  getConsecutive(index: number): number {
+    return index + this.pageIndex * this.pageSize + 1;
+  }
 }

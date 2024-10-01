@@ -1,0 +1,117 @@
+
+.full-width {
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.format-Inputs {
+  padding-right: 20px;
+}
+
+.primary-button {
+  width: 40%;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.registry-button {
+  width: 17.5%;
+  margin-top: 40px;
+}
+
+.responsive-table-container {
+  overflow: auto;
+  margin-top: 20px;
+}
+
+.total-button {
+ 
+  width: 50%;
+  margin-bottom: 15px;
+  margin-left: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+      flex-direction: column;
+      align-items: stretch;
+  }
+  .registry-button,
+  .primary-button,
+  .total-button {
+      width: 100%;
+  }
+  .format-Inputs {
+      padding-right: 0;
+  }
+  .form-row .total-button {
+      align-self: center;
+  }
+}
+
+
+
+
+
+/* .full-width {
+    width: 100%;
+  }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+  }
+  .format-Inputs {
+    padding-right: 20px;
+  }
+  .primary-button {
+    width: 40%;
+    align-items: center;
+  }
+  
+  .registry-button {
+    width: 17.5%;
+    margin-top: 40px;
+  }
+  
+  .responsive-table-container {
+    overflow: auto;
+    margin-top: 20px;
+  }
+  .total-button {
+    align-self: flex-end;
+    width: 17.5%;
+  }
+
+  @media (max-width: 768px) {
+    .form-row {
+      flex-direction: column;
+    }
+    .registry-button,
+    .primary-button,
+    .total-button {
+      width: 100%;
+    }
+  }
+
+   */

@@ -1,1 +1,166 @@
-<p>dashboard works!</p>
+<h2 class="title-header-page" style="margin: 20px 0px 0px 40px;">Dashboard</h2>
+
+<mat-divider></mat-divider>
+
+<mat-card style="margin: 20px 40px 40px 40px;">
+    <mat-card-content>
+        <div class="grid-container">
+            <div class="grid-item">
+                <mat-card appearance="outlined">
+                    <mat-card-header>
+                        <div mat-card-avatar>
+                            <mat-icon color="accent">payments</mat-icon>
+                        </div>
+                        <mat-card-title>Total Revenue</mat-card-title>
+                        <mat-card-subtitle class="subtitle-card-totals">$/.{{totalRevenue}}</mat-card-subtitle>
+                    </mat-card-header>
+                </mat-card>
+            </div>
+
+            <div class="grid-item">
+                <mat-card appearance="outlined">
+                    <mat-card-header>
+                        <div mat-card-avatar>
+                            <mat-icon color="warn">sell</mat-icon>
+                        </div>
+                        <mat-card-title>Total Sales</mat-card-title>
+                        <mat-card-subtitle class="subtitle-card-totals">{{totalSales}}</mat-card-subtitle>
+                    </mat-card-header>
+                </mat-card>
+            </div>
+
+            <div class="grid-item">
+                <mat-card appearance="outlined">
+                    <mat-card-header>
+                        <div mat-card-avatar>
+                            <mat-icon color="primary">collections_bookmark</mat-icon>
+                        </div>
+                        <mat-card-title>Total Products</mat-card-title>
+                        <mat-card-subtitle class="subtitle-card-totals">{{totalProducts}}</mat-card-subtitle>
+                    </mat-card-header>
+                </mat-card>
+            </div>
+        </div>
+
+        <mat-card style="margin-top: 15px;">
+            <mat-tab-group (selectedTabChange)="handleLastWeekTabClick($event)">
+                <mat-tab label="Last Week" #lastWeekTab>
+                <ng-template mat-tab-label>
+                    <mat-icon class="icon-mat-tab">bar_chart</mat-icon> Last Week
+                </ng-template>
+                    <mat-card-content>
+                        <div style="width: 100%; height: 400px; padding-bottom: 15px;">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-tab>
+                <mat-tab label="Per Month">
+                    <ng-template mat-tab-label>
+                        <mat-icon class="icon-mat-tab">pie_chart_outline</mat-icon>Per Month
+                    </ng-template>
+         
+                    
+                    <mat-form-field style="padding-top: 15px;">
+                        <mat-label>Month and Year</mat-label>
+                        <input matInput [matDatepicker]="dp" [formControl]="date">
+                        <mat-hint>MM/YYYY</mat-hint>
+                        <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+                        <mat-datepicker #dp
+                                        startView="multi-year"
+                                        (monthSelected)="setMonthAndYear($event, dp)"
+                                        panelClass="example-month-picker">
+                        </mat-datepicker>
+                      </mat-form-field>
+                      
+                      
+                      
+                                            
+                      
+                      <mat-card-content>
+                        <div style="width: 100%; height: 400px; padding-bottom: 15px;">
+                            <canvas style="margin-bottom: 15px;" id="doughnutChart"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-tab>
+                <mat-tab label="Per Year">
+                    <ng-template mat-tab-label>
+                        <mat-icon class="icon-mat-tab">multiline_chart</mat-icon> Per Year
+                    </ng-template>
+                    <mat-form-field style="padding-top: 15px;">
+                        <mat-label>Year</mat-label>
+                        <input matInput [matDatepicker]="dpYear" [formControl]="dateYear">
+                        <mat-hint>YYYY</mat-hint>
+                        <mat-datepicker-toggle matIconSuffix [for]="dpYear"></mat-datepicker-toggle>
+                        <mat-datepicker #dpYear
+                                        startView="multi-year"
+                                        (yearSelected)="setYear($event, dpYear)"
+                                        >
+                        </mat-datepicker>
+                      </mat-form-field>
+
+                      <mat-card-content>
+                        <div style="width: 100%; height: 400px; padding-bottom: 15px;">
+                            <canvas style="padding-bottom: 15px;" id="lineChart"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-tab>
+                <mat-tab label="Range Dates">
+                    <ng-template mat-tab-label>
+                        <mat-icon class="icon-mat-tab">timeline</mat-icon> Range Dates
+                    </ng-template>
+                    <form [formGroup]="searchform" (ngSubmit)="getSalesByRangedates()">
+                        <div class="form-fields">
+                            <mat-form-field appearance="fill">
+                                <mat-label>Start Date</mat-label>
+                                <input type="datetime" matInput autocompleste="off" formControlName="dateStart" [matDatepicker]="pickerOne">
+                                <mat-datepicker-toggle matIconSuffix [for]="pickerOne"></mat-datepicker-toggle>
+                                <mat-datepicker #pickerOne></mat-datepicker>
+                            </mat-form-field>
+            
+                            <mat-form-field appearance="fill">
+                                <mat-label>End Date</mat-label>
+                                <input type="datetime" matInput autocompleste="off" formControlName="dateEnd" [matDatepicker]="pickerTwo">
+                                <mat-datepicker-toggle matIconSuffix [for]="pickerTwo"></mat-datepicker-toggle>
+                                <mat-datepicker #pickerTwo></mat-datepicker>
+                            </mat-form-field>
+            
+                            <button mat-flat-button class="search-button" [disabled]="searchform.invalid" type="submit">
+                                <mat-icon>search</mat-icon>Search
+                            </button>
+                        </div>
+                    </form>
+                    <mat-card-content>
+                        <div style="width: 100%; height: 400px; padding-bottom: 15px;">
+                            <canvas style="padding-bottom: 15px;" id="LineChartRange"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-tab>
+              </mat-tab-group>
+
+              <mat-card-header class="topHeaderTitle">{{ topProductsTitle }}</mat-card-header>
+              <table style="width: 100%; text-align: center;">
+                <tr>
+                  <th mat-sort-header="topNumber">No.</th>
+                  <th mat-sort-header="name">Name</th>
+                  <th mat-sort-header="price">Price</th>
+                  <th mat-sort-header="salequantity">Sale Quantity</th>
+                  <th mat-sort-header="totalSale">Total sale</th>
+                </tr>
+              
+              
+                  <tr  *ngFor="let topProduct of topListProducts" style="text-align: center;">
+                    <td>{{topProduct.topNumber}}</td>
+                    <td>{{topProduct.name}}</td>
+                    <td>{{topProduct.price}}</td>
+                    <td>{{topProduct.salequantity}}</td>
+                    <td>{{topProduct.totalSale}}</td>
+                  </tr>
+                
+              </table>
+              
+              
+           
+        </mat-card>
+
+    </mat-card-content>
+</mat-card>

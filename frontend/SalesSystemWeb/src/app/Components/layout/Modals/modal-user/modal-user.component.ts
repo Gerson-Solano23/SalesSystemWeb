@@ -12,7 +12,7 @@ import { UtilityService } from '../../../../Reusable/utility.service';
 @Component({
   selector: 'app-modal-user',
   templateUrl: './modal-user.component.html',
-  styleUrl: './modal-user.component.css'
+  styleUrls: ['./modal-user.component.css', '../../../../../styles.scss']
 })
 export class ModalUserComponent implements OnInit {
   formUser: FormGroup;
@@ -30,7 +30,7 @@ export class ModalUserComponent implements OnInit {
   ) { 
     this.formUser = this.form.group({
       FullName: ['', Validators.required],
-      Email: ['', Validators.required],
+      Email: ['', Validators.required, Validators.email],
       IdRol: ['', Validators.required],
       Password: ['', Validators.required],
       Status: ['', Validators.required],
@@ -44,7 +44,6 @@ export class ModalUserComponent implements OnInit {
       next: (response) => {
         if (response.status) {
           this.rolsList = response.data;
-          console.log('Constructor response', response.data[0].idRol);
         }
       },
       error: (error) => {}

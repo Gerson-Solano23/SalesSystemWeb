@@ -12,7 +12,7 @@ import { LayoutComponent } from './Components/layout/layout.component';
   declarations: [
     AppComponent,
     LoginComponent,
-    LayoutComponent
+    LayoutComponent,
   ],
   imports: [
     BrowserModule,

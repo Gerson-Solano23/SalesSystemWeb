@@ -1,6 +1,6 @@
 export interface Dashboard {
-    TotalSales: number,
-    TotalRevenue: string,
-    TotalProducts: number,
-    SalesLastWeek: any
+    totalSales: number,
+    totalRevenue: string,
+    totalProducts: number,
+    salesLastWeek: any
 }

@@ -19,6 +19,8 @@ public partial class Product
 
     public DateTime? DateRegistry { get; set; }
 
+    public string? img { get; set; }
+
     public virtual Category? IdCategoryNavigation { get; set; }
 
     public virtual ICollection<SaleDetail> SaleDetails { get; } = new List<SaleDetail>();

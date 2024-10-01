@@ -3,7 +3,8 @@
 <mat-dialog-content>
     <form [formGroup]="formUser">
         <mat-grid-list cols="1" rowHeight="80px">
-            <mat-grid-tile>
+
+            <mat-grid-tile class="title-outline">
                 <mat-form-field appearance="outline">
                 <mat-label>Full Name</mat-label>
                 <input matInput autocomplete="off" placeholder="Full Name" formControlName="FullName">
@@ -11,15 +12,15 @@
             </mat-form-field>
             </mat-grid-tile>
 
-            <mat-grid-tile>
+            <mat-grid-tile class="title-outline">
                 <mat-form-field appearance="outline">
                 <mat-label>Email</mat-label>
-                <input matInput autocomplete="off" placeholder="Email" formControlName="Email">
+                <input type="email" matInput autocomplete="off" placeholder="Email" formControlName="Email">
                 <mat-icon matSuffix>mail</mat-icon>
             </mat-form-field>
             </mat-grid-tile>
 
-            <mat-grid-tile>
+            <mat-grid-tile class="title-outline">
                 <mat-form-field appearance="outline">
                 <mat-label>Id Rol</mat-label>
                 <mat-select formControlName="IdRol">
@@ -29,7 +30,7 @@
             </mat-grid-tile>
 
 
-            <mat-grid-tile>
+            <mat-grid-tile class="title-outline">
                 <mat-form-field class="" appearance="outline">
                     <mat-label>Password</mat-label>
                     <input [type]="hidePassword ? 'password' : 'text'" formControlName="Password" matInput autocomplete="off">
@@ -39,14 +40,13 @@
                 </mat-form-field>
             </mat-grid-tile>
 
-            <mat-grid-tile>
+            <mat-grid-tile class="title-outline">
                 <mat-form-field appearance="outline">
                 <mat-label>Status</mat-label>
                 <mat-select formControlName="Status">
                     <mat-option value="1">Active</mat-option>
                     <mat-option value="0">Inactive</mat-option>
                 </mat-select>
-                <mat-icon matSuffix>rol</mat-icon>
             </mat-form-field>
             </mat-grid-tile>
 
@@ -55,6 +55,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    <button mat-raised-button mat-dialog-close color="warn">Cancel</button>
+    <button mat-raised-button mat-dialog-close  class="danger-button">Cancel</button>
     <button mat-flat-button color="primary" [disabled]="formUser.invalid" (click)="createOrUpdateUser()">{{actionTitle}}</button>
 </mat-dialog-actions>

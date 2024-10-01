@@ -10,7 +10,7 @@ import { UtilityService } from '../../Reusable/utility.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css', '../../../styles.scss']
 })
 export class LoginComponent {
   formLogin: FormGroup;
@@ -31,12 +31,28 @@ export class LoginComponent {
       Email: this.formLogin.get('email')?.value,
       Password: this.formLogin.get('password')?.value
     }
-
+    this._UserService.getToken(request.Email, request.Password).subscribe({
+      next: (responseToken) => {
+        if (responseToken.status) {
+          this._UtilityService.setToken(responseToken.data);
+        }
+      }
+    });
     this._UserService.login(request).subscribe({
       next: (response) => {
         if (response.status) {
+          
           this._UtilityService.saveUserSession(response.data);
-          this._Router.navigate(['/pages']);
+          console.log('sata in login', response.data);
+          this._UtilityService.setIdRol(response.data.rolDescription);
+          if (response.data.rolDescription == 'Admin') {
+            this._Router.navigate(['/pages/dashboard']);    
+          }else if (response.data.rolDescription == 'Supervisor') {
+            this._Router.navigate(['/pages/products']);
+            
+          }else if (response.data.rolDescription == 'Employee') {
+          this._Router.navigate(['/pages/sale']);
+          }
         }else{
           this._UtilityService.ShowAlert("User not found", 'Opps!');
         }

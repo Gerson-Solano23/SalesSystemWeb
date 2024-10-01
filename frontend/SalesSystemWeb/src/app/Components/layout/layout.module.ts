@@ -11,6 +11,11 @@ import { ReportComponent } from './Pages/report/report.component';
 import { SharedModule } from '../../Reusable/shared/shared.module';
 import { ModalUserComponent } from './Modals/modal-user/modal-user.component';
 import { ModalProductComponent } from './Modals/modal-product/modal-product.component';
+import { ModalSaleDetailComponentm } from './Modals/modal-sale-detail/modal-sale-detail.component';
+import { MessageComponent } from './Modals/message/message.component';
+import { FilesComponent } from './Pages/files/files.component';
+import { DataPredictionComponent } from './Pages/data-prediction/data-prediction.component';
+
 
 
 @NgModule({
@@ -22,7 +27,11 @@ import { ModalProductComponent } from './Modals/modal-product/modal-product.comp
     SaleHistoryComponent,
     ReportComponent,
     ModalUserComponent,
-    ModalProductComponent
+    ModalProductComponent,
+    ModalSaleDetailComponentm,
+    MessageComponent,
+    FilesComponent,
+    DataPredictionComponent
   ],
   imports: [
     CommonModule,

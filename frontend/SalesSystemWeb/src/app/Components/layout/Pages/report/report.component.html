@@ -1,1 +1,92 @@
-<p>report works!</p>
+
+<h2 class="title-header-page" style="margin: 20px 0px 0px 40px;">Report Manager</h2>
+<div *ngIf="loadingService.loading$ | async" class="spinner-container">
+    <mat-spinner></mat-spinner>
+    <div class="spinner-text">Generating Excel file...</div>
+  </div>
+  
+
+<mat-divider></mat-divider>
+<mat-card style="margin: 20px 40px 40px 40px;">
+    <mat-card-content>
+        <form [formGroup]="searchform" (ngSubmit)="searchSales()">
+            <div class="form-fields">
+                <mat-form-field appearance="fill">
+                    <mat-label>Start Date</mat-label>
+                    <input type="datetime" matInput autocompleste="off" formControlName="dateStart" [matDatepicker]="pickerOne">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerOne"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerOne></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>End Date</mat-label>
+                    <input type="datetime" matInput autocompleste="off" formControlName="dateEnd" [matDatepicker]="pickerTwo">
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerTwo"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerTwo></mat-datepicker>
+                </mat-form-field>
+
+                <button mat-flat-button class="search-button" [disabled]="searchform.invalid" type="submit">
+                    <mat-icon>search</mat-icon>Search
+                </button>
+            </div>
+        </form>
+
+        <button class="export-button" mat-raised-button [disabled]="listReportsSales.length < 1" (click)="downloadExcelFile()">
+            <mat-icon>feed</mat-icon>Export Excel
+        </button>
+
+        <mat-divider></mat-divider>
+        <div class="mat-elevation-z8 responsive-table-container">
+            <table mat-table [dataSource]="dataSaleReport">
+
+                <ng-container matColumnDef="Count">
+                    <th mat-header-cell *matHeaderCellDef>No.</th>
+                    <td mat-cell *matCellDef="let element; let i = index">{{ getConsecutive(i) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="RegistryDate">
+                    <th mat-header-cell *matHeaderCellDef>Registry Date</th>
+                    <td mat-cell *matCellDef="let element">{{element.dateRegistry}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="DocumentNumber">
+                    <th mat-header-cell *matHeaderCellDef>Document Number</th>
+                    <td mat-cell *matCellDef="let element">{{element.numberDocument}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="PaymentType">
+                    <th mat-header-cell *matHeaderCellDef>Payment Type</th>
+                    <td mat-cell *matCellDef="let element">{{element.paymentType}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="TotalSale">
+                    <th mat-header-cell *matHeaderCellDef>Total Sale</th>
+                    <td mat-cell *matCellDef="let element">{{element.totalSale}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="Product">
+                    <th mat-header-cell *matHeaderCellDef>Product</th>
+                    <td mat-cell *matCellDef="let element">{{element.product}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="Price">
+                    <th mat-header-cell *matHeaderCellDef>Price</th>
+                    <td mat-cell *matCellDef="let element">{{element.price}}</td>
+                </ng-container>
+                <ng-container matColumnDef="Quantity">
+                    <th mat-header-cell *matHeaderCellDef>Quantity</th>
+                    <td mat-cell *matCellDef="let element">{{element.quantity}}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="TotalProduct">
+                    <th mat-header-cell *matHeaderCellDef>Total Product</th>
+                    <td mat-cell *matCellDef="let element">{{element.total}}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="tableColums"></tr>
+                <tr mat-row *matRowDef="let row; columns:tableColums;"></tr>
+            </table>
+            <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" (page)="onPageChange($event)" aria-label="Select page"></mat-paginator>
+        </div>
+    </mat-card-content>
+</mat-card>

@@ -1,0 +1,58 @@
+.form-fields{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  
+}
+
+mat-form-field, .search-button {
+    flex: 1 1 100%; /* Toma todo el ancho disponible por defecto */
+}
+
+.search-filter{
+    width: 100%;
+}
+
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.responsive-table-container {
+    overflow: auto;
+    margin-top: 20px;
+}
+@media (min-width: 600px) {
+    mat-form-field, .search-button {
+        flex: 1 1 calc(50% - 30px); /* Ocupa 50% del ancho menos el gap */
+    }
+
+    .search-button {
+        flex: 1 1 auto; /* Permite al botón ajustarse a su contenido */
+        width: 100%;
+        
+    }
+}
+
+
+
+@media (min-width: 1280px) {
+    mat-form-field, .search-button {
+        flex: 1 1 calc(25% - 30px); /* Ocupa 25% del ancho menos el gap */
+    }
+}
+
+/* @media (max-width: 768px) {
+    mat-form-field,
+    .form-fields{
+        width: 100%;
+    }
+    .search-button {
+      width: 100%;
+    }
+} */
