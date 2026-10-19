@@ -16,12 +16,9 @@ export class FileDownloadService {
   ) { }
 
 
-  downloadExcel(idUser:number):Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}DownloadExcel?idUser=${idUser}`, {headers: this.getDateToken()});
-  }
-
-  freeStorage(idUser:number):Observable<ResponseApi>{
-    return this.http.delete<ResponseApi>(`${this.urlAPI}DeleteFileTask?idUser=${idUser}`, {headers: this.getDateToken()});
+  // The API builds the Excel file for the date range in the same request (dates as DD/MM/YYYY).
+  downloadExcel(startDate:string, endDate:string):Observable<ResponseApi>{
+    return this.http.get<ResponseApi>(`${this.urlAPI}DownloadExcel?Startdate=${startDate}&endDate=${endDate}`, {headers: this.getDateToken()});
   }
   getDateToken() {
     // Recuperar el token desde el localStorage

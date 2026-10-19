@@ -161,7 +161,11 @@ export class SaleComponent{
         complete: () => {
           this.registryBlockButton = true;
         },
-        error: (error) => {}
+        error: (error) => {
+          // e.g. "Not enough stock for ..." from the API
+          this.registryBlockButton = false;
+          this.utilityService.ShowAlert(error.error?.message ?? 'Sale could not be registered', 'Error');
+        }
       });
     }
   }

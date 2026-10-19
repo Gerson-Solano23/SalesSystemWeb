@@ -5,42 +5,33 @@ using SalesSystem.BLL.Services.Contract;
 
 namespace SalesSystem.API.Controllers
 {
-    /// <summary>
-    /// Excel report generated for the authenticated user. The legacy <c>idUser</c> query
-    /// parameter is ignored: the user always comes from the token.
-    /// </summary>
     [Authorize(Policy = "Admin_Supervisor")]
     [Route("api/[controller]")]
     [ApiController]
     public class FileDownloadController : ControllerBase
     {
         private readonly IFileDownload _fileDownloadService;
+        private readonly ISale _saleService;
 
-        public FileDownloadController(IFileDownload fileDownloadService)
+        public FileDownloadController(IFileDownload fileDownloadService, ISale saleService)
         {
             _fileDownloadService = fileDownloadService;
+            _saleService = saleService;
         }
 
-        [HttpDelete]
-        [Route("DeleteFileTask")]
-        public IActionResult DeleteFile()
-        {
-            var response = new Response<bool>
-            {
-                status = true,
-                data = _fileDownloadService.DeleteFile(User.GetUserId())
-            };
-            return Ok(response);
-        }
-
+        /// <summary>
+        /// Builds the Excel report for the date range in this same request.
+        /// Nothing is cached on the server, so users never get each other's reports.
+        /// </summary>
         [HttpGet]
         [Route("DownloadExcel")]
-        public async Task<IActionResult> DownloadExcel()
+        public async Task<IActionResult> DownloadExcel(string Startdate, string endDate)
         {
+            var report = await _saleService.Report(Startdate, endDate);
             var response = new Response<byte[]>
             {
                 status = true,
-                data = await _fileDownloadService.getFileExcel(User.GetUserId())
+                data = await _fileDownloadService.GetExcelFile(report)
             };
             return Ok(response);
         }

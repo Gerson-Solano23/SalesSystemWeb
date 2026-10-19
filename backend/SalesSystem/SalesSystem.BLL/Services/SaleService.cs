@@ -5,11 +5,8 @@ using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DTO;
 using SalesSystem.Entity;
 using SalesSystem.Utility;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SalesSystem.BLL.Services
@@ -19,7 +16,7 @@ namespace SalesSystem.BLL.Services
         private readonly ISalesRepository _saleRepository;
         private readonly IGenericRepository<SaleDetail> _saleDetailsRespository;
         private readonly IMapper _mapper;
-        public static List<ReportDTO> ReportTEMP { get; set; }
+
         public SaleService(ISalesRepository saleRepository, IGenericRepository<SaleDetail> saleDetailsRespository, IMapper mapper)
         {
             _saleRepository = saleRepository;
@@ -29,87 +26,68 @@ namespace SalesSystem.BLL.Services
 
         public async Task<SaleDTO> Create(SaleDTO entity)
         {
-            try
+            if (entity.SaleDetails == null || entity.SaleDetails.Count == 0)
             {
-                var genericSale = await _saleRepository.addRegistry(_mapper.Map<Sale>(entity));
+                throw new BusinessException("The sale must contain at least one product");
+            }
 
-                if (genericSale.IdSale == 0)
+            if (entity.SaleDetails.Any(d => d.IdProduct == null || d.Quantity == null || d.Quantity <= 0))
+            {
+                throw new BusinessException("Every product in the sale needs a valid quantity");
+            }
+
+            // Prices and totals sent by the client are ignored; the repository computes them from the catalog.
+            var sale = new Sale
+            {
+                PaymentType = entity.PaymentType,
+            };
+            foreach (var detail in entity.SaleDetails)
+            {
+                sale.SaleDetails.Add(new SaleDetail
                 {
-                    throw new BusinessException("Unable to create");
-                }
-
-                return _mapper.Map<SaleDTO>(genericSale);
-            }
-            catch (Exception)
-            {
-
-                throw;
+                    IdProduct = detail.IdProduct,
+                    Quantity = detail.Quantity
+                });
             }
 
+            var created = await _saleRepository.addRegistry(sale);
+            return _mapper.Map<SaleDTO>(created);
         }
 
         public async Task<List<SaleDTO>> History(string searchBy, string saleNumber, string startdate, string endDate)
         {
             IQueryable<Sale> query = await _saleRepository.Consult();
-            var ResultList = new List<Sale>();
-            try
+
+            if (searchBy == "date")
             {
-                if (searchBy == "date")
-                {
-                    DateTime StartDate = DateTime.ParseExact(startdate, "dd/MM/yyyy", new CultureInfo("es-CR"));
-                    DateTime EndDate = DateTime.ParseExact(endDate, "dd/MM/yyyy", new CultureInfo("es-CR"));
-
-                    ResultList = await query.Where(x => x.DateRegistry.Value.Date >= StartDate.Date &&
-                                                   x.DateRegistry.Value.Date <= EndDate.Date
-                                                   ).Include(ds => ds.SaleDetails)
-                                                   .ThenInclude(p => p.IdProductNavigation)
-                                                   .ToListAsync();
-
-                }
-                else
-                {
-                    ResultList = await query.Where(x => x.numberDocument == saleNumber
-                                                 ).Include(ds => ds.SaleDetails)
-                                                 .ThenInclude(p => p.IdProductNavigation)
-                                                 .ToListAsync();
-                }
+                var (start, end) = DateParser.ParseRange(startdate, endDate);
+                var endExclusive = end.AddDays(1);
+                query = query.Where(x => x.DateRegistry >= start && x.DateRegistry < endExclusive);
             }
-            catch (Exception)
+            else
             {
-
-                throw;
+                query = query.Where(x => x.numberDocument == saleNumber);
             }
-            return _mapper.Map<List<SaleDTO>>(ResultList);
+
+            var resultList = await query.Include(ds => ds.SaleDetails)
+                                        .ThenInclude(p => p.IdProductNavigation)
+                                        .ToListAsync();
+
+            return _mapper.Map<List<SaleDTO>>(resultList);
         }
 
         public async Task<List<ReportDTO>> Report(string startDate, string endDate)
         {
+            var (start, end) = DateParser.ParseRange(startDate, endDate);
+            var endExclusive = end.AddDays(1);
+
             IQueryable<SaleDetail> query = await _saleDetailsRespository.Consult();
-            var ResultList = new List<SaleDetail>();
-            try
-            {
-                // Cambia el formato aquí a "yyyy-MM-dd"
-                DateTime StartDate = DateTime.ParseExact(startDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                DateTime EndDate = DateTime.ParseExact(endDate, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            var resultList = await query.Include(p => p.IdProductNavigation)
+                .Include(s => s.IdSaleNavigation)
+                .Where(x => x.IdSaleNavigation!.DateRegistry >= start && x.IdSaleNavigation.DateRegistry < endExclusive)
+                .ToListAsync();
 
-                ResultList = await query.Include(p => p.IdProductNavigation)
-                    .Include(s => s.IdSaleNavigation)
-                    .Where(x => x.IdSaleNavigation.DateRegistry.Value.Date >= StartDate.Date &&
-                        x.IdSaleNavigation.DateRegistry.Value.Date <= EndDate.Date)
-                    .ToListAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            ReportTEMP = _mapper.Map<List<ReportDTO>>(ResultList);
-            return ReportTEMP;
-        }
-
-
-        public List<ReportDTO> getList()
-        {
-            return ReportTEMP;
+            return _mapper.Map<List<ReportDTO>>(resultList);
         }
     }
 }

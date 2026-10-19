@@ -1,22 +1,12 @@
-﻿using SalesSystem.DTO;
-using System;
+using SalesSystem.DTO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SalesSystem.BLL.Services.Contract
 {
     public interface IFileDownload
     {
-        Task DownloadExcel(int idUser);
-        Task<byte[]> getFileExcel(int idUser);
-
-        Task runTaskFileExcel(int idUser);
-
-        bool DeleteFile(int idUser);
-
+        /// <summary>Builds the Excel report for the given rows. Stateless: nothing is kept between requests.</summary>
         Task<byte[]> GetExcelFile(List<ReportDTO> list);
-
     }
 }

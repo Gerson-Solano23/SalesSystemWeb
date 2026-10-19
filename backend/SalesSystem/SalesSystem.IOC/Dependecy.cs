@@ -56,8 +56,10 @@ namespace SalesSystem.IOC
          
             services.AddSingleton<MLContext>(sp => new MLContext());
             //services.AddScoped<IFormFile, UploadFileService>();
-            services.AddSingleton<IWeeklyTask, WeeklyTaskService>();
-            services.AddHostedService<WeeklyTaskService>();
+            // One instance serves both as the hosted background job and as IWeeklyTask.
+            services.AddSingleton<WeeklyTaskService>();
+            services.AddSingleton<IWeeklyTask>(sp => sp.GetRequiredService<WeeklyTaskService>());
+            services.AddHostedService(sp => sp.GetRequiredService<WeeklyTaskService>());
 
         }
     }

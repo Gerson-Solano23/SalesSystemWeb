@@ -5,10 +5,8 @@ using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DTO;
 using SalesSystem.Entity;
 using SalesSystem.Utility;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SalesSystem.BLL.Services
@@ -16,135 +14,104 @@ namespace SalesSystem.BLL.Services
     public class ProductService : IProduct
     {
         private readonly IGenericRepository<Product> _productRepository;
+        private readonly IGenericRepository<SaleDetail> _saleDetailRepository;
         private readonly IMapper _mapper;
-        private readonly ISendEmail sendEmail;
-        public ProductService(IGenericRepository<Product> repositoryProduct, IMapper mapper, ISendEmail send)
+
+        public ProductService(IGenericRepository<Product> repositoryProduct, IGenericRepository<SaleDetail> saleDetailRepository, IMapper mapper)
         {
             _mapper = mapper;
             _productRepository = repositoryProduct;
-            sendEmail = send;
+            _saleDetailRepository = saleDetailRepository;
         }
 
         public async Task<ProductDTO> Create(ProductDTO entity)
         {
-            try
+            var newProduct = _mapper.Map<Product>(entity);
+            Validate(newProduct);
+
+            var product = await _productRepository.CreateAsync(newProduct);
+            if (product.IdProduct == 0)
             {
-                var product = await _productRepository.CreateAsync(_mapper.Map<Product>(entity));
-
-                if (product.IdProduct == 0)
-                {
-                    throw new BusinessException("Unable to create");
-                }
-
-                var query = await _productRepository.Consult(x => x.Name == entity.Name);
-
-                product = query.Include(rol => rol.IdCategoryNavigation).First();
-
-                return _mapper.Map<ProductDTO>(product);
+                throw new BusinessException("Unable to create");
             }
-            catch (Exception)
-            {
 
-                throw;
-            }
+            var query = await _productRepository.Consult(x => x.IdProduct == product.IdProduct);
+            product = await query.Include(c => c.IdCategoryNavigation).FirstAsync();
+
+            return _mapper.Map<ProductDTO>(product);
         }
 
         public async Task<bool> Delete(int id)
         {
-            try
+            var productFound = await _productRepository.GetByIdAsync(id);
+            if (productFound == null)
             {
-                var productFound = await _productRepository.GetByIdAsync(id); 
-
-                if (productFound == null)
-                {
-                    throw BusinessException.NotFound("Product not exist");
-                }
-
-                bool result = await _productRepository.DeleteAsync(productFound);
-
-                if (!result)
-                {
-                    throw new BusinessException("Unable to delete product");
-                }
-                return result;  
+                throw BusinessException.NotFound("Product not exist");
             }
-            catch (Exception)
+
+            var sales = await _saleDetailRepository.Consult(x => x.IdProduct == id);
+            if (await sales.AnyAsync())
             {
-
-                throw;
+                throw new BusinessException("This product already has sales and cannot be deleted. Set it as inactive instead.");
             }
+
+            return await _productRepository.DeleteAsync(productFound);
         }
 
         public async Task<ProductDTO> Get(int id)
         {
-            try
+            var query = await _productRepository.Consult(x => x.IdProduct == id);
+            var productFound = await query.Include(c => c.IdCategoryNavigation).FirstOrDefaultAsync();
+
+            if (productFound == null)
             {
-                var productFound = await _productRepository.GetByIdAsync(id);
-
-                if (productFound == null)
-                {
-                    throw BusinessException.NotFound("Product not exist");
-                }
-
-                return _mapper.Map<ProductDTO>(productFound);
+                throw BusinessException.NotFound("Product not exist");
             }
-            catch (Exception)
-            {
 
-                throw;
-            }
+            return _mapper.Map<ProductDTO>(productFound);
         }
 
         public async Task<List<ProductDTO>> List()
         {
-            try
-            {
-                var query = await _productRepository.Consult();
+            var query = await _productRepository.Consult();
+            var productList = await query.Include(x => x.IdCategoryNavigation).ToListAsync();
 
-                var productList = query.Include(x => x.IdCategoryNavigation).ToList();
-                productList.AddRange(productList);
-                var listFilter = productList.Where(x => x.Stock == 0);
-                if (listFilter.Count() > 0)
-                {
-                    //sendEmail.notifyStockCero(_mapper.Map<List<ProductDTO>>(listFilter.ToList()));
-                }
-                return _mapper.Map<List<ProductDTO>>(productList.ToList());
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return _mapper.Map<List<ProductDTO>>(productList);
         }
 
         public async Task<bool> Update(ProductDTO entity)
         {
-            try
+            var productEntity = _mapper.Map<Product>(entity);
+            Validate(productEntity);
+
+            var productFound = await _productRepository.GetByIdAsync(entity.IdProduct);
+            if (productFound == null)
             {
-                var productEntity = _mapper.Map<Product>(entity);
-                var productFound = await _productRepository.GetByIdAsync(entity.IdProduct);
-
-                if (productFound == null)
-                {
-                    throw BusinessException.NotFound("Product not exist");
-                }
-
-                productFound.IdCategory = productEntity.IdCategory;
-                productFound.Name = productEntity.Name;
-                productFound.Price = productEntity.Price;
-                productFound.Stock = productEntity.Stock;
-                productFound.Status = productEntity.Status;
-
-                bool result = await _productRepository.UpdateAsync(productFound);
-                if (!result)
-                {
-                    throw new BusinessException("Unable to update product");
-                }
-                return result;
+                throw BusinessException.NotFound("Product not exist");
             }
-            catch (Exception)
-            {
 
-                throw;
+            productFound.IdCategory = productEntity.IdCategory;
+            productFound.Name = productEntity.Name;
+            productFound.Price = productEntity.Price;
+            productFound.Stock = productEntity.Stock;
+            productFound.Status = productEntity.Status;
+
+            return await _productRepository.UpdateAsync(productFound);
+        }
+
+        private static void Validate(Product product)
+        {
+            if (string.IsNullOrWhiteSpace(product.Name))
+            {
+                throw new BusinessException("Product name is required");
+            }
+            if (product.Price == null || product.Price < 0)
+            {
+                throw new BusinessException("Price must be zero or greater");
+            }
+            if (product.Stock == null || product.Stock < 0)
+            {
+                throw new BusinessException("Stock must be zero or greater");
             }
         }
     }

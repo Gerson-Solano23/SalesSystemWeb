@@ -216,20 +216,24 @@ namespace SalesSystem.BLL.Services
             }
         }
 
+        public async Task<bool> FileExists(string fileName)
+        {
+            var query = await _uploadFileService.Consult(x => x.FileName == fileName);
+            return await query.AnyAsync();
+        }
+
         public async Task<List<string>> getListFilesPerMonth(string month, string year)
         {
-            try
+            if (!int.TryParse(month, out int monthNumber) || !int.TryParse(year, out int yearNumber)
+                || monthNumber < 1 || monthNumber > 12 || yearNumber < 1 || yearNumber > 9999)
             {
-                var list = await _uploadFileService.Consult();
-                return list.Where(x => x.FileDate.Value.Month.ToString() == month && x.FileDate.Value.Year.ToString() == year).Select(x => x.FileName).ToList();
-                //Where(x => x.FileDate.Value.Month.ToString() == month && x.FileDate.Value.Year.ToString() == year).Select(x => x.FileName).ToListAsync();
-
+                throw new BusinessException("Invalid month or year");
             }
-            catch (Exception)
-            {
 
-                throw;
-            }
+            var start = new DateTime(yearNumber, monthNumber, 1);
+            var endExclusive = start.AddMonths(1);
+            var list = await _uploadFileService.Consult(x => x.FileDate >= start && x.FileDate < endExclusive);
+            return await list.OrderBy(x => x.FileDate).Select(x => x.FileName).ToListAsync();
         }
     }
 }

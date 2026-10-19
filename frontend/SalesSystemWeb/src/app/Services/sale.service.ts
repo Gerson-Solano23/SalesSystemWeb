@@ -24,8 +24,8 @@ export class SaleService {
     return this.http.get<ResponseApi>(`${this.urlAPI}History?searchBy=${searchBy}&saleNumber=${saleNumber}&Startdate=${Startdate}&endDate=${endDate}`, {headers: this.getDateToken()});
   }
 
-  Report(Startdate?:string, endDate?:string, idUser?:number):Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}Report?Startdate=${Startdate}&endDate=${endDate}&idUser=${idUser}`, {headers: this.getDateToken()});
+  Report(Startdate?:string, endDate?:string):Observable<ResponseApi>{
+    return this.http.get<ResponseApi>(`${this.urlAPI}Report?Startdate=${Startdate}&endDate=${endDate}`, {headers: this.getDateToken()});
   }
 
   getDateToken() {

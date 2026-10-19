@@ -40,7 +40,8 @@ export class ReportComponent {
   ];
   pageIndex: number = 0;
   pageSize: number = 10;
-  idUserInSession: number = -1;
+  // Date range of the last successful search; the Excel download uses the same range.
+  reportRange: { start: string, end: string } | null = null;
   tableColums: string[] = ['Count', 'RegistryDate', 'DocumentNumber', 'PaymentType', 'TotalSale', 'Product','Price','Quantity','TotalProduct'];
   listReportsSales: Report[] = [];
   dataSaleReport = new MatTableDataSource(this.listReportsSales);
@@ -66,7 +67,6 @@ export class ReportComponent {
   ngAfterViewInit(): void {
     this.dataSaleReport.paginator = this.paginator;   
 
-    this.idUserInSession = this.utilityService.getUserSession().idUser;
   }
 
   searchSales(){
@@ -84,9 +84,10 @@ export class ReportComponent {
     }
     var startDateString = moment(this.searchform.value.dateStart).format('DD/MM/YYYY');
     var endDateString = moment(this.searchform.value.dateEnd).format('DD/MM/YYYY');
-    this.saleService.Report(startDateString, endDateString, this.idUserInSession).subscribe({
+    this.saleService.Report(startDateString, endDateString).subscribe({
       next:(response)=>{
         if (response.status) {
+          this.reportRange = { start: startDateString, end: endDateString };
           this.loadingService.active();
           this.listReportsSales = response.data;
           this.dataSaleReport = new MatTableDataSource(this.listReportsSales);
@@ -110,9 +111,13 @@ export class ReportComponent {
   }
 
   downloadExcelFile() {
-    this.loadingService.show(); 
-    
-    this.FileDownloadService.downloadExcel(this.idUserInSession).subscribe({
+    if (this.reportRange == null) {
+      this.utilityService.ShowAlert('Search a date range first', 'Opps');
+      return;
+    }
+    this.loadingService.show();
+
+    this.FileDownloadService.downloadExcel(this.reportRange.start, this.reportRange.end).subscribe({
       next: (response) => {
         if (response.status) {
           const byteCharacters = atob(response.data);

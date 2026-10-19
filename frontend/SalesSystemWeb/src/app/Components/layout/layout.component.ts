@@ -5,7 +5,7 @@ import { MenuService } from '../../Services/menu.service';
 import { UtilityService } from '../../Reusable/utility.service';
 import { LoadingService } from '../../Services/loading.service';
 import { Subscription } from 'rxjs';
-import { FileDownloadService } from '../../Services/file-download.service'; 
+
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
@@ -26,7 +26,7 @@ export class LayoutComponent {
     private router: Router,
     private menuService: MenuService,
     private utilityService: UtilityService,
-    private fileDownloadService: FileDownloadService,
+
     public loadingService: LoadingService
   ) {
     this.subscription = this.loadingService.controlExcel$.subscribe(
@@ -42,12 +42,6 @@ export class LayoutComponent {
     this.utilityService.checkTokendExpired();
     if (menuItem != 'Reports' &&  this.getControl == true) {
       this.loadingService.inactive();
-     
-      this.fileDownloadService.freeStorage(this.idUserInSession).subscribe({
-        next:(response)=>{
-          console.log(response);
-        }
-      });     
     }
     this.selectedMenuItem = menuItem;
     if(this.selectedMenuItem == null || this.selectedMenuItem == '') {

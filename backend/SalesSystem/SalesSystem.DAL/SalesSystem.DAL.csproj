@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SalesSystem.DTO\SalesSystem.DTO.csproj" />
     <ProjectReference Include="..\SalesSystem.Entity\SalesSystem.Entity.csproj" />
+    <ProjectReference Include="..\SalesSystem.Utility\SalesSystem.Utility.csproj" />
   </ItemGroup>
 
 </Project>
