@@ -1,4 +1,10 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -14,94 +20,106 @@ import { Sale } from '../../../../Interfaces/sale';
 import { FileDownloadService } from '../../../../Services/file-download.service';
 import { LoadingService } from '../../../../Services/loading.service';
 export const MY_FORMATS = {
-  parse:{
-    dateInput: 'DD/MM/YYYY'
+  parse: {
+    dateInput: 'DD/MM/YYYY',
   },
-  display:{
-    dateInput:'DD/MM/YYYY',
-    monthYearLabel: 'MMMM YYYY'
-  }
-}
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMMM YYYY',
+  },
+};
 
 @Component({
-    selector: 'app-report',
-    templateUrl: './report.component.html',
-    styleUrls: ['./report.component.css', '../../../../../styles.scss'],
-    template: '<p>Fecha actual: {{ formattedDate }}</p>',
-    providers: [
-        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }
-    ],
-    standalone: false
+  selector: 'app-report',
+  templateUrl: './report.component.html',
+  styleUrls: ['./report.component.css', '../../../../../styles.scss'],
+  template: '<p>Fecha actual: {{ formattedDate }}</p>',
+  providers: [{ provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ReportComponent {
   searchform: FormGroup;
   searchOptions: any[] = [
-    {value: 'date', description: 'By Dates'},
-    {value: 'number', description: 'By Sale Number'},
+    { value: 'date', description: 'By Dates' },
+    { value: 'number', description: 'By Sale Number' },
   ];
   pageIndex: number = 0;
   pageSize: number = 10;
   // Date range of the last successful search; the Excel download uses the same range.
-  reportRange: { start: string, end: string } | null = null;
-  tableColums: string[] = ['Count', 'RegistryDate', 'DocumentNumber', 'PaymentType', 'TotalSale', 'Product','Price','Quantity','TotalProduct'];
+  reportRange: { start: string; end: string } | null = null;
+  tableColums: string[] = [
+    'Count',
+    'RegistryDate',
+    'DocumentNumber',
+    'PaymentType',
+    'TotalSale',
+    'Product',
+    'Price',
+    'Quantity',
+    'TotalProduct',
+  ];
   listReportsSales: Report[] = [];
   dataSaleReport = new MatTableDataSource(this.listReportsSales);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  
 
   constructor(
     private form: FormBuilder,
     private saleService: SaleService,
     private utilityService: UtilityService,
     private FileDownloadService: FileDownloadService,
-    public loadingService: LoadingService
+    public loadingService: LoadingService,
   ) {
     this.searchform = this.form.group({
-      dateStart: ['', Validators.required], 
-      dateEnd: ['', Validators.required]
+      dateStart: ['', Validators.required],
+      dateEnd: ['', Validators.required],
     });
   }
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.dataSaleReport.paginator = this.paginator;   
-
+    this.dataSaleReport.paginator = this.paginator;
   }
 
-  searchSales(){
+  searchSales() {
     const startDate = moment(this.searchform.value.dateStart, 'DD/MM/YYYY');
     const endDate = moment(this.searchform.value.dateEnd, 'DD/MM/YYYY');
-    
+
     if (!startDate.isValid() || !endDate.isValid()) {
       this.utilityService.ShowAlert('Please insert a correct date', 'Error');
-      return;    
-    }
-    
-    if (startDate.isAfter(endDate)) {
-      this.utilityService.ShowAlert('The start date must be less than the end date', 'Error');
       return;
     }
-    var startDateString = moment(this.searchform.value.dateStart).format('DD/MM/YYYY');
-    var endDateString = moment(this.searchform.value.dateEnd).format('DD/MM/YYYY');
+
+    if (startDate.isAfter(endDate)) {
+      this.utilityService.ShowAlert(
+        'The start date must be less than the end date',
+        'Error',
+      );
+      return;
+    }
+    var startDateString = moment(this.searchform.value.dateStart).format(
+      'DD/MM/YYYY',
+    );
+    var endDateString = moment(this.searchform.value.dateEnd).format(
+      'DD/MM/YYYY',
+    );
     this.saleService.Report(startDateString, endDateString).subscribe({
-      next:(response)=>{
+      next: (response) => {
         if (response.status) {
           this.reportRange = { start: startDateString, end: endDateString };
           this.loadingService.active();
           this.listReportsSales = response.data;
           this.dataSaleReport = new MatTableDataSource(this.listReportsSales);
           this.dataSaleReport.paginator = this.paginator;
-        }else{
+        } else {
           this.listReportsSales = [];
           this.dataSaleReport = new MatTableDataSource(this.listReportsSales);
           this.utilityService.ShowAlert('Data not Found', 'Opps');
         }
       },
-      error:(error)=>{}
+      error: (error) => {},
     });
   }
-
 
   downloadExcelFile() {
     if (this.reportRange == null) {
@@ -110,7 +128,10 @@ export class ReportComponent {
     }
     this.loadingService.show();
 
-    this.FileDownloadService.downloadExcel(this.reportRange.start, this.reportRange.end).subscribe({
+    this.FileDownloadService.downloadExcel(
+      this.reportRange.start,
+      this.reportRange.end,
+    ).subscribe({
       next: (response) => {
         if (response.status) {
           const byteCharacters = atob(response.data);
@@ -119,23 +140,25 @@ export class ReportComponent {
             byteNumbers[i] = byteCharacters.charCodeAt(i);
           }
           const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      
+          const blob = new Blob([byteArray], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
+
           // Crear un enlace de descarga y hacer clic en él
           const link = document.createElement('a');
           link.href = window.URL.createObjectURL(blob);
           const currentDate = new Date();
           const formattedDate = moment(currentDate).format('YYYY-MM-DD');
-          link.download = 'Report-'+formattedDate+'.xlsx';
+          link.download = 'Report-' + formattedDate + '.xlsx';
           link.click();
-          window.URL.revokeObjectURL(link.href);  // Limpieza del objeto URL
+          window.URL.revokeObjectURL(link.href); // Limpieza del objeto URL
           this.loadingService.hide();
         }
       },
       error: (error) => {
         this.utilityService.ShowAlert('Error downloading the file', 'Error');
         this.loadingService.hide();
-      }
+      },
     });
   }
 

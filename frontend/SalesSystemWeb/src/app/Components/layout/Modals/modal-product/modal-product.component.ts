@@ -1,4 +1,9 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -11,13 +16,13 @@ import { ProductService } from '../../../../Services/product.service';
 import { UtilityService } from '../../../../Reusable/utility.service';
 
 @Component({
-    selector: 'app-modal-product',
-    templateUrl: './modal-product.component.html',
-    styleUrl: './modal-product.component.css',
-    standalone: false
+  selector: 'app-modal-product',
+  templateUrl: './modal-product.component.html',
+  styleUrl: './modal-product.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class ModalProductComponent implements OnInit{
-  
+export class ModalProductComponent implements OnInit {
   formProduct: FormGroup;
   actionTitle: string = 'Add';
   actionButton: string = 'Save';
@@ -29,7 +34,7 @@ export class ModalProductComponent implements OnInit{
     private form: FormBuilder,
     private categoryService: CategoryService,
     private productService: ProductService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
   ) {
     this.formProduct = this.form.group({
       name: ['', Validators.required],
@@ -50,10 +55,10 @@ export class ModalProductComponent implements OnInit{
           this.categoryList = response.data;
         }
       },
-      error: (error) => {}
-    });  
+      error: (error) => {},
+    });
   }
-  
+
   ngOnInit(): void {
     if (this.productData != null) {
       this.formProduct.patchValue({
@@ -62,52 +67,68 @@ export class ModalProductComponent implements OnInit{
         stock: this.productData.stock,
         price: this.productData.price.toString(),
         status: this.productData.status.toString(),
-        img: this.productData.img.toString()
+        img: this.productData.img.toString(),
       });
-      
     }
   }
 
   createOrUpdateProduct() {
-    const product: Product ={
+    const product: Product = {
       idProduct: this.productData == null ? 0 : this.productData.idProduct,
       name: this.formProduct.value.name,
       idCategory: this.formProduct.value.idCategory,
-      categoryDescription:"",
+      categoryDescription: '',
       stock: this.formProduct.value.stock,
       price: this.formProduct.value.price.toString(),
       status: parseInt(this.formProduct.value.status),
-      img: this.formProduct.value.img
-    }
+      img: this.formProduct.value.img,
+    };
     if (this.productData == null) {
       this.productService.createProduct(product).subscribe({
-        next:(response)=>{
-          if(response.status){
-            this.utilityService.ShowAlert('Product was successfully created', 'success');
-            this.nowModal.close("true");
-          }else{
-            this.utilityService.ShowAlert("Product could not be created", 'error');
+        next: (response) => {
+          if (response.status) {
+            this.utilityService.ShowAlert(
+              'Product was successfully created',
+              'success',
+            );
+            this.nowModal.close('true');
+          } else {
+            this.utilityService.ShowAlert(
+              'Product could not be created',
+              'error',
+            );
           }
         },
-        error:(error)=>{
-          this.utilityService.ShowAlert("Product could not be created, try again", 'error');
-        }
+        error: (error) => {
+          this.utilityService.ShowAlert(
+            'Product could not be created, try again',
+            'error',
+          );
+        },
       });
-    }else{
+    } else {
       this.productService.updateProduct(product).subscribe({
-        next:(response)=>{
-          if(response.status){
-            this.utilityService.ShowAlert('Product was successfully updated', 'success');
-            this.nowModal.close("true");
-          }else{
-            this.utilityService.ShowAlert("Product could not be updated", 'error');
+        next: (response) => {
+          if (response.status) {
+            this.utilityService.ShowAlert(
+              'Product was successfully updated',
+              'success',
+            );
+            this.nowModal.close('true');
+          } else {
+            this.utilityService.ShowAlert(
+              'Product could not be updated',
+              'error',
+            );
           }
         },
-        error:(error)=>{
-          this.utilityService.ShowAlert("Product could not be updated, try again", 'error');
-        }
+        error: (error) => {
+          this.utilityService.ShowAlert(
+            'Product could not be updated, try again',
+            'error',
+          );
+        },
       });
     }
   }
-
 }

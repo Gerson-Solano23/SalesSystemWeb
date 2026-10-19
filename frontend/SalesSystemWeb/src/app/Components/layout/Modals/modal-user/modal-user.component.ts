@@ -1,4 +1,9 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -10,10 +15,11 @@ import { UserService } from '../../../../Services/user.service';
 import { UtilityService } from '../../../../Reusable/utility.service';
 
 @Component({
-    selector: 'app-modal-user',
-    templateUrl: './modal-user.component.html',
-    styleUrls: ['./modal-user.component.css', '../../../../../styles.scss'],
-    standalone: false
+  selector: 'app-modal-user',
+  templateUrl: './modal-user.component.html',
+  styleUrls: ['./modal-user.component.css', '../../../../../styles.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ModalUserComponent implements OnInit {
   formUser: FormGroup;
@@ -27,8 +33,8 @@ export class ModalUserComponent implements OnInit {
     private form: FormBuilder,
     private rolService: RolService,
     private userService: UserService,
-    private utilityService: UtilityService
-  ) { 
+    private utilityService: UtilityService,
+  ) {
     this.formUser = this.form.group({
       FullName: ['', Validators.required],
       Email: ['', [Validators.required, Validators.email]],
@@ -43,16 +49,15 @@ export class ModalUserComponent implements OnInit {
       this.formUser.get('Password')?.setValidators([Validators.minLength(8)]);
       this.formUser.get('Password')?.updateValueAndValidity();
     }
-    
+
     this.rolService.listRoles().subscribe({
       next: (response) => {
         if (response.status) {
           this.rolsList = response.data;
         }
       },
-      error: (error) => {}
-    });  
-
+      error: (error) => {},
+    });
   }
 
   ngOnInit(): void {
@@ -62,51 +67,64 @@ export class ModalUserComponent implements OnInit {
         Email: this.userData.email,
         IdRol: this.userData.idRol,
         Password: '',
-        Status: this.userData.status.toString()
+        Status: this.userData.status.toString(),
       });
-      
     }
   }
 
   createOrUpdateUser() {
-    const user: User ={
+    const user: User = {
       idUser: this.userData == null ? 0 : this.userData.idUser,
       fullName: this.formUser.value.FullName,
       email: this.formUser.value.Email,
       idRol: this.formUser.value.IdRol,
-      rolDescription:"",
+      rolDescription: '',
       password: this.formUser.value.Password,
-      status: parseInt(this.formUser.value.Status)
-    }
+      status: parseInt(this.formUser.value.Status),
+    };
     if (this.userData == null) {
       this.userService.createUser(user).subscribe({
-        next:(response)=>{
-          if(response.status){
-            this.utilityService.ShowAlert('User was successfully registered', 'success');
-            this.nowModal.close("true");
-          }else{
-            this.utilityService.ShowAlert("User could not be registered", 'error');
+        next: (response) => {
+          if (response.status) {
+            this.utilityService.ShowAlert(
+              'User was successfully registered',
+              'success',
+            );
+            this.nowModal.close('true');
+          } else {
+            this.utilityService.ShowAlert(
+              'User could not be registered',
+              'error',
+            );
           }
         },
-        error:(error)=>{
-          this.utilityService.ShowAlert("User could not be registered, try again", 'error');
-        }
+        error: (error) => {
+          this.utilityService.ShowAlert(
+            'User could not be registered, try again',
+            'error',
+          );
+        },
       });
-    }else{
+    } else {
       this.userService.updateUser(user).subscribe({
-        next:(response)=>{
-          if(response.status){
-            this.utilityService.ShowAlert('User was successfully updated', 'success');
-            this.nowModal.close("true");
-          }else{
-            this.utilityService.ShowAlert("User could not be updated", 'error');
+        next: (response) => {
+          if (response.status) {
+            this.utilityService.ShowAlert(
+              'User was successfully updated',
+              'success',
+            );
+            this.nowModal.close('true');
+          } else {
+            this.utilityService.ShowAlert('User could not be updated', 'error');
           }
         },
-        error:(error)=>{
-          this.utilityService.ShowAlert("User could not be updated, try again", 'error');
-        }
+        error: (error) => {
+          this.utilityService.ShowAlert(
+            'User could not be updated, try again',
+            'error',
+          );
+        },
       });
     }
   }
-
 }

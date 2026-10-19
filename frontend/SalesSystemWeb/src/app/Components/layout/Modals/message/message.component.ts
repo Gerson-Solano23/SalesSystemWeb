@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MessageModal } from '../../../../Interfaces/messaModal';
 import { MatTableDataSource } from '@angular/material/table';
@@ -6,22 +6,23 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { ViewChild } from '@angular/core';
 import { Product } from '../../../../Interfaces/product';
 @Component({
-    selector: 'app-message',
-    templateUrl: './message.component.html',
-    styleUrl: './message.component.css',
-    standalone: false
+  selector: 'app-message',
+  templateUrl: './message.component.html',
+  styleUrl: './message.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class MessageComponent {
   productsList: Product[] = [];
-  tableColums: string[] = ['Count','Product', 'Stock'];
+  tableColums: string[] = ['Count', 'Product', 'Stock'];
   products = new MatTableDataSource(this.productsList);
   pageIndex: number = 0;
   pageSize: number = 10;
-  @ViewChild(MatPaginator) paginator!: MatPaginator; 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     public dialogRef: MatDialogRef<MessageComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: MessageModal
+    @Inject(MAT_DIALOG_DATA) public data: MessageModal,
   ) {
     this.products.data = data.data;
     this.products.paginator = this.paginator;
@@ -36,7 +37,6 @@ export class MessageComponent {
   }
   ngAfterViewInit(): void {
     this.products.paginator = this.paginator;
-  
   }
 
   onPageChange(event: PageEvent) {

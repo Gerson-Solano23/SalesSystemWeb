@@ -1,4 +1,10 @@
-import { Component, Inject , OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Inject,
+  OnInit,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Sale } from '../../../../Interfaces/sale';
@@ -6,23 +12,23 @@ import { SaleDetail } from '../../../../Interfaces/sale-detail';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 @Component({
-    selector: 'app-modal-sale-detail',
-    templateUrl: './modal-sale-detail.component.html',
-    styleUrl: './modal-sale-detail.component.css',
-    standalone: false
+  selector: 'app-modal-sale-detail',
+  templateUrl: './modal-sale-detail.component.html',
+  styleUrl: './modal-sale-detail.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ModalSaleDetailComponentm implements OnInit {
-  
   registryDate: string = '';
   documentNumber: string = '';
   paymentType: string = '';
-  total:string = '';
+  total: string = '';
   saleDetails: SaleDetail[] = [];
-  tableColums: string[] = ['Count','Product', 'Quantity', 'Price', 'Total'];
+  tableColums: string[] = ['Count', 'Product', 'Quantity', 'Price', 'Total'];
   dataSaleDetails = new MatTableDataSource(this.saleDetails);
   pageIndex: number = 0;
   pageSize: number = 10;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;  
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   constructor(@Inject(MAT_DIALOG_DATA) public sale: Sale) {
     this.registryDate = sale.dateRegistry!;
     this.documentNumber = sale.numberDocument!;
@@ -37,7 +43,6 @@ export class ModalSaleDetailComponentm implements OnInit {
   }
   ngAfterViewInit(): void {
     this.dataSaleDetails.paginator = this.paginator;
-  
   }
 
   onPageChange(event: PageEvent) {
@@ -49,4 +54,3 @@ export class ModalSaleDetailComponentm implements OnInit {
     return index + this.pageIndex * this.pageSize + 1;
   }
 }
-

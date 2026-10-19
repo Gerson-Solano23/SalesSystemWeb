@@ -1,30 +1,30 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  Renderer2,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UploadFileService } from '../../../../Services/upload-file.service';
 import { LoadingService } from '../../../../Services/loading.service';
 import { UtilityService } from '../../../../Reusable/utility.service';
 
-
-
-
-
 @Component({
-    selector: 'app-files',
-    templateUrl: './files.component.html',
-    styleUrls: ['./files.component.css', '../../../../../styles.scss'],
-    standalone: false
+  selector: 'app-files',
+  templateUrl: './files.component.html',
+  styleUrls: ['./files.component.css', '../../../../../styles.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-
 export class FilesComponent implements OnInit {
-
-
   selectedFile: File | null = null;
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
-   
-      this.selectedFile = file;
+
+    this.selectedFile = file;
   }
   getFileType(file: File): string {
     const extension = file.name.split('.').pop()?.toLowerCase();
@@ -63,7 +63,7 @@ export class FilesComponent implements OnInit {
     { value: '2021', viewValue: '2021' },
     { value: '2022', viewValue: '2022' },
     { value: '2023', viewValue: '2023' },
-    { value: '2024', viewValue: '2024' }
+    { value: '2024', viewValue: '2024' },
   ];
 
   months = [
@@ -79,12 +79,9 @@ export class FilesComponent implements OnInit {
     { value: '10', viewValue: 'Octubre' },
     { value: '11', viewValue: 'Noviembre' },
     { value: '12', viewValue: 'Diciembre' },
-  ]
+  ];
 
-
-  excelFiles: any = []
-
-
+  excelFiles: any = [];
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -93,25 +90,28 @@ export class FilesComponent implements OnInit {
     private el: ElementRef,
     private uploadfile: UploadFileService,
     private loadingService: LoadingService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
   ) {
-
     this.formUser = this.form.group({
       FullName: ['', Validators.required],
       File: ['', Validators.required],
-
     });
   }
 
   ngOnInit(): void {
-    this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large])
-      .subscribe(result => {
+    this.breakpointObserver
+      .observe([
+        Breakpoints.XSmall,
+        Breakpoints.Small,
+        Breakpoints.Medium,
+        Breakpoints.Large,
+      ])
+      .subscribe((result) => {
         this.isXsScreen = result.breakpoints[Breakpoints.XSmall];
         this.isSmScreen = result.breakpoints[Breakpoints.Small];
         this.isMdScreen = result.breakpoints[Breakpoints.Medium];
         this.isLgScreen = result.breakpoints[Breakpoints.Large];
       });
-
   }
 
   ngAfterContentInit(): void {
@@ -122,7 +122,10 @@ export class FilesComponent implements OnInit {
   }
 
   goBackMainPanel() {
-    const elementfileExcels = this.renderer.selectRootElement('#fileExcels', true);
+    const elementfileExcels = this.renderer.selectRootElement(
+      '#fileExcels',
+      true,
+    );
     if (!elementfileExcels.classList.contains('hide')) {
       this.renderer.addClass(elementfileExcels, 'hide');
     }
@@ -130,8 +133,14 @@ export class FilesComponent implements OnInit {
     const elemntTwo = this.renderer.selectRootElement('#twoMatGrid', true);
     const elemntTree = this.renderer.selectRootElement('#treeMatGrid', true);
     const elemntFour = this.renderer.selectRootElement('#fourMatGrid', true);
-    const buttonGoBack = this.renderer.selectRootElement('#goBackIconButton', true);
-    const elementFilesMonthly = this.renderer.selectRootElement('#fileMonthly', true);
+    const buttonGoBack = this.renderer.selectRootElement(
+      '#goBackIconButton',
+      true,
+    );
+    const elementFilesMonthly = this.renderer.selectRootElement(
+      '#fileMonthly',
+      true,
+    );
     this.renderer.addClass(buttonGoBack, 'hide');
     this.renderer.removeClass(elemntOne, 'hide');
     this.renderer.setStyle(elemntOne, 'height', '100%');
@@ -140,24 +149,35 @@ export class FilesComponent implements OnInit {
     this.renderer.removeClass(elemntFour, 'hide');
     this.renderer.addClass(elementFilesMonthly, 'hide');
     this.renderer.removeClass(elementFilesMonthly, 'height');
-    this.renderer.setStyle(elementFilesMonthly, 'max-width', '1000px !important');
+    this.renderer.setStyle(
+      elementFilesMonthly,
+      'max-width',
+      '1000px !important',
+    );
     this.renderer.removeClass(elemntOne, 'custom-height');
     this.renderer.removeStyle(elemntOne, 'max-width');
   }
 
-
   showExcelReportPerMonth(month: string) {
     const normalizedMonthName = month.toLowerCase();
-    var foundMonth = this.months.find((month) => month.viewValue.toLowerCase() === normalizedMonthName)?.value;
+    var foundMonth = this.months.find(
+      (month) => month.viewValue.toLowerCase() === normalizedMonthName,
+    )?.value;
     if (!foundMonth) {
       foundMonth = '';
     }
     this.getfilesPerMonth(foundMonth, this.yearChoose);
 
     this.MonthChoose = month;
-    const elementFilesMonthly = this.renderer.selectRootElement('#fileMonthly', true);
+    const elementFilesMonthly = this.renderer.selectRootElement(
+      '#fileMonthly',
+      true,
+    );
     this.renderer.addClass(elementFilesMonthly, 'hide');
-    const elementfileExcels = this.renderer.selectRootElement('#fileExcels', true);
+    const elementfileExcels = this.renderer.selectRootElement(
+      '#fileExcels',
+      true,
+    );
     this.renderer.removeClass(elementfileExcels, 'hide');
     this.renderer.removeStyle(elementfileExcels, 'margin-top');
     //this.renderer.setStyle(elementfileExcels, 'margin-top', '0px !important');
@@ -166,11 +186,13 @@ export class FilesComponent implements OnInit {
     this.renderer.setStyle(elementfileExcels, 'width', '75% !important');
     this.renderer.setStyle(elementfileExcels, 'justify-content', 'start');
     this.renderer.setStyle(elementfileExcels, 'height', '83vh !important');
-
   }
 
   hideOthersLeesOne(idElement: string, event: any) {
-    const elementfileExcels = this.renderer.selectRootElement('#fileExcels', true);
+    const elementfileExcels = this.renderer.selectRootElement(
+      '#fileExcels',
+      true,
+    );
     if (!elementfileExcels.classList.contains('hide')) {
       this.renderer.addClass(elementfileExcels, 'hide');
     }
@@ -182,50 +204,52 @@ export class FilesComponent implements OnInit {
     const elemntFour = this.renderer.selectRootElement('#fourMatGrid', true);
 
     if (idElement === 'oneMatGrid') {
-      const buttonGoBack = this.renderer.selectRootElement('#goBackIconButton', true);
+      const buttonGoBack = this.renderer.selectRootElement(
+        '#goBackIconButton',
+        true,
+      );
       this.renderer.removeClass(buttonGoBack, 'hide');
-      const elementFilesMonthly = this.renderer.selectRootElement('#fileMonthly', true);
+      const elementFilesMonthly = this.renderer.selectRootElement(
+        '#fileMonthly',
+        true,
+      );
       this.renderer.addClass(elemntTwo, 'hide');
       this.renderer.addClass(elemntTree, 'hide');
       this.renderer.addClass(elemntFour, 'hide');
       this.renderer.removeClass(elementFilesMonthly, 'hide');
       this.renderer.removeClass(elementFilesMonthly, 'height');
-      this.renderer.setStyle(elementFilesMonthly, 'max-width', '25% !important');
+      this.renderer.setStyle(
+        elementFilesMonthly,
+        'max-width',
+        '25% !important',
+      );
 
       this.renderer.addClass(elemntOne, 'custom-height');
 
-
-
       // Ajustar estilos para el elemento
-      const elemntOne_GridTitle = this.renderer.selectRootElement('#oneMatGridCard', true);
+      const elemntOne_GridTitle = this.renderer.selectRootElement(
+        '#oneMatGridCard',
+        true,
+      );
 
       this.renderer.setStyle(elemntOne, 'height', '85vh');
       this.renderer.setStyle(elemntOne, 'max-width', '25%');
       this.renderer.setStyle(elementFilesMonthly, 'width', '75%');
       this.renderer.setStyle(elementFilesMonthly, 'justify-content', 'start');
       this.renderer.setStyle(elementFilesMonthly, 'height', '100%');
-
     } else if (idElement === 'twoMatGrid') {
-
       this.renderer.addClass(elemntOne, 'hide');
       this.renderer.addClass(elemntTree, 'hide');
       this.renderer.addClass(elemntFour, 'hide');
-
     } else if (idElement === 'treeMatGrid') {
-
       this.renderer.addClass(elemntOne, 'hide');
       this.renderer.addClass(elemntTwo, 'hide');
       this.renderer.addClass(elemntFour, 'hide');
-
     } else if (idElement === 'fourMatGrid') {
-
       this.renderer.addClass(elemntOne, 'hide');
       this.renderer.addClass(elemntTwo, 'hide');
       this.renderer.addClass(elemntTree, 'hide');
-
     }
-
-
   }
 
   onFileSelected2(event: Event): void {
@@ -243,7 +267,7 @@ export class FilesComponent implements OnInit {
           const result = response.data;
           this.excelFiles = result;
         }
-      }
+      },
     });
   }
 
@@ -259,7 +283,9 @@ export class FilesComponent implements OnInit {
             byteNumbers[i] = byteCharacters.charCodeAt(i);
           }
           const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const blob = new Blob([byteArray], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
 
           // Crear un enlace de descarga y hacer clic en él
           const link = document.createElement('a');
@@ -267,14 +293,14 @@ export class FilesComponent implements OnInit {
 
           link.download = fileName;
           link.click();
-          window.URL.revokeObjectURL(link.href);  // Limpieza del objeto URL
+          window.URL.revokeObjectURL(link.href); // Limpieza del objeto URL
           this.loadingService.hide();
         }
       },
       error: (error) => {
         this.utilityService.ShowAlert('Error downloading the file', 'Error');
         this.loadingService.hide();
-      }
+      },
     });
   }
 }

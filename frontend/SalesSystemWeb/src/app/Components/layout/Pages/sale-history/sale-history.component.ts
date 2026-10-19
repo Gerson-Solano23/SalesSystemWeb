@@ -1,4 +1,11 @@
-import { Component, OnInit, AfterViewInit, ViewChild, viewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  viewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,68 +19,67 @@ import { Sale } from '../../../../Interfaces/sale';
 import { SaleService } from '../../../../Services/sale.service';
 import { UtilityService } from '../../../../Reusable/utility.service';
 
-
-
 export const MY_FORMATS = {
-  parse:{
-    dateInput: 'DD/MM/YYYY'
+  parse: {
+    dateInput: 'DD/MM/YYYY',
   },
-  display:{
-    dateInput:'DD/MM/YYYY',
-    monthYearLabel: 'MMMM YYYY'
-  }
-}
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMMM YYYY',
+  },
+};
 @Component({
-    selector: 'app-sale-history',
-    templateUrl: './sale-history.component.html',
-    styleUrls: ['./sale-history.component.css', '../../../../../styles.scss'],
-    providers: [
-        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }
-    ],
-    standalone: false
+  selector: 'app-sale-history',
+  templateUrl: './sale-history.component.html',
+  styleUrls: ['./sale-history.component.css', '../../../../../styles.scss'],
+  providers: [{ provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
-export class SaleHistoryComponent implements OnInit, AfterViewInit{
-
-  
+export class SaleHistoryComponent implements OnInit, AfterViewInit {
   searchForm: FormGroup;
-  searchOptions:any[] = [
-    {value: 'date', description: 'By Dates'},
-    {value: 'number', description: 'By Sale Number'},
+  searchOptions: any[] = [
+    { value: 'date', description: 'By Dates' },
+    { value: 'number', description: 'By Sale Number' },
   ];
-  tablesColumns: string[] = ['Count', 'RegistryDate', 'DocumentNumber', 'PaymentType', 'Total', 'Actions'];
+  tablesColumns: string[] = [
+    'Count',
+    'RegistryDate',
+    'DocumentNumber',
+    'PaymentType',
+    'Total',
+    'Actions',
+  ];
   initialData: Sale[] = [];
   dataListSales = new MatTableDataSource(this.initialData);
 
   pageIndex: number = 0;
   pageSize: number = 10;
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;  
-  
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
   constructor(
     private form: FormBuilder,
     private dialog: MatDialog,
     private saleService: SaleService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
   ) {
     this.searchForm = this.form.group({
-      searchBy:['date'],
+      searchBy: ['date'],
       number: [''],
       dateStart: [''],
-      dateEnd: ['']
+      dateEnd: [''],
     });
 
-    this.searchForm.get('searchBy')?.valueChanges.subscribe(value=>{
+    this.searchForm.get('searchBy')?.valueChanges.subscribe((value) => {
       this.searchForm.patchValue({
         nuumber: '',
         dateStart: '',
-        dateEnd: ''
+        dateEnd: '',
       });
     });
-
   }
-  ngOnInit(): void {
-    
-  }
+  ngOnInit(): void {}
   ngAfterViewInit(): void {
     this.dataListSales.paginator = this.paginator;
   }
@@ -83,50 +89,58 @@ export class SaleHistoryComponent implements OnInit, AfterViewInit{
     this.dataListSales.filter = filterValue.trim().toLowerCase();
   }
 
-  searchSales(){
-    var startDate = moment(this.searchForm.value.dateStart,'DD/MM/YYYY');
-    var endDate = moment(this.searchForm.value.dateEnd,'DD/MM/YYYY');
-    if(this.searchForm.value.searchBy === 'date'){
-     
-
+  searchSales() {
+    var startDate = moment(this.searchForm.value.dateStart, 'DD/MM/YYYY');
+    var endDate = moment(this.searchForm.value.dateEnd, 'DD/MM/YYYY');
+    if (this.searchForm.value.searchBy === 'date') {
       if (!startDate.isValid() || !endDate.isValid()) {
         this.utilityService.ShowAlert('Please insert a correct date', 'Error');
-        return;    
+        return;
       }
 
-      if(startDate>endDate){
-        this.utilityService.ShowAlert('The start date must be less than the end date', 'Error');
+      if (startDate > endDate) {
+        this.utilityService.ShowAlert(
+          'The start date must be less than the end date',
+          'Error',
+        );
         return;
       }
     }
-    var startDateString = moment(this.searchForm.value.dateStart).format('DD/MM/YYYY');
-    var endDateString = moment(this.searchForm.value.dateEnd).format('DD/MM/YYYY');
-    this.saleService.history(
-      this.searchForm.value.searchBy, 
-      this.searchForm.value.number, 
-      startDateString, endDateString).subscribe({
+    var startDateString = moment(this.searchForm.value.dateStart).format(
+      'DD/MM/YYYY',
+    );
+    var endDateString = moment(this.searchForm.value.dateEnd).format(
+      'DD/MM/YYYY',
+    );
+    this.saleService
+      .history(
+        this.searchForm.value.searchBy,
+        this.searchForm.value.number,
+        startDateString,
+        endDateString,
+      )
+      .subscribe({
         next: (response) => {
-          if(response.status){
+          if (response.status) {
             this.initialData = response.data;
             this.dataListSales.data = this.initialData;
             this.dataListSales.paginator = this.paginator;
-          }else{
+          } else {
             this.utilityService.ShowAlert('Data not found', 'Error');
           }
         },
-        error: (error) => {
-        }
+        error: (error) => {},
       });
   }
 
-  showSaleDetail(sale: Sale){
+  showSaleDetail(sale: Sale) {
     this.dialog.open(ModalSaleDetailComponentm, {
       data: sale,
       disableClose: true,
-      width: '700px'
+      width: '700px',
     });
   }
- 
+
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;

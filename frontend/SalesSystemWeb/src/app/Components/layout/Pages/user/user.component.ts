@@ -1,4 +1,10 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -10,27 +16,33 @@ import { UtilityService } from '../../../../Reusable/utility.service';
 import Swal from 'sweetalert2';
 
 @Component({
-    selector: 'app-user',
-    templateUrl: './user.component.html',
-    styleUrls: ['./user.component.css', '../../../../../styles.scss'],
-    standalone: false
+  selector: 'app-user',
+  templateUrl: './user.component.html',
+  styleUrls: ['./user.component.css', '../../../../../styles.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class UserComponent implements OnInit, AfterViewInit {
-
-  columsTable: string[] = ['Consecutivo', 'FullName', 'Email', 'RolDescription', 'Status', 'Actions'];
-  dataUsers: User[] = [];  
+  columsTable: string[] = [
+    'Consecutivo',
+    'FullName',
+    'Email',
+    'RolDescription',
+    'Status',
+    'Actions',
+  ];
+  dataUsers: User[] = [];
   dataListusers = new MatTableDataSource(this.dataUsers);
   pageIndex: number = 0;
   pageSize: number = 10;
-  
-  @ViewChild(MatPaginator) paginator!: MatPaginator;  
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private dialog: MatDialog,
     private userService: UserService,
-    private utilityService: UtilityService
-    
-  ) { }
+    private utilityService: UtilityService,
+  ) {}
   getListUsers() {
     this.userService.listUsers().subscribe({
       next: (response) => {
@@ -38,12 +50,12 @@ export class UserComponent implements OnInit, AfterViewInit {
           this.dataUsers = response.data;
           this.dataListusers.data = this.dataUsers;
           this.dataListusers.paginator = this.paginator;
-        }else{
-          this.utilityService.ShowAlert("Users not found", 'Error');
+        } else {
+          this.utilityService.ShowAlert('Users not found', 'Error');
         }
       },
-      error: (error) => {}
-    });  
+      error: (error) => {},
+    });
   }
   ngOnInit(): void {
     this.getListUsers();
@@ -58,54 +70,66 @@ export class UserComponent implements OnInit, AfterViewInit {
     this.dataListusers.filter = filterValue.trim().toLowerCase();
   }
 
-  createUser(){
-    this.dialog.open(ModalUserComponent, {
-      disableClose: true
-    }).afterClosed().subscribe(result=>{
-      if (result === "true") {
-        this.getListUsers();     
-      }
-    });
+  createUser() {
+    this.dialog
+      .open(ModalUserComponent, {
+        disableClose: true,
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result === 'true') {
+          this.getListUsers();
+        }
+      });
   }
 
-  updateUser(user: User){
-    this.dialog.open(ModalUserComponent, {
-      disableClose: true,
-      data: user
-    }).afterClosed().subscribe(result=>{
-      if (result === "true") {
-        this.getListUsers();     
-      }
-    });
+  updateUser(user: User) {
+    this.dialog
+      .open(ModalUserComponent, {
+        disableClose: true,
+        data: user,
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result === 'true') {
+          this.getListUsers();
+        }
+      });
   }
-  deleteUser(user: User){
+  deleteUser(user: User) {
     Swal.fire({
-      title:'Are you sure to remove this user?',
+      title: 'Are you sure to remove this user?',
       text: user.fullName,
       icon: 'warning',
       confirmButtonColor: '#3085d6',
       confirmButtonText: 'Yes, remove it!',
       showCancelButton: true,
       cancelButtonColor: '#d33',
-      cancelButtonText: 'Cancel'
-    }).then((result)=>{
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
       if (result.isConfirmed) {
         this.userService.deleteUser(user.idUser).subscribe({
-          next:(resultData)=>{
+          next: (resultData) => {
             if (resultData.status) {
-              this.utilityService.ShowAlert('User was successfully removed', 'success');
+              this.utilityService.ShowAlert(
+                'User was successfully removed',
+                'success',
+              );
               this.getListUsers();
               this.paginator.firstPage();
-            }else{
-              this.utilityService.ShowAlert('User could not be removed', 'error');
+            } else {
+              this.utilityService.ShowAlert(
+                'User could not be removed',
+                'error',
+              );
             }
           },
-          error:(e)=>{}
-        })
+          error: (e) => {},
+        });
       }
-    })
+    });
   }
-  
+
   onPageChange(event: PageEvent) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;

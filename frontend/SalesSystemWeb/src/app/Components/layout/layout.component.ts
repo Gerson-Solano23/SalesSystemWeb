@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Menu } from '../../Interfaces/menu';
 import { MenuService } from '../../Services/menu.service';
@@ -7,17 +7,18 @@ import { LoadingService } from '../../Services/loading.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'app-layout',
-    templateUrl: './layout.component.html',
-    styleUrls: ['./layout.component.css', '../../../styles.scss'],
-    standalone: false
+  selector: 'app-layout',
+  templateUrl: './layout.component.html',
+  styleUrls: ['./layout.component.css', '../../../styles.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class LayoutComponent {
-    // En tu componente
+  // En tu componente
   selectedMenuItem: string = ''; // Inicializa con la opción predeterminada
   private isDarkTheme = false;
   private subscription: Subscription;
-  getControl:boolean = false;
+  getControl: boolean = false;
   listMenu: Menu[] = [];
   emailUser: string = '';
   rolUser: string = '';
@@ -28,30 +29,28 @@ export class LayoutComponent {
     private menuService: MenuService,
     private utilityService: UtilityService,
 
-    public loadingService: LoadingService
+    public loadingService: LoadingService,
   ) {
     this.subscription = this.loadingService.controlExcel$.subscribe(
       (isLoading) => {
         this.getControl = isLoading;
-      }
+      },
     );
-   
   }
 
   // Método para actualizar la opción seleccionada
   selectMenuItem(menuItem: string) {
     this.utilityService.checkTokendExpired();
-    if (menuItem != 'Reports' &&  this.getControl == true) {
+    if (menuItem != 'Reports' && this.getControl == true) {
       this.loadingService.inactive();
     }
     this.selectedMenuItem = menuItem;
-    if(this.selectedMenuItem == null || this.selectedMenuItem == '') {
+    if (this.selectedMenuItem == null || this.selectedMenuItem == '') {
       this.selectedMenuItem = '';
     }
   }
-  
-  ngOnInit():void{
-    
+
+  ngOnInit(): void {
     const user = this.utilityService.getUserSession();
     if (user != null) {
       this.idUserInSession = user.idUser;
@@ -67,19 +66,15 @@ export class LayoutComponent {
         },
         error: (error) => {
           console.error(error);
-        }
+        },
       });
-
-    }else{
+    } else {
       this.router.navigate(['/login']);
     }
   }
 
-  logout():void{
+  logout(): void {
     this.utilityService.deleteUserSession();
     this.router.navigate(['/login']);
-    
   }
-
-
 }

@@ -1,4 +1,10 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,19 +18,28 @@ import Swal from 'sweetalert2';
 import { MessageComponent } from '../../Modals/message/message.component';
 import { MessageModal } from '../../../../Interfaces/messaModal';
 @Component({
-    selector: 'app-product',
-    templateUrl: './product.component.html',
-    styleUrls: ['./product.component.css', '../../../../../styles.scss'],
-    standalone: false
+  selector: 'app-product',
+  templateUrl: './product.component.html',
+  styleUrls: ['./product.component.css', '../../../../../styles.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ProductComponent implements OnInit, AfterViewInit {
-  columsTable: string[] = ['Consecutivo', 'Name', 'Category', 'Stock', 'Price', 'Status', 'Actions'];
-  dataProducts: Product[] = [];  
+  columsTable: string[] = [
+    'Consecutivo',
+    'Name',
+    'Category',
+    'Stock',
+    'Price',
+    'Status',
+    'Actions',
+  ];
+  dataProducts: Product[] = [];
   dataListProducts = new MatTableDataSource<Product>(this.dataProducts);
   pageIndex: number = 0;
   pageSize: number = 10;
   messageData: MessageModal = {} as MessageModal;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;  
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private dialog: MatDialog,
@@ -32,10 +47,10 @@ export class ProductComponent implements OnInit, AfterViewInit {
     private utilityService: UtilityService,
   ) {}
   getStockCero(listProducts: Product[]): Product[] {
-      const listFilter = listProducts.filter(product => product.stock === 0);
-      return listFilter;
+    const listFilter = listProducts.filter((product) => product.stock === 0);
+    return listFilter;
   }
-  openModal(list:  Product[]): void {
+  openModal(list: Product[]): void {
     this.messageData.title = 'Products';
     const listFilter = this.getStockCero(list);
     if (listFilter.length > 0) {
@@ -43,10 +58,10 @@ export class ProductComponent implements OnInit, AfterViewInit {
       this.dialog.open(MessageComponent, {
         width: '600px',
         height: '600px',
-        data : this.messageData
-      });    
+        data: this.messageData,
+      });
     }
-   return;
+    return;
   }
   getListProducts() {
     this.productService.listProducts().subscribe({
@@ -57,25 +72,21 @@ export class ProductComponent implements OnInit, AfterViewInit {
           this.dataListProducts.paginator = this.paginator; // Asigna el paginador después de actualizar los datos
           this.openModal(this.dataProducts);
         } else {
-          this.utilityService.ShowAlert("Products not found", 'Error');
+          this.utilityService.ShowAlert('Products not found', 'Error');
         }
       },
       error: (error) => {
-        console.error("Error loading products: ", error);
-      }
-    });  
+        console.error('Error loading products: ', error);
+      },
+    });
   }
 
   ngOnInit(): void {
     this.getListProducts();
-    
-    
-    
   }
 
   ngAfterViewInit(): void {
     this.dataListProducts.paginator = this.paginator;
-    
   }
 
   filterResearch(event: Event) {
@@ -84,24 +95,30 @@ export class ProductComponent implements OnInit, AfterViewInit {
   }
 
   createProduct() {
-    this.dialog.open(ModalProductComponent, {
-      disableClose: true
-    }).afterClosed().subscribe(result => {
-      if (result === "true") {
-        this.getListProducts();     
-      }
-    });
+    this.dialog
+      .open(ModalProductComponent, {
+        disableClose: true,
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result === 'true') {
+          this.getListProducts();
+        }
+      });
   }
 
   updateProduct(product: Product) {
-    this.dialog.open(ModalProductComponent, {
-      disableClose: true,
-      data: product
-    }).afterClosed().subscribe(result => {
-      if (result === "true") {
-        this.getListProducts();     
-      }
-    });
+    this.dialog
+      .open(ModalProductComponent, {
+        disableClose: true,
+        data: product,
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result === 'true') {
+          this.getListProducts();
+        }
+      });
   }
 
   deleteProduct(product: Product) {
@@ -113,22 +130,28 @@ export class ProductComponent implements OnInit, AfterViewInit {
       confirmButtonText: 'Yes, remove it!',
       showCancelButton: true,
       cancelButtonColor: '#d33',
-      cancelButtonText: 'Cancel'
+      cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
         this.productService.deleteproduct(product.idProduct).subscribe({
           next: (resultData) => {
             if (resultData.status) {
-              this.utilityService.ShowAlert('Product was successfully removed', 'success');
+              this.utilityService.ShowAlert(
+                'Product was successfully removed',
+                'success',
+              );
               this.getListProducts();
               this.paginator.firstPage();
             } else {
-              this.utilityService.ShowAlert('Product could not be removed', 'error');
+              this.utilityService.ShowAlert(
+                'Product could not be removed',
+                'error',
+              );
             }
           },
           error: (e) => {
-            console.error("Error deleting product: ", e);
-          }
+            console.error('Error deleting product: ', e);
+          },
         });
       }
     });
