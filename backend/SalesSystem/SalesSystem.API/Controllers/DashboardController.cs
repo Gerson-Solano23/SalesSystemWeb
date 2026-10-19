@@ -34,7 +34,7 @@ namespace SalesSystem.API.Controllers
         [Route("MonthSummary")]
         public async Task<IActionResult> MonthSummary(int month, int? year)
         {
-            var response = new Response<DasboardMonthlyDTO>
+            var response = new Response<DashboardMonthlyDTO>
             {
                 status = true,
                 data = await _dashBoardService.MonthlySummary(month, year ?? DateTime.Now.Year)

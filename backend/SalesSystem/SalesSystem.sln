@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesSystem.DTO", "SalesSys
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesSystem.Utility", "SalesSystem.Utility\SalesSystem.Utility.csproj", "{36D67330-EDA9-4421-9323-E7FAEAD1CF11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesSystem.Tests", "SalesSystem.Tests\SalesSystem.Tests.csproj", "{95A424FF-9548-4B84-8689-4E70AF9A1EA1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{36D67330-EDA9-4421-9323-E7FAEAD1CF11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36D67330-EDA9-4421-9323-E7FAEAD1CF11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36D67330-EDA9-4421-9323-E7FAEAD1CF11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95A424FF-9548-4B84-8689-4E70AF9A1EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95A424FF-9548-4B84-8689-4E70AF9A1EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95A424FF-9548-4B84-8689-4E70AF9A1EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95A424FF-9548-4B84-8689-4E70AF9A1EA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

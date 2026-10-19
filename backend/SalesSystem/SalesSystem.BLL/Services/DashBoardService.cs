@@ -106,7 +106,7 @@ namespace SalesSystem.BLL.Services
         #endregion dataLastWeek
 
         #region dataMonthly
-        public async Task<DasboardMonthlyDTO> MonthlySummary(int month, int year)
+        public async Task<DashboardMonthlyDTO> MonthlySummary(int month, int year)
         {
             if (month == 0)
             {
@@ -123,7 +123,7 @@ namespace SalesSystem.BLL.Services
             var totals = await GetTotals(start, endExclusive);
             var perDay = await GetSalesPerDay(start, endExclusive);
 
-            return new DasboardMonthlyDTO
+            return new DashboardMonthlyDTO
             {
                 TotalSales = totals.Sales,
                 TotalRevenue = totals.Revenue,

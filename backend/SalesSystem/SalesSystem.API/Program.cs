@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using SalesSystem.API.Utility;
@@ -93,7 +94,28 @@ builder.Services.AddOutputCache(options =>
     options.AddPolicy("products", builder => builder.Expire(TimeSpan.FromMinutes(30)).Tag("products"));
 });
 
+// Behind a reverse proxy (e.g. the nginx container) the client IP comes from X-Forwarded-For.
+// Only enable it when the API is not reachable directly, otherwise clients could spoof their IP.
+bool behindProxy = bool.TryParse(builder.Configuration["ReverseProxy:Enabled"], out bool proxyEnabled) && proxyEnabled;
+if (behindProxy)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+}
+
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+if (behindProxy)
+{
+    app.UseForwardedHeaders();
+}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -110,5 +132,6 @@ app.UseAuthorization();
 app.UseOutputCache();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
