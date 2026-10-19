@@ -3,14 +3,14 @@
 ## Introduction
 
 Full-stack point-of-sale and sales management system. The backend is a layered ASP.NET Core 8 Web API
-(API → BLL → DAL → Entity/DTO) using Entity Framework Core 8 and SQL Server; the frontend is an Angular 18
+(API → BLL → DAL → Entity/DTO) using Entity Framework Core 8 and SQL Server; the frontend is an Angular 22
 application with Angular Material. Reports are exported to Excel, a weekly report is uploaded to AWS S3,
 and the dashboard shows weekly, monthly, yearly and custom-range statistics.
 
 ## Technologies Used
 
 - **Backend**: C#, .NET 8, ASP.NET Core Web API
-- **Frontend**: Angular 18, Angular Material, Chart.js
+- **Frontend**: Angular 22, Angular Material, Chart.js
 - **Database**: SQL Server, Entity Framework Core 8
 - **Cloud**: AWS S3 (report storage)
 - **Caching**: Output Caching in ASP.NET Core
@@ -35,7 +35,7 @@ and the dashboard shows weekly, monthly, yearly and custom-range statistics.
 
 - .NET 8 SDK
 - SQL Server with the `MySalesCompany` database (tables and the `CSP_TopProducts_*` stored procedures)
-- Node.js 20 and Angular CLI 18
+- Node.js 22.22.3+ or 24 LTS and Angular CLI 22
 - Optional: AWS account/bucket for the files module and the weekly report
 
 ### Database update (required once)
