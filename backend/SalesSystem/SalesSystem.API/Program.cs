@@ -1,112 +1,102 @@
-
-using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using SalesSystem.BLL.Services;
+using SalesSystem.API.Utility;
 using SalesSystem.IOC;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
-string? key = Environment.GetEnvironmentVariable("CERTIFICATE_KEY");
-// Add services to the container.
+
+var jwtSettings = JwtSettings.FromConfiguration(builder.Configuration);
+builder.Services.AddSingleton(jwtSettings);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHostedService<WeeklyTaskService>();
 builder.Services.InjectDependencies(builder.Configuration);
+
 builder.Services.AddAuthentication("Bearer").AddJwtBearer(opt =>
 {
-
-    var singning = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(key));
-    var signingCredentials = new SigningCredentials(singning, SecurityAlgorithms.HmacSha256Signature);
-
-    opt.RequireHttpsMetadata = false;
+    opt.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
     opt.TokenValidationParameters = new TokenValidationParameters()
     {
-        ValidateAudience = false,
-        ValidateIssuer = false,
-        IssuerSigningKey = singning,
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidateAudience = true,
+        ValidAudience = jwtSettings.Audience,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = jwtSettings.GetSigningKey(),
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.FromMinutes(1),
+    };
+});
+
+// Rate limit configuration
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        await context.HttpContext.Response.WriteAsJsonAsync(new Response<object?>
+        {
+            status = false,
+            message = "You have exceeded the request limit. Please try again later."
+        }, cancellationToken);
     };
 
-});
-//Rate Limit Configuration
-
-
-builder.Services.AddRateLimiter(_ => _
-    .AddFixedWindowLimiter(policyName: "fixed", options =>
+    options.AddFixedWindowLimiter(policyName: RateLimitPolicies.Fixed, limiter =>
     {
-        options.PermitLimit = 4;
-        options.Window = TimeSpan.FromSeconds(12);
-        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = 2;
+        limiter.PermitLimit = 4;
+        limiter.Window = TimeSpan.FromSeconds(12);
+        limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiter.QueueLimit = 2;
+    });
 
-    }));
+    // Login attempts are limited per client IP to slow down brute-force attacks.
+    options.AddPolicy(RateLimitPolicies.Login, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
+});
 
-
-
-
-// Authorization Configuration  JWT 
+// Authorization configuration (JWT role claim)
 builder.Services.AddAuthorization(opt =>
 {
-    opt.AddPolicy("Admin", policy => policy.RequireRole("1"));
-    opt.AddPolicy("Employee", policy => policy.RequireRole("2"));
-    opt.AddPolicy("Supervisor", policy => policy.RequireRole("3"));
-    
-    opt.AddPolicy("Admin_Supervisor", policy => policy.RequireRole("1", "3"));
-    opt.AddPolicy("Admin_Supervisor_Employee", policy => policy.RequireRole("1", "2", "3"));
+    opt.AddPolicy("Admin", policy => policy.RequireRole(Roles.Admin));
+    opt.AddPolicy("Employee", policy => policy.RequireRole(Roles.Employee));
+    opt.AddPolicy("Supervisor", policy => policy.RequireRole(Roles.Supervisor));
+
+    opt.AddPolicy("Admin_Supervisor", policy => policy.RequireRole(Roles.Admin, Roles.Supervisor));
+    opt.AddPolicy("Admin_Supervisor_Employee", policy => policy.RequireRole(Roles.Admin, Roles.Employee, Roles.Supervisor));
 });
 
+string[] allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("NewPolicy", app =>
     {
-        app.AllowAnyOrigin()
+        app.WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
 });
-//cache configuration 
-builder.Services.AddOutputCache(options => {
+
+// Cache configuration
+builder.Services.AddOutputCache(options =>
+{
     options.AddPolicy("users", builder => builder.Expire(TimeSpan.FromMinutes(30)).Tag("users"));
     options.AddPolicy("products", builder => builder.Expire(TimeSpan.FromMinutes(30)).Tag("products"));
-
 });
 
-
-builder.Services.AddResponseCaching();
 var app = builder.Build();
-app.UseRateLimiter();
 
-app.Use(async (context, next) =>
-{
-    await next();  // Deja que el siguiente middleware procese la solicitud
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-    // Verifica si la respuesta tiene el estado 429 (Too Many Requests)
-
-    if (context.Response.StatusCode == StatusCodes.Status429TooManyRequests)
-    {
-        // Configura el contenido y el código de estado
-        context.Response.ContentType = "application/json";
-
-        // Asegúrate de limpiar cualquier respuesta que ya se haya escrito
-        context.Response.Clear();
-
-        // Construye el mensaje de respuesta personalizado
-        var responseMessage = new
-        {
-            message = "You have exceeded the request limit. Please try again later."
-        };
-
-        // Escribe el mensaje personalizado en la respuesta
-        await context.Response.WriteAsJsonAsync(responseMessage);
-    }
-});
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -114,8 +104,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("NewPolicy");
-app.UseOutputCache();
+app.UseRateLimiter();
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseOutputCache();
 
 app.MapControllers();
 

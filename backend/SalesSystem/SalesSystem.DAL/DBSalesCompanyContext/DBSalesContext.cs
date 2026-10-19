@@ -317,7 +317,7 @@ public partial class DBSalesContext : DbContext
                 .HasColumnName("fullName");
             entity.Property(e => e.IdRol).HasColumnName("idRol");
             entity.Property(e => e.Password)
-                .HasMaxLength(20)
+                .HasMaxLength(256)
                 .IsUnicode(false)
                 .HasColumnName("password");
             entity.Property(e => e.Status)

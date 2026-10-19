@@ -1,68 +1,48 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SalesSystem.API.Utility;
-using SalesSystem.BLL.Services;
 using SalesSystem.BLL.Services.Contract;
-using SalesSystem.DTO;
 
 namespace SalesSystem.API.Controllers
 {
-    [Authorize]
+    /// <summary>
+    /// Excel report generated for the authenticated user. The legacy <c>idUser</c> query
+    /// parameter is ignored: the user always comes from the token.
+    /// </summary>
+    [Authorize(Policy = "Admin_Supervisor")]
     [Route("api/[controller]")]
     [ApiController]
     public class FileDownloadController : ControllerBase
     {
         private readonly IFileDownload _fileDownloadService;
-       
 
         public FileDownloadController(IFileDownload fileDownloadService)
         {
             _fileDownloadService = fileDownloadService;
-            
         }
 
         [HttpDelete]
         [Route("DeleteFileTask")]
-        [Authorize(Policy = "Admin_Supervisor")]
-        public async Task<IActionResult> DeleteFile(int idUser)
+        public IActionResult DeleteFile()
         {
-            var response = new Response<bool>();
-
-            try
+            var response = new Response<bool>
             {
-                response.status = true;
-                response.data =  _fileDownloadService.DeleteFile(idUser);
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = true,
+                data = _fileDownloadService.DeleteFile(User.GetUserId())
+            };
+            return Ok(response);
         }
 
         [HttpGet]
         [Route("DownloadExcel")]
-        [Authorize(Policy = "Admin_Supervisor")]
-        public async Task<IActionResult> DownloadExcel(int idUser)
+        public async Task<IActionResult> DownloadExcel()
         {
-            var response = new Response<byte[]>();
-            
-
-            try
+            var response = new Response<byte[]>
             {
-                response.status = true;
-                response.data = await _fileDownloadService.getFileExcel(idUser);
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = true,
+                data = await _fileDownloadService.getFileExcel(User.GetUserId())
+            };
+            return Ok(response);
         }
     }
 }

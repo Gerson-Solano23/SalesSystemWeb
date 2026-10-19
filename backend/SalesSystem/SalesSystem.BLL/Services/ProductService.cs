@@ -4,6 +4,7 @@ using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DTO;
 using SalesSystem.Entity;
+using SalesSystem.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace SalesSystem.BLL.Services
 
                 if (product.IdProduct == 0)
                 {
-                    throw new TaskCanceledException("Unable to create");
+                    throw new BusinessException("Unable to create");
                 }
 
                 var query = await _productRepository.Consult(x => x.Name == entity.Name);
@@ -56,14 +57,14 @@ namespace SalesSystem.BLL.Services
 
                 if (productFound == null)
                 {
-                    throw new TaskCanceledException("Product not exist");
+                    throw BusinessException.NotFound("Product not exist");
                 }
 
                 bool result = await _productRepository.DeleteAsync(productFound);
 
                 if (!result)
                 {
-                    throw new TaskCanceledException("Unable to delete product");
+                    throw new BusinessException("Unable to delete product");
                 }
                 return result;  
             }
@@ -82,7 +83,7 @@ namespace SalesSystem.BLL.Services
 
                 if (productFound == null)
                 {
-                    throw new TaskCanceledException("Product not exist");
+                    throw BusinessException.NotFound("Product not exist");
                 }
 
                 return _mapper.Map<ProductDTO>(productFound);
@@ -124,7 +125,7 @@ namespace SalesSystem.BLL.Services
 
                 if (productFound == null)
                 {
-                    throw new TaskCanceledException("Product not exist");
+                    throw BusinessException.NotFound("Product not exist");
                 }
 
                 productFound.IdCategory = productEntity.IdCategory;
@@ -136,7 +137,7 @@ namespace SalesSystem.BLL.Services
                 bool result = await _productRepository.UpdateAsync(productFound);
                 if (!result)
                 {
-                    throw new TaskCanceledException("Unable to update product");
+                    throw new BusinessException("Unable to update product");
                 }
                 return result;
             }

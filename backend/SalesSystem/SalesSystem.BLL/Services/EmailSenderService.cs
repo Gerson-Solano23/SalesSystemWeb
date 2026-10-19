@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Net;
 using System.Text;
+using SalesSystem.Utility;
 using System.Threading.Tasks;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -14,12 +15,37 @@ namespace SalesSystem.BLL.Services
 {
     public class EmailSenderService : ISendEmail
     {
-        private static string emailAdress = "greateindustries@outlook.com";
-        private static string password = Environment.GetEnvironmentVariable("PASSGREATEINDUSTRIES");
-        private static string emailNotification = Environment.GetEnvironmentVariable("MYOWNEMAIL");
+        private readonly EmailSettings _settings;
+
+        public EmailSenderService(EmailSettings settings)
+        {
+            _settings = settings;
+        }
+
+        private SmtpClient CreateClient()
+        {
+            if (string.IsNullOrWhiteSpace(_settings.User) || string.IsNullOrWhiteSpace(_settings.Password))
+            {
+                throw new InvalidOperationException("SMTP credentials are not configured (Email:User / PASSGREATEINDUSTRIES).");
+            }
+
+            return new SmtpClient
+            {
+                Host = _settings.Host,
+                Port = _settings.Port,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(_settings.User, _settings.Password),
+                EnableSsl = _settings.EnableSsl
+            };
+        }
 
         public async Task<bool> SendEmail(EmailDTO email)
         {
+            if (string.IsNullOrWhiteSpace(email.recipient_User))
+            {
+                throw new BusinessException("Recipient email is required");
+            }
+
             bool result = true;
             if (email.Attached == null || email.Attached.Length == 0)
             {
@@ -29,20 +55,12 @@ namespace SalesSystem.BLL.Services
             Attachment attachment = new Attachment(new MemoryStream(email.Attached), "Report.pdf", "application/pdf");
             try
             {
-                email.sender_User = emailAdress;
-                email.password_Sender = password;
-                using (SmtpClient client = new SmtpClient())
+                using (SmtpClient client = CreateClient())
                 {
-                    client.Host = "smtp-mail.outlook.com";
-                    client.Port = 587; // The Port SSL/TLS
-                    client.UseDefaultCredentials = false;
-                    client.Credentials = new NetworkCredential(email.sender_User, email.password_Sender);
-                    client.EnableSsl = true; // Enable SSL/TLS
-
                     //Make the message and componet about that 
                     using (message = new MailMessage())
                     {
-                        message.From = new MailAddress(email.sender_User);
+                        message.From = new MailAddress(_settings.User);
                         message.To.Add(email.recipient_User);
                         message.Subject = email.Subject;
                         message.Body = email.Body;
@@ -206,19 +224,13 @@ namespace SalesSystem.BLL.Services
             try
             {
                 var messageNotify = new MailMessage();
-                using (SmtpClient client = new SmtpClient())
+                using (SmtpClient client = CreateClient())
                 {
-                    client.Host = "smtp-mail.outlook.com";
-                    client.Port = 587; // The Port SSL/TLS
-                    client.UseDefaultCredentials = false;
-                    client.Credentials = new NetworkCredential(emailAdress, password);
-                    client.EnableSsl = true; // Enable SSL/TLS
-
                     //Make the message and componet about that 
                     using (messageNotify = new MailMessage())
                     {
-                        messageNotify.From = new MailAddress(emailAdress);
-                        messageNotify.To.Add(emailNotification);
+                        messageNotify.From = new MailAddress(_settings.User);
+                        messageNotify.To.Add(_settings.NotificationEmail);
                         messageNotify.Subject = "ALERT STOCK - GREATE INDUSTRIES S.A";
 
                         string tablaProductos = "<table style='border-collapse: collapse; width: 100%;'>";
@@ -233,7 +245,7 @@ namespace SalesSystem.BLL.Services
                             {
                                 status = "Inactive";
                             }
-                            tablaProductos += $"<tr><td style='border: 1px solid #ddd; padding: 8px;'>{producto.Name}</td><td style='border: 1px solid #ddd; padding: 8px;'>{producto.Stock}</td><td style='border: 1px solid #ddd; padding: 8px;'>{status}</td></tr>";
+                            tablaProductos += $"<tr><td style='border: 1px solid #ddd; padding: 8px;'>{WebUtility.HtmlEncode(producto.Name)}</td><td style='border: 1px solid #ddd; padding: 8px;'>{producto.Stock}</td><td style='border: 1px solid #ddd; padding: 8px;'>{status}</td></tr>";
                         }
 
                         tablaProductos += "</table>";

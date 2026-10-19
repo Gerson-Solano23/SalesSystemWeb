@@ -25,13 +25,15 @@ namespace SalesSystem.Utility
             #region Usuario
             CreateMap<Usuario, UsuarioDTO>()
                 .ForMember(destination => destination.RolDescription, option => option.MapFrom(source => source.IdRolNavigation.Name))
-                .ForMember(destination => destination.Status, option => option.MapFrom(source => source.Status == true ? 1 : 0));
+                .ForMember(destination => destination.Status, option => option.MapFrom(source => source.Status == true ? 1 : 0))
+                .ForMember(destination => destination.Password, option => option.Ignore());
 
             CreateMap<Usuario, SessionDTO>()
                 .ForMember(destination => destination.RolDescription, option => option.MapFrom(source => source.IdRolNavigation.Name));
 
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(destination => destination.IdRolNavigation, option => option.Ignore())
+                .ForMember(destination => destination.Password, option => option.Ignore())
                 .ForMember(destination => destination.Status, option => option.MapFrom(source => source.Status == 1 ? true : false));
             #endregion
 

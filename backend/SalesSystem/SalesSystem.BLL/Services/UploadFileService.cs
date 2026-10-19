@@ -10,6 +10,8 @@ using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DAL.DbSalesContext;
 using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.Entity;
+using SalesSystem.Utility;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +27,37 @@ namespace SalesSystem.BLL.Services
         private readonly static string AWSECRETKEY = Environment.GetEnvironmentVariable("AWSKEYSECRET");
         private readonly static string AWSBUCKETNAME = Environment.GetEnvironmentVariable("BUCKETNAME");
 
+        private const int MaxFileSizeBytes = 10 * 1024 * 1024;
+        private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".pdf", ".txt", ".csv", ".doc", ".docx", ".xls", ".xlsx", ".png", ".jpg", ".jpeg"
+        };
+
         private readonly IGenericRepository<S3DetailsFile> _uploadFileService;
+
+        /// <summary>
+        /// Rejects names with paths or unexpected extensions so clients can only address plain file keys.
+        /// </summary>
+        private static string ValidateFileName(string? fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName) || Path.GetFileName(fileName) != fileName || fileName.Contains(".."))
+            {
+                throw new BusinessException("Invalid file name");
+            }
+
+            if (!AllowedExtensions.Contains(Path.GetExtension(fileName)))
+            {
+                throw new BusinessException("File type not allowed");
+            }
+
+            return fileName;
+        }
+
+        private async Task<S3DetailsFile> FindRegisteredFile(string fileName)
+        {
+            var query = await _uploadFileService.Consult(x => x.FileName == fileName);
+            return await query.FirstOrDefaultAsync() ?? throw BusinessException.NotFound("File not found");
+        }
 
 
         public UploadFileService(IGenericRepository<S3DetailsFile> uploadFileService)
@@ -35,9 +67,19 @@ namespace SalesSystem.BLL.Services
 
         public async Task<bool> UploadFile(byte[] fileData, string fileName, string fileContentType)
         {
-            if (fileData == null || fileName == null || fileContentType == null)
+            if (fileData == null || fileData.Length == 0 || fileName == null || fileContentType == null)
             {
                 return false;
+            }
+            ValidateFileName(fileName);
+            if (fileData.Length > MaxFileSizeBytes)
+            {
+                throw new BusinessException("File exceeds the 10 MB limit");
+            }
+            var existing = await _uploadFileService.Consult(x => x.FileName == fileName);
+            if (await existing.AnyAsync())
+            {
+                throw new BusinessException("A file with the same name already exists");
             }
             try
             {
@@ -111,10 +153,7 @@ namespace SalesSystem.BLL.Services
             bool result = false;
             try
             {
-                S3DetailsFile fileDetails = new S3DetailsFile();
-
-                var query = await _uploadFileService.Consult();
-                fileDetails = query.FirstOrDefaultAsync(x => x.FileName == fileName).Result;
+                S3DetailsFile fileDetails = await FindRegisteredFile(fileName);
                 var response = await _uploadFileService.DeleteAsync(fileDetails);
                 //_dbContext.S3DetailsFile.Remove(fileDetails);
                 if (response == true)
@@ -143,6 +182,9 @@ namespace SalesSystem.BLL.Services
 
         public async Task<byte[]> DownloadFile(string fileName)
         {
+            // Only files registered through this system can be downloaded, not any key in the bucket.
+            await FindRegisteredFile(fileName);
+
             //Autenticacion con AmazonS3Client 
             using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
             {

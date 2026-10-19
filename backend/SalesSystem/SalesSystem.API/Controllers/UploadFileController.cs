@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.HPSF;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
-using SalesSystem.Entity;
 
 namespace SalesSystem.API.Controllers
 {
@@ -23,39 +20,20 @@ namespace SalesSystem.API.Controllers
         [HttpPost]
         [Route("UploadFile")]
         [Authorize(Policy = "Admin_Supervisor")]
+        [RequestSizeLimit(15 * 1024 * 1024)]
         public async Task<IActionResult> UploadFile([FromForm] byte[] fileData, string fileName, string fileContentType)
         {
             var response = new Response<string>();
-            try
-            {
-                if (fileData == null)
-                {
-                    response.status = false;
-                    response.message = "File not found";
-                    return BadRequest(response);
-                }
-
-
-
-                if (await _uploadS3File.UploadFile(fileData, fileName, fileContentType))
-                {
-                    response.status = true;
-                    response.message = "File uploaded successfully";
-                    return Ok(response);
-                }
-                else
-                {
-                    response.status = false;
-                    response.message = "Error uploading file";
-                    return BadRequest(response);
-                }
-            }
-            catch (Exception ex)
+            if (fileData == null || fileData.Length == 0)
             {
                 response.status = false;
-                response.message = ex.Message;
+                response.message = "File not found";
                 return BadRequest(response);
             }
+
+            response.status = await _uploadS3File.UploadFile(fileData, fileName, fileContentType);
+            response.message = response.status ? "File uploaded successfully" : "Error uploading file";
+            return response.status ? Ok(response) : BadRequest(response);
         }
 
         [HttpDelete]
@@ -64,37 +42,16 @@ namespace SalesSystem.API.Controllers
         public async Task<IActionResult> DeleteFile(string fileName)
         {
             var response = new Response<bool>();
-            try
-            {
-                if (string.IsNullOrEmpty(fileName))
-                {
-                    response.status = false;
-                    response.data = false;
-                    response.message = "File name not found";
-                    return BadRequest(response);
-                }
-
-                if (await _uploadS3File.DeleteFile(fileName))
-                {
-                    response.status = true;
-                    response.data = true;
-                    response.message = "File deleted successfully";
-                    return Ok(response);
-                }
-                else
-                {
-                    response.status = false;
-                    response.data = false;
-                    response.message = "Error deleting file";
-                    return BadRequest(response);
-                }
-            }
-            catch (Exception ex)
+            if (string.IsNullOrEmpty(fileName))
             {
                 response.status = false;
-                response.message = ex.Message;
+                response.message = "File name not found";
                 return BadRequest(response);
             }
+
+            response.data = response.status = await _uploadS3File.DeleteFile(fileName);
+            response.message = response.status ? "File deleted successfully" : "Error deleting file";
+            return response.status ? Ok(response) : BadRequest(response);
         }
 
         [HttpGet]
@@ -103,35 +60,21 @@ namespace SalesSystem.API.Controllers
         public async Task<IActionResult> DownloadFile(string fileName)
         {
             var response = new Response<byte[]>();
-            try
-            {
-                if (string.IsNullOrEmpty(fileName))
-                {
-                    response.status = false;
-                    response.message = "File name not found";
-                    return BadRequest(response);
-                }
-
-                var file = await _uploadS3File.DownloadFile(fileName);
-                if (file != null)
-                {
-                    response.status = true;
-                    response.data = file;
-                    return Ok(response);
-                }
-                else
-                {
-                    response.status = false;
-                    response.message = "Error downloading file";
-                    return BadRequest(response);
-                }
-            }
-            catch (Exception ex)
+            if (string.IsNullOrEmpty(fileName))
             {
                 response.status = false;
-                response.message = ex.Message;
+                response.message = "File name not found";
                 return BadRequest(response);
             }
+
+            response.data = await _uploadS3File.DownloadFile(fileName);
+            response.status = response.data != null;
+            if (!response.status)
+            {
+                response.message = "Error downloading file";
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
         [HttpGet]
@@ -139,31 +82,12 @@ namespace SalesSystem.API.Controllers
         [Authorize(Policy = "Admin_Supervisor")]
         public async Task<IActionResult> getReportsPerMonth(string month, string year)
         {
-            var response = new Response<List<string>>();
-            try
+            var response = new Response<List<string>>
             {
-                var list = await _uploadS3File.getListFilesPerMonth(month, year);
-                if (list != null)
-                {
-                    response.status = true;
-                    response.data = list;
-                    return Ok(response);
-                }
-                else
-                {
-                    response.status = false;
-                    response.message = "Error get list files";
-                    return BadRequest(response);
-                }      
-            }
-            catch (Exception ex)
-            {
-                response.status = false;
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
-
-            
+                status = true,
+                data = await _uploadS3File.getListFilesPerMonth(month, year)
+            };
+            return Ok(response);
         }
     }
 }

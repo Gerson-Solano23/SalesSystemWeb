@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Login } from '../../Interfaces/login';
+import { LoginResponse } from '../../Interfaces/login-response';
 import { UserService } from '../../Services/user.service';
 import { UtilityService } from '../../Reusable/utility.service';
 
@@ -31,27 +32,21 @@ export class LoginComponent {
       Email: this.formLogin.get('email')?.value,
       Password: this.formLogin.get('password')?.value
     }
-    this._UserService.getToken(request.Email, request.Password).subscribe({
-      next: (responseToken) => {
-        if (responseToken.status) {
-          this._UtilityService.setToken(responseToken.data);
-        }
-      }
-    });
+    // One request returns both the token and the session, so the token is stored
+    // before navigating and the first API calls of the layout are already authenticated.
     this._UserService.login(request).subscribe({
       next: (response) => {
         if (response.status) {
-          
-          this._UtilityService.saveUserSession(response.data);
-          console.log('sata in login', response.data);
-          this._UtilityService.setIdRol(response.data.rolDescription);
-          if (response.data.rolDescription == 'Admin') {
-            this._Router.navigate(['/pages/dashboard']);    
-          }else if (response.data.rolDescription == 'Supervisor') {
+          const loginData = response.data as LoginResponse;
+          this._UtilityService.setToken(loginData.token);
+          this._UtilityService.saveUserSession(loginData.session);
+          this._UtilityService.setIdRol(loginData.session.rolDescription);
+          if (loginData.session.rolDescription == 'Admin') {
+            this._Router.navigate(['/pages/dashboard']);
+          }else if (loginData.session.rolDescription == 'Supervisor') {
             this._Router.navigate(['/pages/products']);
-            
-          }else if (response.data.rolDescription == 'Employee') {
-          this._Router.navigate(['/pages/sale']);
+          }else if (loginData.session.rolDescription == 'Employee') {
+            this._Router.navigate(['/pages/sale']);
           }
         }else{
           this._UtilityService.ShowAlert("User not found", 'Opps!');
@@ -61,7 +56,10 @@ export class LoginComponent {
         this.showLoading = false;
       },
       error: (error) => {
-        this._UtilityService.ShowAlert("An error has occurred", 'Opps!');
+        this.showLoading = false;
+        const message = error.status === 401 ? 'Invalid email or password'
+          : error.error?.message ?? 'An error has occurred';
+        this._UtilityService.ShowAlert(message, 'Opps!');
       }
     });
   }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
@@ -6,35 +6,28 @@ using SalesSystem.DTO;
 
 namespace SalesSystem.API.Controllers
 {
+    [Authorize(Policy = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class RolController : ControllerBase
     {
-        private readonly IRol _rolRepository;
+        private readonly IRol _rolService;
 
-        public RolController(IRol rolRepository)
+        public RolController(IRol rolService)
         {
-            _rolRepository = rolRepository;
+            _rolService = rolService;
         }
 
         [HttpGet]
         [Route("List")]
         public async Task<IActionResult> List()
         {
-            var response = new Response<List<RolDTO>>();
-            try
+            var response = new Response<List<RolDTO>>
             {
-                response.status = true;
-                response.data = await _rolRepository.List();
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = true,
+                data = await _rolService.List()
+            };
+            return Ok(response);
         }
-
     }
 }

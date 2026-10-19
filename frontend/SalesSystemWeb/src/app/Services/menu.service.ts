@@ -13,10 +13,10 @@ export class MenuService {
 
   constructor(private http:HttpClient) { }
 
-  listMenus(IdUser:number):Observable<ResponseApi>{
-    console.log('HEADER TOKEN BAREER IN LIST MENU GET: ',localStorage.getItem('authToken'));
-    return this.http.get<ResponseApi>(`${this.urlAPI}List?id=${IdUser}`, {headers: this.getDateToken()});
-  } 
+  // The API resolves the user from the JWT, so no user id is sent.
+  listMenus():Observable<ResponseApi>{
+    return this.http.get<ResponseApi>(`${this.urlAPI}List`, {headers: this.getDateToken()});
+  }
 
   getDateToken() {
     // Recuperar el token desde el localStorage

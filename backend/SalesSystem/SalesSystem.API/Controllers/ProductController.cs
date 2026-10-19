@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using SalesSystem.API.Utility;
@@ -15,6 +14,7 @@ namespace SalesSystem.API.Controllers
     {
         private readonly IProduct _productService;
         private readonly IOutputCacheStore _outputCacheStore;
+
         public ProductController(IProduct productService, IOutputCacheStore outputCacheStore)
         {
             _productService = productService;
@@ -24,23 +24,15 @@ namespace SalesSystem.API.Controllers
         [HttpGet]
         [Route("List")]
         [OutputCache(PolicyName = "products")]
-        // [Authorize(Policy = "Admin_Supervisor")]
-        [AllowAnonymous]
+        [Authorize(Policy = "Admin_Supervisor_Employee")]
         public async Task<IActionResult> List()
         {
-            var response = new Response<List<ProductDTO>>();
-            try
+            var response = new Response<List<ProductDTO>>
             {
-                response.status = true;
-                response.data = await _productService.List();
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = true,
+                data = await _productService.List()
+            };
+            return Ok(response);
         }
 
         [HttpGet]
@@ -48,19 +40,12 @@ namespace SalesSystem.API.Controllers
         [Authorize(Policy = "Admin_Supervisor")]
         public async Task<IActionResult> Get(int id)
         {
-            var response = new Response<ProductDTO>();
-            try
+            var response = new Response<ProductDTO>
             {
-                response.status = true;
-                response.data = await _productService.Get(id);
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = true,
+                data = await _productService.Get(id)
+            };
+            return Ok(response);
         }
 
         [HttpPost]
@@ -68,19 +53,13 @@ namespace SalesSystem.API.Controllers
         [Authorize(Policy = "Admin_Supervisor")]
         public async Task<IActionResult> Create([FromBody] ProductDTO entity)
         {
-            var response = new Response<ProductDTO>();
-            try
+            var response = new Response<ProductDTO>
             {
-                response.status = true;
-                response.data = await _productService.Create(entity);
-                await _outputCacheStore.EvictByTagAsync("products", default);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = true,
+                data = await _productService.Create(entity)
+            };
+            await _outputCacheStore.EvictByTagAsync("products", default);
+            return Ok(response);
         }
 
         [HttpPut]
@@ -88,19 +67,12 @@ namespace SalesSystem.API.Controllers
         [Authorize(Policy = "Admin_Supervisor")]
         public async Task<IActionResult> Update([FromBody] ProductDTO entity)
         {
-            var response = new Response<ProductDTO>();
-            try
+            var response = new Response<ProductDTO>
             {
-                response.status = await _productService.Update(entity);
-                await _outputCacheStore.EvictByTagAsync("products", default);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.status = false;
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = await _productService.Update(entity)
+            };
+            await _outputCacheStore.EvictByTagAsync("products", default);
+            return Ok(response);
         }
 
         [HttpDelete]
@@ -108,21 +80,12 @@ namespace SalesSystem.API.Controllers
         [Authorize(Policy = "Admin_Supervisor")]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = new Response<bool>();
-            try
+            var response = new Response<bool>
             {
-                response.status = await _productService.Delete(id);
-                await _outputCacheStore.EvictByTagAsync("products", default);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.status = false;
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = await _productService.Delete(id)
+            };
+            await _outputCacheStore.EvictByTagAsync("products", default);
+            return Ok(response);
         }
-
-
     }
 }

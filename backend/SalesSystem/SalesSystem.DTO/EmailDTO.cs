@@ -9,10 +9,8 @@ namespace SalesSystem.DTO
 {
     public class EmailDTO
     {
-        [DataType(DataType.EmailAddress)]
-        public string? sender_User { get; set; }
-        public string? password_Sender { get; set; }
-        [DataType(DataType.EmailAddress)]
+        [Required]
+        [EmailAddress]
         public string? recipient_User { get; set; }
         public string? Subject { get; set; }
         public string? Body { get; set; }

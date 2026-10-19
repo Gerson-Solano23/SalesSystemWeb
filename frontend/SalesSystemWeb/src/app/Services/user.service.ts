@@ -6,24 +6,18 @@ import { environment } from '../enviroments/enviroments';
 import { ResponseApi } from '../Interfaces/response-api';
 import { User } from '../Interfaces/user';
 import { Login } from '../Interfaces/login';
-import { UtilityService } from '../Reusable/utility.service';
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private urlAPI: string = environment.apiURL + 'Usuario/';
-  private urlAPIToken: string = environment.apiURL + 'Authenticator/';
+  private urlAPIAuth: string = environment.apiURL + 'Authenticator/';
 
-  constructor(private http:HttpClient,
-              private utilityService:UtilityService
-  ) { 
-    
-  }
+  constructor(private http:HttpClient) { }
 
+  // Returns the JWT and the user session in a single request: { token, session }.
   login(login:Login):Observable<ResponseApi>{
-    var responseLogin = this.http.post<ResponseApi>(`${this.urlAPI}Login`,login);
-    return responseLogin;
-
+    return this.http.post<ResponseApi>(`${this.urlAPIAuth}Login`, login);
   }
 
   listUsers():Observable<ResponseApi>{
@@ -41,11 +35,6 @@ export class UserService {
   deleteUser(Id:number):Observable<ResponseApi>{
     return this.http.delete<ResponseApi>(`${this.urlAPI}Delete?id=${Id}`, {headers: this.getDateToken()});
   }
-
-  getToken(email: string, password: string): Observable<ResponseApi> {
-    return this.http.get<ResponseApi>(`${this.urlAPIToken}GetToken?email=${email}&password=${password}`);
-  }
-  
 
   getDateToken() {
     // Recuperar el token desde el localStorage

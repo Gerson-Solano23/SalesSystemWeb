@@ -30,14 +30,17 @@ export class ModalUserComponent implements OnInit {
   ) { 
     this.formUser = this.form.group({
       FullName: ['', Validators.required],
-      Email: ['', Validators.required, Validators.email],
+      Email: ['', [Validators.required, Validators.email]],
       IdRol: ['', Validators.required],
-      Password: ['', Validators.required],
+      Password: ['', [Validators.required, Validators.minLength(8)]],
       Status: ['', Validators.required],
     });
     if (this.userData != null) {
       this.actionTitle = 'Edit';
       this.actionButton = 'Update';
+      // When editing, an empty password keeps the current one.
+      this.formUser.get('Password')?.setValidators([Validators.minLength(8)]);
+      this.formUser.get('Password')?.updateValueAndValidity();
     }
     
     this.rolService.listRoles().subscribe({
@@ -57,7 +60,7 @@ export class ModalUserComponent implements OnInit {
         FullName: this.userData.fullName,
         Email: this.userData.email,
         IdRol: this.userData.idRol,
-        Password: this.userData.password,
+        Password: '',
         Status: this.userData.status.toString()
       });
       
