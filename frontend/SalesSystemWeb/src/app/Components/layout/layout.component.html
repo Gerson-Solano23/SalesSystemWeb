@@ -1,39 +1,49 @@
-<mat-toolbar class="menu-color-font" >
-  <mat-toolbar-row>  
-    <button mat-icon-button (click)="sidenav.toggle();">
+<mat-toolbar class="menu-color-font">
+  <mat-toolbar-row>
+    <button mat-icon-button (click)="sidenav.toggle()">
       <mat-icon>menu</mat-icon>
     </button>
-    <img src="Icono.png" alt="icon" style="width: 35px; height: 35px;">
-    <button mat-button style="font-size: 20px; color: azure;" (click)="selectMenuItem('')">  
+    <img src="Icono.png" alt="icon" style="width: 35px; height: 35px" />
+    <button
+      mat-button
+      style="font-size: 20px; color: azure"
+      (click)="selectMenuItem('')"
+    >
       GreateShop
-  </button>
-  <span style="flex: 1 1 auto;"></span>
-  <label style="font-size: 14px; margin-right: 20px; color: #19504F;">
-    {{fullName}} | {{rolUser}}
-  </label>
-  <button mat-icon-button (click)="logout()">
-    <mat-icon style="color: #19504F;">logout</mat-icon>
-  </button>
+    </button>
+    <span style="flex: 1 1 auto"></span>
+    <label style="font-size: 14px; margin-right: 20px; color: #19504f">
+      {{ fullName }} | {{ rolUser }}
+    </label>
+    <button mat-icon-button (click)="logout()">
+      <mat-icon style="color: #19504f">logout</mat-icon>
+    </button>
   </mat-toolbar-row>
 </mat-toolbar>
 
 <mat-sidenav-container>
-<mat-sidenav #sidenav opened="true" mode="over" style="width: 200px;">
-  <mat-nav-list >
-    <mat-list-item *ngFor="let menu of listMenu" [routerLink]="menu.url" (click)="selectMenuItem(menu.name)" [class.mat-list-item-active]="selectedMenuItem === menu.name">
-      <div class="icon-and-text">
-        <mat-icon mat-list-icon class="icons-menu">{{menu.icono}}</mat-icon>
-        <div mat-line>{{menu.name}}</div>
-      </div>
-    </mat-list-item>
+  <mat-sidenav #sidenav opened="true" mode="over" style="width: 200px">
+    <mat-nav-list>
+      @for (menu of listMenu; track menu) {
+        <mat-list-item
+          [routerLink]="menu.url"
+          (click)="selectMenuItem(menu.name)"
+          [class.mat-list-item-active]="selectedMenuItem === menu.name"
+        >
+          <div class="icon-and-text">
+            <mat-icon mat-list-icon class="icons-menu">{{
+              menu.icono
+            }}</mat-icon>
+            <div mat-line>{{ menu.name }}</div>
+          </div>
+        </mat-list-item>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
 
-  </mat-nav-list>
-</mat-sidenav>
-
-<mat-sidenav-content>
-  <div style="height: 90vh;">
-    <router-outlet></router-outlet>      
-  </div>
-</mat-sidenav-content>
-
+  <mat-sidenav-content>
+    <div style="height: 90vh">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
 </mat-sidenav-container>
