@@ -1,152 +1,96 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.ML;
-using NPOI.SS.Formula.Functions;
+using SalesSystem.BLL.Forecasting;
 using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DAL.DbSalesContext;
-using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DTO;
-using SalesSystem.Entity;
+using SalesSystem.Utility;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SalesSystem.BLL.Services
 {
+    /// <summary>
+    /// Monthly revenue forecast. The model is refit from the database on every request
+    /// (a few dozen monthly totals), so it always reflects the latest sales.
+    /// </summary>
     public class DataPredictionService : IDataPrediction
     {
-        private readonly MLContext mlcontext;
+        public const int MaxMonthsAhead = 12;
+        private const int MaxHistoryMonths = 36;
+
         private readonly DBSalesContext _dbContext;
-        private readonly ISalesRepository _saleRepository;
-     
-        
-        public DataPredictionService(MLContext mlcontext, DBSalesContext dbContext, ISalesRepository saleRepository)
+
+        public DataPredictionService(DBSalesContext dbContext)
         {
-            this.mlcontext = mlcontext;
             _dbContext = dbContext;
-            _saleRepository = saleRepository;
         }
 
-        public async Task TrainAndSaveModel(string modelPathTemp)
+        public async Task<SalesForecastDTO> ForecastMonthlyRevenue(int months)
         {
-            // Verificar si el modelo ya existe
-            if (ModelExists(modelPathTemp))
+            if (months < 1 || months > MaxMonthsAhead)
             {
-                Console.WriteLine("El modelo ya existe. Cargando el modelo existente.");
-                return;
-            }
-            IQueryable<Sale> query = await _saleRepository.Consult();
-            var ResultList = new List<Sale>();
-            try
-            {
-                ResultList = await query.ToListAsync();
-
-                //list = await _dbContext.Sales.ToListAsync();
-
-                var baseDate = new DateTime(1970, 1, 1); // Fecha base para convertir
-
-                var transformedSalesList = ResultList.Select(s => new SaleToPredictDTO
-                {
-                    PaymentType = s.PaymentType,
-                    Total = s.Total.HasValue ? (float)s.Total.Value : 0.0f,
-                    DateRegistryAsNumber = (float)(s.DateRegistry - baseDate).Value.TotalDays
-                }).ToList();
-
-                // Paso 1: Cargar datos
-                IDataView dataView = mlcontext.Data.LoadFromEnumerable(transformedSalesList);
-
-                // Definir pipeline
-                var pipeline = mlcontext.Transforms.Conversion.MapValueToKey("PaymentType", nameof(SaleToPredictDTO.PaymentType))
-                    .Append(mlcontext.Transforms.Categorical.OneHotEncoding("PaymentTypeEncoded", "PaymentType"))
-                    .Append(mlcontext.Transforms.Concatenate("Features", "PaymentTypeEncoded", "DateRegistryAsNumber"))
-                    .Append(mlcontext.Transforms.CopyColumns(outputColumnName: "Label", inputColumnName: nameof(SaleToPredictDTO.Total))) // Mapea "Total" a "Label"
-                    .Append(mlcontext.Regression.Trainers.Sdca(labelColumnName: "Label"));
-
-                // Entrenar modelo
-                var model = pipeline.Fit(dataView);
-
-                // Evaluar modelo
-                var predictions = model.Transform(dataView);
-                var metrics = mlcontext.Regression.Evaluate(predictions, labelColumnName: "Label");
-
-                // Guardar el modelo
-                using (var stream = new FileStream(modelPathTemp, FileMode.Create, FileAccess.Write, FileShare.None))
-                {
-                    mlcontext.Model.Save(model, dataView.Schema, stream);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        public async Task<SalePredictionDTO> PredictSale(SaleToPredictDTO saleToPredict)
-        {
-            // Cargar el modelo
-            ITransformer loadedModel;
-            string modelPath = "model.zip";
-            // Entrenar y guardar el modelo si no existe
-            await TrainAndSaveModel(modelPath);
-            using (var stream = new FileStream(modelPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                loadedModel = mlcontext.Model.Load(stream, out var modelInputSchema);
+                throw new BusinessException($"Months must be between 1 and {MaxMonthsAhead}");
             }
 
-            // Crear un predictor usando el modelo cargado
-            var predictionEngine = mlcontext.Model.CreatePredictionEngine<SaleToPredictDTO, SalePredictionDTO>(loadedModel);
+            DateTime currentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            DateTime historyStart = currentMonth.AddMonths(-MaxHistoryMonths);
 
-            // Usar el predictor para hacer predicciones
-            var prediction = predictionEngine.Predict(saleToPredict);
+            var totals = await _dbContext.Sales.AsNoTracking()
+                .Where(s => s.DateRegistry >= historyStart && s.DateRegistry < currentMonth.AddMonths(1))
+                .GroupBy(s => new { s.DateRegistry!.Value.Year, s.DateRegistry.Value.Month })
+                .Select(g => new { g.Key.Year, g.Key.Month, Revenue = g.Sum(s => s.Total ?? 0), Sales = g.Count() })
+                .ToListAsync();
 
-            return prediction;
-        }
+            var byMonth = totals.ToDictionary(t => new DateTime(t.Year, t.Month, 1), t => (t.Revenue, t.Sales));
 
-        public bool ModelExists(string modelPath)
-        {
-            return File.Exists(modelPath);
-        }
-        public ITransformer LoadModel(string modelPath)
-        {
-            if (!ModelExists(modelPath))
+            var result = new SalesForecastDTO
             {
-                throw new FileNotFoundException("El archivo del modelo no se encuentra.", modelPath);
-            }
-
-            ITransformer loadedModel;
-            using (var stream = new FileStream(modelPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                loadedModel = mlcontext.Model.Load(stream, out var modelInputSchema);
-            }
-
-            return loadedModel;
-        }
-        public async Task RunModelOperations()
-        {
-            string modelPath = "model.zip";
-
-            // Entrenar y guardar el modelo si no existe
-            await TrainAndSaveModel(modelPath);
-
-            // Cargar el modelo para hacer predicciones
-            ITransformer model = LoadModel(modelPath);
-
-            var predictionEngine = mlcontext.Model.CreatePredictionEngine<SaleToPredictDTO, SalePredictionDTO>(model);
-            DateTime baseDate = new DateTime(1970, 1, 1);
-            DateTime targetDate = new DateTime(2024, 9, 30);
-            float dateRegistryAsNumber = (float)(targetDate - baseDate).TotalDays;
-            var saleToPredict = new SaleToPredictDTO
-            {
-                PaymentType = "CreditCard",
-                DateRegistryAsNumber = dateRegistryAsNumber
+                CurrentMonth = Point(currentMonth, byMonth)
             };
 
-            var prediction = predictionEngine.Predict(saleToPredict);
+            // Complete months from the first month with sales up to last month; months without sales count as 0.
+            var completeMonths = byMonth.Keys.Where(m => m < currentMonth).ToList();
+            if (completeMonths.Count > 0)
+            {
+                for (DateTime month = completeMonths.Min(); month < currentMonth; month = month.AddMonths(1))
+                {
+                    result.History.Add(Point(month, byMonth));
+                }
+            }
 
-            Console.WriteLine($"Predicted Total Sale: {prediction.Score}");
+            if (result.History.Count < HoltForecaster.MinimumPoints)
+            {
+                result.HasEnoughData = false;
+                result.Message = $"At least {HoltForecaster.MinimumPoints} complete months of sales are needed to forecast " +
+                                 $"(available: {result.History.Count}).";
+                return result;
+            }
+
+            var forecast = HoltForecaster.Forecast(result.History.Select(p => (double)p.Revenue).ToList(), months);
+
+            result.HasEnoughData = true;
+            result.Forecast = forecast.Forecast.Select((f, i) => new RevenuePointDTO
+            {
+                Month = MonthKey(currentMonth.AddMonths(i)),
+                Revenue = Round(f.Value),
+                Lower = Round(f.Lower),
+                Upper = Round(f.Upper)
+            }).ToList();
+
+            return result;
         }
 
+        private static RevenuePointDTO Point(DateTime month, Dictionary<DateTime, (decimal Revenue, int Sales)> byMonth)
+        {
+            byMonth.TryGetValue(month, out var value);
+            return new RevenuePointDTO { Month = MonthKey(month), Revenue = value.Revenue, Sales = value.Sales };
+        }
+
+        private static string MonthKey(DateTime month) => month.ToString("yyyy-MM", CultureInfo.InvariantCulture);
+
+        private static decimal Round(double value) => Math.Round((decimal)value, 2);
     }
 }

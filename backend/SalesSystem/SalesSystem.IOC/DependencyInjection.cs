@@ -13,7 +13,7 @@ using SalesSystem.Utility;
 using SalesSystem.BLL.Services.Contract;
 using SalesSystem.BLL.Services;
 using SalesSystem.DTO;
-using Microsoft.ML;
+
 
 namespace SalesSystem.IOC
 {
@@ -54,7 +54,7 @@ namespace SalesSystem.IOC
 
             services.AddScoped<IDataPrediction, DataPredictionService>();
          
-            services.AddSingleton<MLContext>(sp => new MLContext());
+
             //services.AddScoped<IFormFile, UploadFileService>();
             // One instance serves both as the hosted background job and as IWeeklyTask.
             services.AddSingleton<WeeklyTaskService>();

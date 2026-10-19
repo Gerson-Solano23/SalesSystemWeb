@@ -26,6 +26,8 @@ and the dashboard shows weekly, monthly, yearly and custom-range statistics.
 - **Dashboard**: totals, sales charts and top products for the last 7 days, a month, a year or a date range.
 - **Files**: upload, list and download documents stored in S3.
 - **Weekly report**: the previous week's Excel report is uploaded to S3 automatically.
+- **Sales forecast**: monthly revenue forecast (Holt linear trend) with an approximate 95% range,
+  refit from the database on every request (`GET /api/Prediction/MonthlyRevenue?months=3`).
 
 ## Getting Started
 
