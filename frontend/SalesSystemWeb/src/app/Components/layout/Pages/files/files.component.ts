@@ -19,7 +19,12 @@ import { UtilityService } from '../../../../Reusable/utility.service';
   standalone: false,
 })
 export class FilesComponent implements OnInit {
+  // Same extensions and size limit the API accepts.
+  readonly acceptedExtensions = '.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg';
+  private readonly maxFileSizeBytes = 10 * 1024 * 1024;
+
   selectedFile: File | null = null;
+  uploading = false;
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
@@ -33,23 +38,68 @@ export class FilesComponent implements OnInit {
         return 'PDF Document';
       case 'txt':
         return 'Text File';
+      case 'csv':
+        return 'CSV File';
+      case 'doc':
       case 'docx':
         return 'Word Document';
+      case 'xls':
       case 'xlsx':
         return 'Excel Spreadsheet';
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+        return 'Image';
       default:
         return 'Unknown File Type';
     }
   }
-  onSubmit() {
-    if (this.selectedFile) {
-      const formData = new FormData();
-      formData.append('pdfFile', this.selectedFile, this.selectedFile.name);
 
-      // Here you would typically send the formData to your backend
-      // using an HTTP service, for example:
-      // this.http.post('your-api-endpoint', formData).subscribe(...)
+  // Icon shown for a stored file in the History Reports panel.
+  fileIcon(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return '/pdfIcon.png';
+      case 'txt':
+      case 'csv':
+        return '/txtIcon.png';
+      case 'doc':
+      case 'docx':
+        return '/documentowordIcon.png';
+      default:
+        return '/xlsxIcon.png';
     }
+  }
+
+  onSubmit(fileInput: HTMLInputElement) {
+    const file = this.selectedFile;
+    if (!file || this.uploading) {
+      return;
+    }
+    if (file.size > this.maxFileSizeBytes) {
+      this.utilityService.ShowAlert('The file exceeds the 10 MB limit', 'Error');
+      return;
+    }
+
+    this.uploading = true;
+    this.uploadfile.uploadFile(file).subscribe({
+      next: (response) => {
+        this.uploading = false;
+        if (response.status) {
+          this.utilityService.ShowAlert(`${file.name} uploaded. You will find it in History Reports, in the current month.`, 'Success');
+          this.selectedFile = null;
+          fileInput.value = '';
+          this.loadYears();
+        } else {
+          this.utilityService.ShowAlert(response.message ?? 'The file could not be uploaded', 'Error');
+        }
+      },
+      error: (error) => {
+        this.uploading = false;
+        this.utilityService.ShowAlert(error.error?.message ?? 'The file could not be uploaded', 'Error');
+      },
+    });
   }
   formUser: FormGroup;
   isXsScreen: boolean = false;
@@ -58,13 +108,8 @@ export class FilesComponent implements OnInit {
   isLgScreen: boolean = false;
   yearChoose: string = '';
   MonthChoose: string = '';
-  years = [
-    { value: '2020', viewValue: '2020' },
-    { value: '2021', viewValue: '2021' },
-    { value: '2022', viewValue: '2022' },
-    { value: '2023', viewValue: '2023' },
-    { value: '2024', viewValue: '2024' },
-  ];
+  // Loaded from the API: years with stored files plus the current year.
+  years: { value: string; viewValue: string }[] = [];
 
   months = [
     { value: '1', viewValue: 'Enero' },
@@ -112,13 +157,27 @@ export class FilesComponent implements OnInit {
         this.isMdScreen = result.breakpoints[Breakpoints.Medium];
         this.isLgScreen = result.breakpoints[Breakpoints.Large];
       });
+    this.loadYears();
+  }
+
+  loadYears(): void {
+    this.uploadfile.getYears().subscribe({
+      next: (response) => {
+        const years: number[] = response.status ? response.data : [];
+        this.years = (years.length ? years : [new Date().getFullYear()]).map(
+          (year) => ({ value: String(year), viewValue: String(year) }),
+        );
+      },
+      error: () => {
+        const year = String(new Date().getFullYear());
+        this.years = [{ value: year, viewValue: year }];
+      },
+    });
   }
 
   ngAfterContentInit(): void {
     const elemntTree = this.renderer.selectRootElement('#treeMatGrid', true);
-    const elemntFour = this.renderer.selectRootElement('#fourMatGrid', true);
     this.renderer.setStyle(elemntTree, 'margin-top', 'calc(26% + 0.5px) ');
-    this.renderer.setStyle(elemntFour, 'margin-top', 'calc(26% + 0.5px)');
   }
 
   goBackMainPanel() {
@@ -130,9 +189,7 @@ export class FilesComponent implements OnInit {
       this.renderer.addClass(elementfileExcels, 'hide');
     }
     const elemntOne = this.renderer.selectRootElement('#oneMatGrid', true);
-    const elemntTwo = this.renderer.selectRootElement('#twoMatGrid', true);
     const elemntTree = this.renderer.selectRootElement('#treeMatGrid', true);
-    const elemntFour = this.renderer.selectRootElement('#fourMatGrid', true);
     const buttonGoBack = this.renderer.selectRootElement(
       '#goBackIconButton',
       true,
@@ -144,9 +201,7 @@ export class FilesComponent implements OnInit {
     this.renderer.addClass(buttonGoBack, 'hide');
     this.renderer.removeClass(elemntOne, 'hide');
     this.renderer.setStyle(elemntOne, 'height', '100%');
-    this.renderer.removeClass(elemntTwo, 'hide');
     this.renderer.removeClass(elemntTree, 'hide');
-    this.renderer.removeClass(elemntFour, 'hide');
     this.renderer.addClass(elementFilesMonthly, 'hide');
     this.renderer.removeClass(elementFilesMonthly, 'height');
     this.renderer.setStyle(
@@ -199,9 +254,7 @@ export class FilesComponent implements OnInit {
 
     this.yearChoose = event;
     const elemntOne = this.renderer.selectRootElement('#oneMatGrid', true);
-    const elemntTwo = this.renderer.selectRootElement('#twoMatGrid', true);
     const elemntTree = this.renderer.selectRootElement('#treeMatGrid', true);
-    const elemntFour = this.renderer.selectRootElement('#fourMatGrid', true);
 
     if (idElement === 'oneMatGrid') {
       const buttonGoBack = this.renderer.selectRootElement(
@@ -213,9 +266,7 @@ export class FilesComponent implements OnInit {
         '#fileMonthly',
         true,
       );
-      this.renderer.addClass(elemntTwo, 'hide');
       this.renderer.addClass(elemntTree, 'hide');
-      this.renderer.addClass(elemntFour, 'hide');
       this.renderer.removeClass(elementFilesMonthly, 'hide');
       this.renderer.removeClass(elementFilesMonthly, 'height');
       this.renderer.setStyle(
@@ -237,26 +288,8 @@ export class FilesComponent implements OnInit {
       this.renderer.setStyle(elementFilesMonthly, 'width', '75%');
       this.renderer.setStyle(elementFilesMonthly, 'justify-content', 'start');
       this.renderer.setStyle(elementFilesMonthly, 'height', '100%');
-    } else if (idElement === 'twoMatGrid') {
-      this.renderer.addClass(elemntOne, 'hide');
-      this.renderer.addClass(elemntTree, 'hide');
-      this.renderer.addClass(elemntFour, 'hide');
     } else if (idElement === 'treeMatGrid') {
       this.renderer.addClass(elemntOne, 'hide');
-      this.renderer.addClass(elemntTwo, 'hide');
-      this.renderer.addClass(elemntFour, 'hide');
-    } else if (idElement === 'fourMatGrid') {
-      this.renderer.addClass(elemntOne, 'hide');
-      this.renderer.addClass(elemntTwo, 'hide');
-      this.renderer.addClass(elemntTree, 'hide');
-    }
-  }
-
-  onFileSelected2(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      // Aquí puedes realizar otras operaciones con el archivo seleccionado
     }
   }
 
@@ -283,9 +316,8 @@ export class FilesComponent implements OnInit {
             byteNumbers[i] = byteCharacters.charCodeAt(i);
           }
           const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          });
+          // Generic type: the panel holds Excel reports and uploaded documents.
+          const blob = new Blob([byteArray], { type: 'application/octet-stream' });
 
           // Crear un enlace de descarga y hacer clic en él
           const link = document.createElement('a');

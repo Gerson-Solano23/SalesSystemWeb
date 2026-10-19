@@ -17,21 +17,26 @@ namespace SalesSystem.API.Controllers
             _uploadS3File = uploadS3File;
         }
 
+        /// <summary>Uploads one file sent as multipart/form-data in the "file" field.</summary>
         [HttpPost]
         [Route("UploadFile")]
         [Authorize(Policy = "Admin_Supervisor")]
         [RequestSizeLimit(15 * 1024 * 1024)]
-        public async Task<IActionResult> UploadFile([FromForm] byte[] fileData, string fileName, string fileContentType)
+        public async Task<IActionResult> UploadFile(IFormFile file)
         {
             var response = new Response<string>();
-            if (fileData == null || fileData.Length == 0)
+            if (file == null || file.Length == 0)
             {
                 response.status = false;
                 response.message = "File not found";
                 return BadRequest(response);
             }
 
-            response.status = await _uploadS3File.UploadFile(fileData, fileName, fileContentType);
+            using var content = new MemoryStream();
+            await file.CopyToAsync(content);
+            string contentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
+
+            response.status = await _uploadS3File.UploadFile(content.ToArray(), Path.GetFileName(file.FileName), contentType);
             response.message = response.status ? "File uploaded successfully" : "Error uploading file";
             return response.status ? Ok(response) : BadRequest(response);
         }
@@ -74,6 +79,19 @@ namespace SalesSystem.API.Controllers
                 response.message = "Error downloading file";
                 return BadRequest(response);
             }
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("getReportYears")]
+        [Authorize(Policy = "Admin_Supervisor")]
+        public async Task<IActionResult> getReportYears()
+        {
+            var response = new Response<List<int>>
+            {
+                status = true,
+                data = await _uploadS3File.getYearsWithFiles()
+            };
             return Ok(response);
         }
 

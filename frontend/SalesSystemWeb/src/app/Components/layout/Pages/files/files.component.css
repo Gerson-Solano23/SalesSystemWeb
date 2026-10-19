@@ -224,3 +224,8 @@
   background-color: #cccccc;
   color: #666666;
 }
+.upload-hint {
+  font-size: 0.85em;
+  opacity: 0.85;
+  margin: 0 0 12px 0;
+}

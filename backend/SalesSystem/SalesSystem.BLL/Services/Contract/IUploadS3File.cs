@@ -17,5 +17,8 @@ namespace SalesSystem.BLL.Services.Contract
         Task<List<string>> getListFilesPerMonth(string month, string year);
 
         Task<bool> FileExists(string fileName);
+
+        /// <summary>Years that have stored files, plus the current year, newest first.</summary>
+        Task<List<int>> getYearsWithFiles();
     }
 }

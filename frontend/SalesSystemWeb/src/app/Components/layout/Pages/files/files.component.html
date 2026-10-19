@@ -60,12 +60,6 @@
     </mat-card>
   </mat-grid-tile>
 
-  <mat-grid-tile class="card-files-component" id="twoMatGrid">
-    <mat-card class="mat-card-size" style="background-color: darkslateblue">
-      <mat-card-header>Customers Facturs</mat-card-header>
-      <mat-card-content class="card-mat-content"> </mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
 
   <mat-grid-tile
     class="card-files-component"
@@ -73,20 +67,24 @@
     style="margin-top: calc(25% + 10px) !important"
   >
     <mat-card class="mat-card-size" style="background-color: dimgray">
-      <mat-card-header>Contracts and Deals</mat-card-header>
+      <mat-card-header>Upload Documents</mat-card-header>
       <mat-card-content class="card-mat-content">
         <form
-          (ngSubmit)="onSubmit()"
+          (ngSubmit)="onSubmit(fileInput)"
           #userForm="ngForm"
           class="file-upload-form"
         >
+          <p class="upload-hint">
+            PDF, Word, Excel, text or image files up to 10 MB. Uploaded files
+            appear in History Reports, in the month they were uploaded.
+          </p>
           <div class="file-input-container">
             <input
               type="file"
               #fileInput
               style="display: none"
               (change)="onFileSelected($event)"
-              accept=".pdf,.txt,.docx,.xlsx"
+              [accept]="acceptedExtensions"
             />
             <button
               mat-raised-button
@@ -113,27 +111,17 @@
             mat-raised-button
             color="primary"
             type="submit"
-            [disabled]="!selectedFile"
+            [disabled]="!selectedFile || uploading"
             class="submit-button"
           >
             <mat-icon>cloud_upload</mat-icon>
-            Upload File
+            {{ uploading ? 'Uploading...' : 'Upload File' }}
           </button>
         </form>
       </mat-card-content>
     </mat-card>
   </mat-grid-tile>
 
-  <mat-grid-tile
-    class="card-files-component"
-    id="fourMatGrid"
-    style="margin-top: calc(25% + 10px) !important"
-  >
-    <mat-card class="mat-card-size" style="background-color: darkslategray">
-      <mat-card-header>Notes Data</mat-card-header>
-      <mat-card-content class="card-mat-content"></mat-card-content>
-    </mat-card>
-  </mat-grid-tile>
 
   <mat-grid-tile
     class="hide"
@@ -222,7 +210,7 @@
           >
             <img
               class="second-column img-months"
-              src="/xlsxIcon.png"
+              [src]="fileIcon(excelFile)"
               alt=""
               style="width: 90px; height: 90px"
             />

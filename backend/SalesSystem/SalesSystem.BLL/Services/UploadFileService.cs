@@ -36,6 +36,18 @@ namespace SalesSystem.BLL.Services
         private readonly IGenericRepository<S3DetailsFile> _uploadFileService;
 
         /// <summary>
+        /// Fails with a clear message when S3 is not configured (e.g. a local Docker setup),
+        /// instead of an AWS SDK error.
+        /// </summary>
+        private static void EnsureStorageConfigured()
+        {
+            if (string.IsNullOrWhiteSpace(AWSKEY) || string.IsNullOrWhiteSpace(AWSECRETKEY) || string.IsNullOrWhiteSpace(AWSBUCKETNAME))
+            {
+                throw new BusinessException("File storage (S3) is not configured on the server: set AWSKEY, AWSKEYSECRET and BUCKETNAME");
+            }
+        }
+
+        /// <summary>
         /// Rejects names with paths or unexpected extensions so clients can only address plain file keys.
         /// </summary>
         private static string ValidateFileName(string? fileName)
@@ -72,6 +84,7 @@ namespace SalesSystem.BLL.Services
                 return false;
             }
             ValidateFileName(fileName);
+            EnsureStorageConfigured();
             if (fileData.Length > MaxFileSizeBytes)
             {
                 throw new BusinessException("File exceeds the 10 MB limit");
@@ -154,6 +167,7 @@ namespace SalesSystem.BLL.Services
             try
             {
                 S3DetailsFile fileDetails = await FindRegisteredFile(fileName);
+                EnsureStorageConfigured();
                 var response = await _uploadFileService.DeleteAsync(fileDetails);
                 //_dbContext.S3DetailsFile.Remove(fileDetails);
                 if (response == true)
@@ -184,6 +198,7 @@ namespace SalesSystem.BLL.Services
         {
             // Only files registered through this system can be downloaded, not any key in the bucket.
             await FindRegisteredFile(fileName);
+            EnsureStorageConfigured();
 
             //Autenticacion con AmazonS3Client 
             using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
@@ -220,6 +235,14 @@ namespace SalesSystem.BLL.Services
         {
             var query = await _uploadFileService.Consult(x => x.FileName == fileName);
             return await query.AnyAsync();
+        }
+
+        public async Task<List<int>> getYearsWithFiles()
+        {
+            var query = await _uploadFileService.Consult(x => x.FileDate != null);
+            var years = await query.Select(x => x.FileDate!.Value.Year).Distinct().ToListAsync();
+            years.Add(DateTime.Now.Year);
+            return years.Distinct().OrderByDescending(y => y).ToList();
         }
 
         public async Task<List<string>> getListFilesPerMonth(string month, string year)

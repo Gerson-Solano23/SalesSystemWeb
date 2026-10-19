@@ -13,8 +13,16 @@ export class UploadFileService {
 
   constructor(private http:HttpClient) { }
 
-  uploadFile(fileData:any):Observable<ResponseApi>{
-    return this.http.post<ResponseApi>(`${this.urlAPI}UploadFile`, fileData);
+  // Sent as multipart/form-data; the API reads the "file" field.
+  uploadFile(file:File):Observable<ResponseApi>{
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<ResponseApi>(`${this.urlAPI}UploadFile`, formData);
+  }
+
+  // Years that have stored files, plus the current year, newest first.
+  getYears():Observable<ResponseApi>{
+    return this.http.get<ResponseApi>(`${this.urlAPI}getReportYears`);
   }
 
   // deleteFile(fileName:string):Observable<ResponseApi>{
