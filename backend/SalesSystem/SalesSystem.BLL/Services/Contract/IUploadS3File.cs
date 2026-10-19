@@ -14,6 +14,8 @@ namespace SalesSystem.BLL.Services.Contract
 
         Task<byte[]> DownloadFile(string fileName);
 
-        Task<List<string>> getListFilesPerMonth(string month, string year);  
+        Task<List<string>> getListFilesPerMonth(string month, string year);
+
+        Task<bool> FileExists(string fileName);
     }
 }

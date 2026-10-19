@@ -13,12 +13,10 @@ namespace SalesSystem.API.Controllers
     public class SaleController : ControllerBase
     {
         private readonly ISale _saleService;
-        private readonly IFileDownload _fileDownload;
 
-        public SaleController(ISale saleService, IFileDownload fileDownload)
+        public SaleController(ISale saleService)
         {
             _saleService = saleService;
-            _fileDownload = fileDownload;
         }
 
         [HttpGet]
@@ -45,7 +43,6 @@ namespace SalesSystem.API.Controllers
                 status = true,
                 data = await _saleService.Report(Startdate ?? "", endDate ?? "")
             };
-            _ = Task.Run(() => _fileDownload.runTaskFileExcel(User.GetUserId()));
             return Ok(response);
         }
 
