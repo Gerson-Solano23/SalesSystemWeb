@@ -1,1 +1,63 @@
-<p>data-prediction works!</p>
+<h2 class="title-header-page" style="margin: 20px 0px 0px 40px;">Sales Forecast</h2>
+
+<mat-divider></mat-divider>
+
+<mat-card style="margin: 20px 40px 40px 40px;">
+    <mat-card-content>
+        <div class="toolbar">
+            <span>Months to forecast</span>
+            <mat-button-toggle-group [(ngModel)]="monthsAhead" (change)="loadForecast()" aria-label="Months to forecast">
+                <mat-button-toggle *ngFor="let option of monthOptions" [value]="option">{{option}}</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+
+        <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+        <ng-container *ngIf="forecast as data">
+            <div class="grid-container">
+                <mat-card appearance="outlined">
+                    <mat-card-header>
+                        <div mat-card-avatar><mat-icon color="accent">today</mat-icon></div>
+                        <mat-card-title>This month so far</mat-card-title>
+                        <mat-card-subtitle class="subtitle-card-totals">
+                            $/.{{data.currentMonth?.revenue ?? 0 | number:'1.2-2'}}
+                            <span class="hint">({{data.currentMonth?.sales ?? 0}} sales)</span>
+                        </mat-card-subtitle>
+                    </mat-card-header>
+                </mat-card>
+
+                <mat-card appearance="outlined" *ngIf="nextForecast as next">
+                    <mat-card-header>
+                        <div mat-card-avatar><mat-icon color="primary">insights</mat-icon></div>
+                        <mat-card-title>Forecast {{monthLabel(next.month)}}</mat-card-title>
+                        <mat-card-subtitle class="subtitle-card-totals">
+                            $/.{{next.revenue | number:'1.2-2'}}
+                            <span class="hint">between $/.{{next.lower ?? 0 | number:'1.0-0'}} and $/.{{next.upper ?? 0 | number:'1.0-0'}}</span>
+                        </mat-card-subtitle>
+                    </mat-card-header>
+                </mat-card>
+
+                <mat-card appearance="outlined">
+                    <mat-card-header>
+                        <div mat-card-avatar><mat-icon color="warn">history</mat-icon></div>
+                        <mat-card-title>Months analyzed</mat-card-title>
+                        <mat-card-subtitle class="subtitle-card-totals">{{data.history.length}}</mat-card-subtitle>
+                    </mat-card-header>
+                </mat-card>
+            </div>
+
+            <p *ngIf="!data.hasEnoughData" class="message">
+                <mat-icon>info</mat-icon> {{data.message}}
+            </p>
+
+            <div *ngIf="data.hasEnoughData" class="chart-container">
+                <canvas id="forecastChart"></canvas>
+            </div>
+
+            <p class="hint">
+                Method: {{data.method}}, fitted on complete months. The shaded band is an approximate 95% range;
+                treat the forecast as a trend indicator, not an exact figure.
+            </p>
+        </ng-container>
+    </mat-card-content>
+</mat-card>

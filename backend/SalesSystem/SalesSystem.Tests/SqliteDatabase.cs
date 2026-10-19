@@ -26,7 +26,27 @@ public sealed class SqliteDatabase : IDisposable
     public DBSalesContext NewContext()
     {
         var options = new DbContextOptionsBuilder<DBSalesContext>().UseSqlite(_connection).Options;
-        return new DBSalesContext(options);
+        return new SqliteSalesContext(options);
+    }
+
+    /// <summary>
+    /// SQLite cannot SUM decimal columns (SQL Server can), so decimals are stored as REAL in tests only.
+    /// </summary>
+    private sealed class SqliteSalesContext : DBSalesContext
+    {
+        public SqliteSalesContext(DbContextOptions<DBSalesContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            foreach (var property in modelBuilder.Model.GetEntityTypes().SelectMany(t => t.GetProperties())
+                         .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+            {
+                property.SetValueConverter(property.ClrType == typeof(decimal)
+                    ? new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<decimal, double>(v => (double)v, v => (decimal)v)
+                    : new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<decimal?, double?>(v => (double?)v, v => (decimal?)v));
+            }
+        }
     }
 
     public static IMapper CreateMapper() =>
