@@ -1,0 +1,39 @@
+# Local S3 with LocalStack, used together with docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.localstack.yml up --build -d
+#
+# LocalStack requires a (free for non-commercial use) account: set LOCALSTACK_AUTH_TOKEN in .env.
+# Files are kept in the localstack-data volume between restarts.
+services:
+  localstack:
+    image: localstack/localstack:2026.10.0
+    environment:
+      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:?Set LOCALSTACK_AUTH_TOKEN in .env}
+      SERVICES: s3
+      PERSISTENCE: "1"
+      BUCKETNAME: ${BUCKETNAME:-salessystem-reports}
+    ports:
+      - "4566:4566"   # optional: lets you inspect the bucket from the host with the AWS CLI
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - ./localstack/init/ready.d:/etc/localstack/init/ready.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:4566/_localstack/init/ready | grep -Eq '\"completed\" *: *true'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  api:
+    environment:
+      AWS_S3_SERVICE_URL: http://localstack:4566
+      AWS_REGION: us-east-1
+      AWSKEY: test
+      AWSKEYSECRET: test
+      BUCKETNAME: ${BUCKETNAME:-salessystem-reports}
+      WeeklyReport__Enabled: "true"
+    depends_on:
+      localstack:
+        condition: service_healthy
+
+volumes:
+  localstack-data:

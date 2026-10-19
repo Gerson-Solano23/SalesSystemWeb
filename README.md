@@ -112,6 +112,27 @@ docker compose up --build
 The web app is served on http://localhost:8080 and nginx forwards `/api/` to the API container.
 The database is not part of the compose file: point `DB_CONNECTION_STRING` to an existing SQL Server.
 
+#### Local S3 with LocalStack (optional)
+
+The files module and the weekly report need S3. To use a local S3 instead of AWS:
+
+1. Create a LocalStack account at https://app.localstack.cloud (the Hobby plan is free for non-commercial use)
+   and copy your auth token into `.env` as `LOCALSTACK_AUTH_TOKEN`.
+2. Start everything with the LocalStack override:
+
+   ```sh
+   docker compose -f docker-compose.yml -f docker-compose.localstack.yml up --build -d
+   ```
+
+   `localstack/init/ready.d/create-bucket.sh` creates the bucket (`BUCKETNAME`, default `salessystem-reports`),
+   and the API is pointed to it with `AWS_S3_SERVICE_URL=http://localstack:4566`. Files persist in the
+   `localstack-data` volume.
+3. Optional, inspect the bucket from the host: `aws --endpoint-url http://localhost:4566 s3 ls s3://salessystem-reports`
+   (any credentials, e.g. `AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test`).
+
+`AWS_S3_SERVICE_URL` works with any S3-compatible server; leave it empty to use real AWS S3
+(`AWS_REGION` defaults to `us-east-2`).
+
 ### Continuous integration
 
 `.github/workflows/ci.yml` builds and tests the backend and builds the frontend on every push to `main`

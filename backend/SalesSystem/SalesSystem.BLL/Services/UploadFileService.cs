@@ -26,6 +26,29 @@ namespace SalesSystem.BLL.Services
         private readonly static string AWSKEY = Environment.GetEnvironmentVariable("AWSKEY");
         private readonly static string AWSECRETKEY = Environment.GetEnvironmentVariable("AWSKEYSECRET");
         private readonly static string AWSBUCKETNAME = Environment.GetEnvironmentVariable("BUCKETNAME");
+        // Optional S3-compatible endpoint for local development (e.g. LocalStack: http://localstack:4566).
+        private readonly static string? AWS_S3_SERVICE_URL = Environment.GetEnvironmentVariable("AWS_S3_SERVICE_URL");
+        private readonly static string AWS_REGION = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-2";
+
+        /// <summary>
+        /// Real AWS S3 by default; when AWS_S3_SERVICE_URL is set, an S3-compatible server such as
+        /// LocalStack (path-style URLs, any credentials).
+        /// </summary>
+        private static AmazonS3Client CreateS3Client()
+        {
+            if (string.IsNullOrWhiteSpace(AWS_S3_SERVICE_URL))
+            {
+                return new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.GetBySystemName(AWS_REGION));
+            }
+
+            var config = new AmazonS3Config
+            {
+                ServiceURL = AWS_S3_SERVICE_URL,
+                ForcePathStyle = true,
+                AuthenticationRegion = AWS_REGION
+            };
+            return new AmazonS3Client(AWSKEY, AWSECRETKEY, config);
+        }
 
         private const int MaxFileSizeBytes = 10 * 1024 * 1024;
         private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -96,7 +119,7 @@ namespace SalesSystem.BLL.Services
             }
             try
             {
-                using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
+                using (var amazonS3client = CreateS3Client())
                 {
                     /*
                      Para subir un archivo se requiere
@@ -172,7 +195,7 @@ namespace SalesSystem.BLL.Services
                 //_dbContext.S3DetailsFile.Remove(fileDetails);
                 if (response == true)
                 {
-                    using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
+                    using (var amazonS3client = CreateS3Client())
                     {
                         var transferUtility = new TransferUtility(amazonS3client);
                         await transferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest()
@@ -201,7 +224,7 @@ namespace SalesSystem.BLL.Services
             EnsureStorageConfigured();
 
             //Autenticacion con AmazonS3Client 
-            using (var amazonS3client = new AmazonS3Client(AWSKEY, AWSECRETKEY, RegionEndpoint.USEast2))
+            using (var amazonS3client = CreateS3Client())
             {
                 //Inicializamos el objeto  TransferUtility y le añadimos el cliente de amazon s3 con sus credenciales
                 var transferUtility = new TransferUtility(amazonS3client);
