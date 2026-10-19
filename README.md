@@ -38,7 +38,18 @@ and the dashboard shows weekly, monthly, yearly and custom-range statistics.
 - Node.js 22.22.3+ or 24 LTS and Angular CLI 22
 - Optional: AWS account/bucket for the files module and the weekly report
 
-### Database update (required once)
+### New database
+
+To start from an empty SQL Server, run `backend/database/000_create_database.sql`. It creates the
+`MySalesCompany` database, its tables and the dashboard stored procedures, plus initial data: roles, menus,
+a `General` category and the user **admin@greateshop.com / Admin123!** (change this password after the first
+login). It does nothing if the tables already exist.
+
+```sh
+sqlcmd -S <server> -U sa -P <password> -C -i backend/database/000_create_database.sql
+```
+
+### Database update for an existing database (required once)
 
 Passwords are now stored as hashes, which need a wider column. Run before deploying this version:
 
