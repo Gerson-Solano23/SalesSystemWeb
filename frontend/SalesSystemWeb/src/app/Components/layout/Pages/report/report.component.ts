@@ -61,7 +61,6 @@ export class ReportComponent {
     });
   }
   ngOnInit(): void {
-    this.utilityService.onlyRolOneAndTwo();
   }
 
   ngAfterViewInit(): void {

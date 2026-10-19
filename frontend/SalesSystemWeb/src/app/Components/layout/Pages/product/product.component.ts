@@ -31,9 +31,7 @@ export class ProductComponent implements OnInit, AfterViewInit {
     private utilityService: UtilityService,
   ) {}
   getStockCero(listProducts: Product[]): Product[] {
-      console.log('LIST PRODUCTS: ', listProducts);
       const listFilter = listProducts.filter(product => product.stock === 0);
-      console.log('LIST listFilter: ', listFilter);
       return listFilter;
   }
   openModal(list:  Product[]): void {
@@ -41,7 +39,6 @@ export class ProductComponent implements OnInit, AfterViewInit {
     const listFilter = this.getStockCero(list);
     if (listFilter.length > 0) {
       this.messageData.data = listFilter;
-      console.log('MESSAGE DATA: ', this.messageData.data);
       this.dialog.open(MessageComponent, {
         width: '600px',
         height: '600px',
@@ -55,7 +52,6 @@ export class ProductComponent implements OnInit, AfterViewInit {
       next: (response) => {
         if (response.status) {
           this.dataProducts = response.data;
-          console.log('LIST PRODUCTS getListProducts: ', this.dataProducts);
           this.dataListProducts.data = this.dataProducts; // Actualiza los datos de la tabla
           this.dataListProducts.paginator = this.paginator; // Asigna el paginador después de actualizar los datos
           this.openModal(this.dataProducts);
@@ -70,7 +66,6 @@ export class ProductComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.utilityService.onlyRolOneAndTwo();
     this.getListProducts();
     
     

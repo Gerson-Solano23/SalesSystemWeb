@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Login } from '../../Interfaces/login';
 import { LoginResponse } from '../../Interfaces/login-response';
+import { HOME_BY_ROLE, RoleName } from '../../Reusable/auth.guard';
 import { UserService } from '../../Services/user.service';
 import { UtilityService } from '../../Reusable/utility.service';
 
@@ -41,13 +42,8 @@ export class LoginComponent {
           this._UtilityService.setToken(loginData.token);
           this._UtilityService.saveUserSession(loginData.session);
           this._UtilityService.setIdRol(loginData.session.rolDescription);
-          if (loginData.session.rolDescription == 'Admin') {
-            this._Router.navigate(['/pages/dashboard']);
-          }else if (loginData.session.rolDescription == 'Supervisor') {
-            this._Router.navigate(['/pages/products']);
-          }else if (loginData.session.rolDescription == 'Employee') {
-            this._Router.navigate(['/pages/sale']);
-          }
+          const home = HOME_BY_ROLE[loginData.session.rolDescription as RoleName];
+          this._Router.navigateByUrl(home ?? '/login');
         }else{
           this._UtilityService.ShowAlert("User not found", 'Opps!');
         }

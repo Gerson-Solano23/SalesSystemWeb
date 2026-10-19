@@ -11,7 +11,6 @@ export class UtilityService {
   constructor(private _SackBar: MatSnackBar,
     private router: Router
   ) { }
-  private controlDowloadExcel:boolean = false;
 
   ShowAlert(message: string, type: string) {
     this._SackBar.open(message, type, {
@@ -25,29 +24,25 @@ export class UtilityService {
     localStorage.setItem("userSession", JSON.stringify(session));
   }
 
-  getUserSession(): Session {
-    const data = localStorage.getItem("userSession");
-
-    const user = JSON.parse(data!);
-
-    return user;
+  getUserSession(): Session | null {
+    try {
+      const data = localStorage.getItem("userSession");
+      return data ? JSON.parse(data) as Session : null;
+    } catch {
+      return null;
+    }
   }
 
-  deleteUserSession() { 
+  deleteUserSession() {
     localStorage.removeItem("userSession");
     this.logout();
-    this.deleteIdRol(); 
-  }
-  
-  isDownloadExcelSelected():boolean{
-    return this.controlDowloadExcel;
+    this.deleteIdRol();
   }
 
   setToken(token: string): void {
     localStorage.setItem('authToken', token);
   }
 
-  // Método para obtener el token JWT
   getToken(): string | null {
     return localStorage.getItem('authToken');
   }
@@ -55,11 +50,11 @@ export class UtilityService {
   logout(): void {
     localStorage.removeItem('authToken');
   }
+
   setIdRol(idRol: string): void {
     localStorage.setItem('idRol', idRol);
   }
 
-  // Método para obtener el token JWT
   getIdRol(): string | null {
     return localStorage.getItem('idRol');
   }
@@ -68,45 +63,25 @@ export class UtilityService {
     localStorage.removeItem('idRol');
   }
 
-  onlyRolOne(){
-    if (this.getIdRol() != 'Admin') {
-      if (this.getIdRol() === 'Supervisor') {
-        this.router.navigate(['pages/products']);
-        
-      }else if (this.getIdRol() === 'Employee') {
-        this.router.navigate(['pages/sale']);
-      }
-    }
-  }
-
-  onlyRolOneAndTwo(){
-    if (this.getIdRol() != 'Supervisor' && this.getIdRol() != 'Admin') {
-      this.router.navigate(['pages/sale']);
-    }
-  }
-
   checkTokendExpired(){
     if (this.checkTokenExpiration()){
       this.ShowAlert("Session expired", "Opps!");
       this.deleteUserSession();
       this.router.navigate(['/login']);
     }
-
-    
   }
 
+  /** True when there is no token, it cannot be read, or its exp claim is in the past. */
   checkTokenExpiration(): boolean {
-    const ARRAY_TOKEN = this.getToken()?.split('.');
-    if (ARRAY_TOKEN == null || ARRAY_TOKEN == undefined) {
-      console.log('Token not found');
+    const parts = this.getToken()?.split('.');
+    if (parts == null || parts.length !== 3) {
       return true;
-      
-    }else{
-      const TOKEN_PAYLOAD = JSON.parse(atob(ARRAY_TOKEN[1])); 
-      return Math.floor(new Date().getTime() / 1000) >= TOKEN_PAYLOAD.exp;
     }
-
+    try {
+      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return Math.floor(Date.now() / 1000) >= payload.exp;
+    } catch {
+      return true;
+    }
   }
-  
-
 }

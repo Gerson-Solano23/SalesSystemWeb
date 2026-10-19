@@ -114,7 +114,6 @@ export class SaleHistoryComponent implements OnInit, AfterViewInit{
           }
         },
         error: (error) => {
-         console.log(error);
         }
       });
   }

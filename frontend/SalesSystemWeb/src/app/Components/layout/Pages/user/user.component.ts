@@ -45,7 +45,6 @@ export class UserComponent implements OnInit, AfterViewInit {
     });  
   }
   ngOnInit(): void {
-    this.utilityService.onlyRolOne();
     this.getListUsers();
   }
 
@@ -92,7 +91,6 @@ export class UserComponent implements OnInit, AfterViewInit {
       if (result.isConfirmed) {
         this.userService.deleteUser(user.idUser).subscribe({
           next:(resultData)=>{
-            console.log('resultData', resultData);
             if (resultData.status) {
               this.utilityService.ShowAlert('User was successfully removed', 'success');
               this.getListUsers();

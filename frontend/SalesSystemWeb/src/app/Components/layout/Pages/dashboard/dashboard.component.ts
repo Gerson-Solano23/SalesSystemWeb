@@ -125,7 +125,6 @@ export class DashboardComponent {
   handleLastWeekTabClick(event: MatTabChangeEvent): void {
     if (event.tab.textLabel === 'Last Week') {
       this.topProductsTitle = 'Top 10 Best Selling Products Last Week';
-      console.log('Pestaña "Last Week" seleccionada');
       this.getsalesLastweek();
     }
     else if (event.tab.textLabel === 'Per Month') {
@@ -230,7 +229,6 @@ export class DashboardComponent {
 
           const listData: any[] = response.data.salesLastWeek;
           this.topListProducts = response.data.topProducts;
-          console.log('Last Week: ', this.topListProducts);
 
           const labelTemp = listData.map((item) => item.date);
           const dataTemp = listData.map((item) => item.total);
@@ -245,7 +243,6 @@ export class DashboardComponent {
   }
   ngOnInit(): void {
     this.getsalesLastweek();
-    this.utilityService.onlyRolOne();
   }
 
   getSalesPerMonth(month: number, year: number) {
@@ -257,7 +254,6 @@ export class DashboardComponent {
           this.totalProducts = response.data.totalProducts;
           const listData: any[] = response.data.monthlySales;
           this.topListProducts = response.data.topProducts;
-          console.log('Monthly: ', this.topListProducts);
 
           const labelTemp = listData.map((item) => item.week);
           const dataTemp = listData.map((item) => item.total);
@@ -320,7 +316,6 @@ export class DashboardComponent {
           this.totalProducts = response.data.totalProducts;
           const listData: any[] = response.data.yearlySales;
           this.topListProducts = response.data.topProducts;
-          console.log('Yearly: ', this.topListProducts);
           const labelTemp = listData.map((item) => item.month);
           const dataTemp = listData.map((item) => item.total);
 
@@ -403,7 +398,6 @@ export class DashboardComponent {
           this.totalProducts = response.data.totalProducts;
           const listData: any[] = response.data.rangeSales;
           this.topListProducts = response.data.topProducts;
-          console.log('Range: ', this.topListProducts);
           const labelTemp = listData.map((item) => item.date);
           const dataTemp = listData.map((item) => item.total);
 

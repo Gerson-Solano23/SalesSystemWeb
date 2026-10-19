@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../enviroments/enviroments';
+import { environment } from '../../environments/environment';
 import { ResponseApi } from '../Interfaces/response-api';
 import { User } from '../Interfaces/user';
 import { Login } from '../Interfaces/login';
@@ -21,29 +21,19 @@ export class UserService {
   }
 
   listUsers():Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}List`, {headers: this.getDateToken()});
+    return this.http.get<ResponseApi>(`${this.urlAPI}List`);
   }
 
   createUser(user:User):Observable<ResponseApi>{
-    return this.http.post<ResponseApi>(`${this.urlAPI}Create`,user, {headers: this.getDateToken()});
+    return this.http.post<ResponseApi>(`${this.urlAPI}Create`,user);
   }
 
   updateUser(user:User):Observable<ResponseApi>{
-    return this.http.put<ResponseApi>(`${this.urlAPI}Update`,user, {headers: this.getDateToken()});
+    return this.http.put<ResponseApi>(`${this.urlAPI}Update`,user);
   }
 
   deleteUser(Id:number):Observable<ResponseApi>{
-    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete?id=${Id}`, {headers: this.getDateToken()});
+    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete?id=${Id}`);
   }
 
-  getDateToken() {
-    // Recuperar el token desde el localStorage
-    const token = localStorage.getItem('authToken');
-
-    // Crear las cabeceras incluyendo el token Bearer
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return headers;
-  }
 }

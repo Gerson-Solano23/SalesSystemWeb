@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../enviroments/enviroments';
+import { environment } from '../../environments/environment';
 import { ResponseApi } from '../Interfaces/response-api';
 import { Product } from '../Interfaces/product';
 @Injectable({
@@ -14,29 +14,19 @@ export class ProductService {
   constructor(private http:HttpClient) { }
 
   listProducts():Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}List`, {headers: this.getDateToken()});
+    return this.http.get<ResponseApi>(`${this.urlAPI}List`);
   }
 
   createProduct(product:Product):Observable<ResponseApi>{
-    return this.http.post<ResponseApi>(`${this.urlAPI}Create`,product, {headers: this.getDateToken()});
+    return this.http.post<ResponseApi>(`${this.urlAPI}Create`,product);
   }
 
   updateProduct(product:Product):Observable<ResponseApi>{
-    return this.http.put<ResponseApi>(`${this.urlAPI}Update`,product, {headers: this.getDateToken()});
+    return this.http.put<ResponseApi>(`${this.urlAPI}Update`,product);
   }
 
   deleteproduct(Idproduct:number):Observable<ResponseApi>{
-    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete?id=${Idproduct}`, {headers: this.getDateToken()});
+    return this.http.delete<ResponseApi>(`${this.urlAPI}Delete?id=${Idproduct}`);
   }
 
-  getDateToken() {
-    // Recuperar el token desde el localStorage
-    const token = localStorage.getItem('authToken');
-
-    // Crear las cabeceras incluyendo el token Bearer
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return headers;
-  }
 }
