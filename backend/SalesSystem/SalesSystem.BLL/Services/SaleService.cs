@@ -4,6 +4,7 @@ using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DTO;
 using SalesSystem.Entity;
+using SalesSystem.Utility;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -34,7 +35,7 @@ namespace SalesSystem.BLL.Services
 
                 if (genericSale.IdSale == 0)
                 {
-                    throw new TaskCanceledException("Unable to create");
+                    throw new BusinessException("Unable to create");
                 }
 
                 return _mapper.Map<SaleDTO>(genericSale);

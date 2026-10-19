@@ -39,6 +39,15 @@ namespace SalesSystem.IOC
             services.AddScoped<IDashBoard, DashBoardService>();
             services.AddScoped<IMenu, MenuService>();
             services.AddScoped<IFileDownload, FileDownloadService>();
+            services.AddSingleton(new EmailSettings
+            {
+                Host = configuration["Email:Host"] ?? "smtp-mail.outlook.com",
+                Port = int.TryParse(configuration["Email:Port"], out int port) ? port : 587,
+                EnableSsl = !bool.TryParse(configuration["Email:EnableSsl"], out bool ssl) || ssl,
+                User = configuration["Email:User"] ?? string.Empty,
+                Password = configuration["Email:Password"] ?? Environment.GetEnvironmentVariable("PASSGREATEINDUSTRIES") ?? string.Empty,
+                NotificationEmail = configuration["Email:NotificationEmail"] ?? Environment.GetEnvironmentVariable("MYOWNEMAIL") ?? string.Empty
+            });
             services.AddScoped<ISendEmail, EmailSenderService>();
             // services.AddSingleton<IUploadS3File, UploadFileService>();
             services.AddScoped<IUploadS3File, UploadFileService>();

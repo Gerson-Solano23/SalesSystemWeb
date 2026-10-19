@@ -4,16 +4,17 @@ using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DAL.Repositories.Contract;
 using SalesSystem.DTO;
 using SalesSystem.Entity;
+using SalesSystem.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SalesSystem.BLL.Services
 {
     public class UsuarioService : IUsuario
     {
+        private const int MinPasswordLength = 8;
 
         private readonly IGenericRepository<Usuario> _usuarioRepository;
         private readonly IMapper _mapper;
@@ -26,172 +27,141 @@ namespace SalesSystem.BLL.Services
 
         public async Task<UsuarioDTO> Create(UsuarioDTO entity)
         {
-            try
+            ValidatePasswordStrength(entity.Password);
+
+            if (!await ValidateEmail(entity.Email))
             {
-                if (!await ValidateEmail(entity.Email))
-                {
-                    throw new TaskCanceledException("Email already exists");
-                }
-                var user = await _usuarioRepository.CreateAsync(_mapper.Map<Usuario>(entity));
-
-                if (user.IdUser == 0)
-                {
-                    throw new TaskCanceledException("Unable to create");
-                }
-
-                var query = await _usuarioRepository.Consult(x => x.Email == entity.Email);
-
-                user = query.Include(rol => rol.IdRolNavigation).First();
-
-                return _mapper.Map<UsuarioDTO>(user);
-
+                throw new BusinessException("Email already exists");
             }
-            catch (Exception ex)
+
+            var newUser = _mapper.Map<Usuario>(entity);
+            newUser.Password = PasswordHasher.Hash(entity.Password!);
+            newUser.DateRegistry = DateTime.Now;
+
+            var user = await _usuarioRepository.CreateAsync(newUser);
+
+            if (user.IdUser == 0)
             {
-
-                throw;
+                throw new BusinessException("Unable to create");
             }
+
+            var query = await _usuarioRepository.Consult(x => x.IdUser == user.IdUser);
+            user = await query.Include(rol => rol.IdRolNavigation).FirstAsync();
+
+            return _mapper.Map<UsuarioDTO>(user);
         }
 
         public async Task<bool> Delete(int id)
         {
-            try
+            var userFound = await _usuarioRepository.GetByIdAsync(id);
+
+            if (userFound == null)
             {
-                var userFound = await _usuarioRepository.GetByIdAsync(id);
-
-                if (userFound == null)
-                {
-                    throw new TaskCanceledException("User not exist");
-                }
-
-                bool result = await _usuarioRepository.DeleteAsync(userFound);
-
-                if (result == false)
-                {
-                    throw new TaskCanceledException("Failed to delete");
-                }
-
-                return result;
+                throw BusinessException.NotFound("User not exist");
             }
-            catch (Exception)
-            {
 
-                throw;
-            }
+            return await _usuarioRepository.DeleteAsync(userFound);
         }
 
         public async Task<UsuarioDTO> Get(int id)
         {
-            try
+            var query = await _usuarioRepository.Consult(x => x.IdUser == id);
+            var userFound = await query.Include(rol => rol.IdRolNavigation).FirstOrDefaultAsync();
+
+            if (userFound == null)
             {
-                var userFound = await _usuarioRepository.GetByIdAsync(id);
-
-                if (userFound == null)
-                {
-                    throw new TaskCanceledException("User not exist");
-                }
-
-                return _mapper.Map<UsuarioDTO>(userFound);
+                throw BusinessException.NotFound("User not exist");
             }
-            catch (Exception)
-            {
 
-                throw;
-            }
+            return _mapper.Map<UsuarioDTO>(userFound);
         }
 
         public async Task<List<UsuarioDTO>> List()
         {
-            try
-            {
-                var queryUsuario = await _usuarioRepository.Consult();
-                var userList = queryUsuario.Include(rol => rol.IdRolNavigation).ToList();
+            var queryUsuario = await _usuarioRepository.Consult();
+            var userList = await queryUsuario.Include(rol => rol.IdRolNavigation).ToListAsync();
 
-                return _mapper.Map<List<UsuarioDTO>>(userList);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return _mapper.Map<List<UsuarioDTO>>(userList);
         }
 
         public async Task<bool> Update(UsuarioDTO entity)
         {
-            try
+            var userFound = await _usuarioRepository.GetByIdAsync(entity.IdUser);
+
+            if (userFound == null)
             {
-                var userEntity = _mapper.Map<Usuario>(entity);
-
-                var userFound = _usuarioRepository.GetByIdAsync(entity.IdUser);
-
-                if (userFound.Result == null)
-                {
-                    throw new TaskCanceledException("User not exist");
-                }
-
-                bool result = await _usuarioRepository.UpdateAsync(userEntity);
-
-                if (!result)
-                {
-                    throw new TaskCanceledException("Failed to update");
-                }
-
-                return result;
-
+                throw BusinessException.NotFound("User not exist");
             }
-            catch (Exception)
+
+            if (!string.Equals(userFound.Email, entity.Email, StringComparison.OrdinalIgnoreCase)
+                && !await ValidateEmail(entity.Email))
             {
-
-                throw;
+                throw new BusinessException("Email already exists");
             }
+
+            var changes = _mapper.Map<Usuario>(entity);
+            userFound.FullName = changes.FullName;
+            userFound.Email = changes.Email;
+            userFound.IdRol = changes.IdRol;
+            userFound.Status = changes.Status;
+
+            // An empty password on update means "keep the current one".
+            if (!string.IsNullOrWhiteSpace(entity.Password))
+            {
+                ValidatePasswordStrength(entity.Password);
+                userFound.Password = PasswordHasher.Hash(entity.Password);
+            }
+
+            return await _usuarioRepository.UpdateAsync(userFound);
         }
 
-        public async Task<SessionDTO> ValidateCredentials(string email, string password)
+        /// <summary>
+        /// Returns the session for valid, active credentials and null otherwise.
+        /// Passwords still stored in plain text are re-hashed on the first successful login.
+        /// </summary>
+        public async Task<SessionDTO?> ValidateCredentials(string email, string password)
         {
-            SessionDTO session = new SessionDTO();
-            try
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrEmpty(password))
             {
-                var query = await _usuarioRepository.Consult(x => x.Email == email && x.Password == password);
-
-                if (query.FirstOrDefault() == null)
-                {
-                    throw new TaskCanceledException("User not exist");
-                }
-                else
-                {
-                    Usuario usuario = query.Include(rol => rol.IdRolNavigation).First();
-                    if ((bool)usuario.Status == false)
-                    {
-                        throw new TaskCanceledException("User is inactive");
-                    }
-                    return _mapper.Map<SessionDTO>(usuario);
-                }
+                return null;
             }
-            catch (Exception ex)
+
+            var query = await _usuarioRepository.Consult(x => x.Email == email);
+            Usuario? usuario = await query.Include(rol => rol.IdRolNavigation).FirstOrDefaultAsync();
+
+            if (usuario == null || !PasswordHasher.Verify(password, usuario.Password, out bool needsRehash))
             {
-
-                throw;
+                return null;
             }
+
+            if (usuario.Status != true)
+            {
+                throw new BusinessException("User is inactive", 403);
+            }
+
+            if (needsRehash)
+            {
+                var navigation = usuario.IdRolNavigation;
+                usuario.IdRolNavigation = null;
+                usuario.Password = PasswordHasher.Hash(password);
+                await _usuarioRepository.UpdateAsync(usuario);
+                usuario.IdRolNavigation = navigation;
+            }
+
+            return _mapper.Map<SessionDTO>(usuario);
         }
 
-        public async Task<bool> ValidateEmail(string email)
+        public async Task<bool> ValidateEmail(string? email)
         {
-            try
-            {
-                var query = await _usuarioRepository.Consult(x => x.Email == email);
+            var query = await _usuarioRepository.Consult(x => x.Email == email);
+            return !await query.AnyAsync();
+        }
 
-                if (query.FirstOrDefault() == null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch (Exception ex)
+        private static void ValidatePasswordStrength(string? password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < MinPasswordLength)
             {
-
-                throw;
+                throw new BusinessException($"Password must be at least {MinPasswordLength} characters long");
             }
         }
     }

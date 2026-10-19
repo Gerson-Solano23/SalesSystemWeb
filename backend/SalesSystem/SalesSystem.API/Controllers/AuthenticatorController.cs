@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DTO;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace SalesSystem.API.Controllers
 {
@@ -15,87 +14,59 @@ namespace SalesSystem.API.Controllers
     [ApiController]
     public class AuthenticatorController : ControllerBase
     {
-        private static readonly string? key = Environment.GetEnvironmentVariable("CERTIFICATE_KEY");
         private readonly IUsuario _usuarioService;
-        public AuthenticatorController(IUsuario Iuser)
+        private readonly JwtSettings _jwtSettings;
+
+        public AuthenticatorController(IUsuario usuarioService, JwtSettings jwtSettings)
         {
-            this._usuarioService = Iuser;
+            _usuarioService = usuarioService;
+            _jwtSettings = jwtSettings;
         }
 
-        [HttpGet]
-        [Route("getToken")]
-        public async Task<IActionResult> get(string email, string password)
+        [HttpPost]
+        [Route("Login")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Login)]
+        public async Task<IActionResult> Login([FromBody] LoginDTO login)
         {
-            var response = new Response<string>();
-            try
-            {
-                SessionDTO session = new SessionDTO();
-                session = await _usuarioService.ValidateCredentials(email, password);
-                if (session != null)
-                {
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var byteKey = Encoding.UTF8.GetBytes(key);
-                    var tekenDesc = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[]
-                        {
-                            new Claim(ClaimTypes.Name, session.FullName),
-                            new Claim(ClaimTypes.Role, await getIdRolNumber(session.RolDescription)),
-                        }),
-                        Expires = DateTime.UtcNow.AddHours(10.5),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(byteKey), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var token = tokenHandler.CreateToken(tekenDesc);
-                    response.status = true;
-                    response.data = tokenHandler.WriteToken(token);
-                    if (response.data == null)
-                    {
-                        response.status = false;
-                        response.message = "Invalid credentials";
-                    }
-                    return Ok(response);
+            var response = new Response<LoginResponseDTO>();
+            SessionDTO? session = await _usuarioService.ValidateCredentials(login.Email ?? "", login.Password ?? "");
 
-                }
-                else
-                {
-                    return Unauthorized("Acceso no autorizado: El usuario no se encuentra registrado");
-                }
-            }
-            catch (Exception ex)
+            if (session == null)
             {
-
                 response.status = false;
-                response.message = ex.Message;
-                return BadRequest(response);
+                response.message = "Invalid credentials";
+                return Unauthorized(response);
             }
 
+            response.status = true;
+            response.data = new LoginResponseDTO
+            {
+                Token = CreateToken(session),
+                Session = session
+            };
+            return Ok(response);
         }
 
-        private async Task<string> getIdRolNumber(string rolDescription)
+        private string CreateToken(SessionDTO session)
         {
-            string idRol = "";
-            try
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                if (rolDescription == "Admin")
+                Subject = new ClaimsIdentity(new[]
                 {
-                    idRol = "1";
-                }
-                else if (rolDescription == "Employee")
-                {
-                    idRol = "2";
-                }
-                else if (rolDescription == "Supervisor")
-                {
-                    idRol = "3"; 
-                }
-            }
-            catch (Exception)
-            {
+                    new Claim(ClaimTypes.NameIdentifier, session.IdUser.ToString()),
+                    new Claim(ClaimTypes.Name, session.FullName ?? ""),
+                    new Claim(ClaimTypes.Email, session.Email ?? ""),
+                    new Claim(ClaimTypes.Role, Roles.ToRoleId(session.RolDescription)),
+                }),
+                Issuer = _jwtSettings.Issuer,
+                Audience = _jwtSettings.Audience,
+                Expires = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours),
+                SigningCredentials = new SigningCredentials(_jwtSettings.GetSigningKey(), SecurityAlgorithms.HmacSha256Signature)
+            };
 
-                throw;
-            }
-            return idRol;
+            return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
         }
-
     }
 }

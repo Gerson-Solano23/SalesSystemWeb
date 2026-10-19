@@ -1,53 +1,37 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SalesSystem.API.Utility;
 using SalesSystem.BLL.Services.Contract;
 using SalesSystem.DTO;
-using System.Security.Claims;
 
 namespace SalesSystem.API.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "Admin_Supervisor_Employee")]
     [Route("api/[controller]")]
     [ApiController]
     public class MenuController : ControllerBase
     {
-       private readonly IMenu _menuService;
-        private readonly IUsuario _usuarioService;
+        private readonly IMenu _menuService;
 
-        public MenuController(IMenu menuService, IUsuario usuarioService)
+        public MenuController(IMenu menuService)
         {
             _menuService = menuService;
-            _usuarioService = usuarioService;
         }
 
+        /// <summary>
+        /// Menus of the authenticated user. The legacy <c>id</c> query parameter is ignored:
+        /// the user always comes from the token, so nobody can read another user's menu.
+        /// </summary>
         [HttpGet]
         [Route("List")]
-        [Authorize(Policy = "Admin_Supervisor_Employee")]
-        public async Task<IActionResult> List(int id)
+        public async Task<IActionResult> List()
         {
-            var roles = User.Claims
-                        .Where(c => c.Type == ClaimTypes.Role)
-                        .Select(c => c.Value);
-            var user = _usuarioService.Get(id).Result;
-            if (user.IdRol.ToString() != roles.First())
+            var response = new Response<List<MenuDTO>>
             {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
-            var response = new Response<List<MenuDTO>>();
-            try
-            {
-                response.status = true;
-                response.data = await _menuService.List(id);
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.message = ex.Message;
-                return BadRequest(response);
-            }
+                status = true,
+                data = await _menuService.List(User.GetUserId())
+            };
+            return Ok(response);
         }
     }
 }

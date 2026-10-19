@@ -32,7 +32,7 @@
 
             <mat-grid-tile class="title-outline">
                 <mat-form-field class="" appearance="outline">
-                    <mat-label>Password</mat-label>
+                    <mat-label>{{userData != null ? 'New password (leave empty to keep it)' : 'Password'}}</mat-label>
                     <input [type]="hidePassword ? 'password' : 'text'" formControlName="Password" matInput autocomplete="off">
                     <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
                         <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>

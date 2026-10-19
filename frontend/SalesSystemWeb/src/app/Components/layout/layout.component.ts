@@ -64,7 +64,7 @@ export class LayoutComponent {
       this.emailUser = user.email;
       this.rolUser = user.rolDescription;
 
-      this.menuService.listMenus(this.idUserInSession).subscribe({
+      this.menuService.listMenus().subscribe({
         next: (response) => {
           if (response.status) {
             this.listMenu = response.data as Menu[];

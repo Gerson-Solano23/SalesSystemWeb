@@ -4,6 +4,7 @@ export interface User {
     email:string,
     idRol:number,
     rolDescription:string,
-    password:string,
+    // Only sent when creating a user or changing the password; the API never returns it.
+    password?:string,
     status:number
 }
