@@ -1,0 +1,24 @@
+# Runs the API and the web app. The SQL Server database is external:
+# set DB_CONNECTION_STRING (and the other variables) in a .env file, see .env.example.
+services:
+  api:
+    build: ./backend/SalesSystem
+    environment:
+      ConnectionStrings__StringConnection: ${DB_CONNECTION_STRING}
+      CERTIFICATE_KEY: ${CERTIFICATE_KEY}
+      ReverseProxy__Enabled: "true"
+      WeeklyReport__Enabled: ${WEEKLY_REPORT_ENABLED:-true}
+      AWSKEY: ${AWSKEY:-}
+      AWSKEYSECRET: ${AWSKEYSECRET:-}
+      BUCKETNAME: ${BUCKETNAME:-}
+      PASSGREATEINDUSTRIES: ${PASSGREATEINDUSTRIES:-}
+      MYOWNEMAIL: ${MYOWNEMAIL:-}
+    restart: unless-stopped
+
+  web:
+    build: ./frontend/SalesSystemWeb
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped

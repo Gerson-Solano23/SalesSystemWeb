@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 frontend/SalesSystemWeb/public/img/fondo_login.jpg
+
+# Local environment variables for docker compose
+.env

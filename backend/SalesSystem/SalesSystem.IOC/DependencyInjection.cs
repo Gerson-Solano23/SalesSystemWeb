@@ -17,7 +17,7 @@ using Microsoft.ML;
 
 namespace SalesSystem.IOC
 {
-    public static class Dependecy
+    public static class DependencyInjection
     {
         public static void InjectDependencies(this IServiceCollection services, IConfiguration configuration)
         {

@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import moment from 'moment';
-import * as XLSX from 'xlsx';
+
 import { Report } from '../../../../Interfaces/report';
 
 import { SaleService } from '../../../../Services/sale.service';
@@ -101,13 +101,6 @@ export class ReportComponent {
     });
   }
 
-  exportExcel(){
-    const wb = XLSX.utils.book_new();
-    
-    const ws = XLSX.utils.json_to_sheet(this.listReportsSales);
-    XLSX.utils.book_append_sheet(wb, ws, 'Report_GreateShop');
-    XLSX.writeFile(wb, 'Report_GreateShop.xlsx');
-  }
 
   downloadExcelFile() {
     if (this.reportRange == null) {

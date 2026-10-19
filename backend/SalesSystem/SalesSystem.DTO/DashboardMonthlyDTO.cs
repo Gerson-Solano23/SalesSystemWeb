@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SalesSystem.DTO
 {
-    public class DasboardMonthlyDTO
+    public class DashboardMonthlyDTO
     { 
         public int TotalSales { get; set; }
         public string TotalRevenue { get; set; }
