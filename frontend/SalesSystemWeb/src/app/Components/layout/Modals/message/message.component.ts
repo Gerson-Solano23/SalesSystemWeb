@@ -23,7 +23,6 @@ export class MessageComponent {
     @Inject(MAT_DIALOG_DATA) public data: MessageModal
   ) {
     this.products.data = data.data;
-    console.log('DATA: ', this.data);
     this.products.paginator = this.paginator;
   }
 

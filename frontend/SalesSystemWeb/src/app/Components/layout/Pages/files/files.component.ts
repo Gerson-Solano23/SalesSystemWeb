@@ -45,7 +45,6 @@ export class FilesComponent implements OnInit {
       const formData = new FormData();
       formData.append('pdfFile', this.selectedFile, this.selectedFile.name);
 
-      console.log('Form submitted', formData);
       // Here you would typically send the formData to your backend
       // using an HTTP service, for example:
       // this.http.post('your-api-endpoint', formData).subscribe(...)
@@ -154,7 +153,6 @@ export class FilesComponent implements OnInit {
     }
     this.getfilesPerMonth(foundMonth, this.yearChoose);
 
-    console.log('Month Choose', this.yearChoose, month);
     this.MonthChoose = month;
     const elementFilesMonthly = this.renderer.selectRootElement('#fileMonthly', true);
     this.renderer.addClass(elementFilesMonthly, 'hide');
@@ -168,7 +166,6 @@ export class FilesComponent implements OnInit {
     this.renderer.setStyle(elementfileExcels, 'justify-content', 'start');
     this.renderer.setStyle(elementfileExcels, 'height', '83vh !important');
 
-    console.log('Month Choose', this.MonthChoose);
   }
 
   hideOthersLeesOne(idElement: string, event: any) {
@@ -178,7 +175,6 @@ export class FilesComponent implements OnInit {
     }
 
     this.yearChoose = event;
-    console.log('HIDE FUNTION IS RUNNING', idElement, event, this.yearChoose);
     const elemntOne = this.renderer.selectRootElement('#oneMatGrid', true);
     const elemntTwo = this.renderer.selectRootElement('#twoMatGrid', true);
     const elemntTree = this.renderer.selectRootElement('#treeMatGrid', true);
@@ -235,7 +231,6 @@ export class FilesComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      console.log(file.name);
       // Aquí puedes realizar otras operaciones con el archivo seleccionado
     }
   }
@@ -246,7 +241,6 @@ export class FilesComponent implements OnInit {
         if (response.status) {
           const result = response.data;
           this.excelFiles = result;
-          console.log('Response getfilesPerMonth', result);
         }
       }
     });

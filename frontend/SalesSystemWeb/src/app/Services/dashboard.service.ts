@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../enviroments/enviroments';
+import { environment } from '../../environments/environment';
 import { ResponseApi } from '../Interfaces/response-api';
 import { UtilityService } from '../Reusable/utility.service';
 
@@ -17,26 +17,16 @@ export class DashboardService {
   ) { }
 
   summary():Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}Summary`, {headers: this.getDateToken()});
+    return this.http.get<ResponseApi>(`${this.urlAPI}Summary`);
   }
   MonthSummary(month:number, year:number):Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}MonthSummary?month=${month}&year=${year}`, {headers: this.getDateToken()});
+    return this.http.get<ResponseApi>(`${this.urlAPI}MonthSummary?month=${month}&year=${year}`);
   }
   YearSummary(year:number):Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}YearSummary?year=${year}`, {headers: this.getDateToken()});
+    return this.http.get<ResponseApi>(`${this.urlAPI}YearSummary?year=${year}`);
   }
 
   RangeDatesSummary(startDate:string, endDate:string):Observable<ResponseApi>{
-    return this.http.get<ResponseApi>(`${this.urlAPI}RangeDatesSummary?startDate=${startDate}&endDate=${endDate}`, {headers: this.getDateToken()});
-  }
-  getDateToken() {
-    // Recuperar el token desde el localStorage
-    const token = localStorage.getItem('authToken');
-
-    // Crear las cabeceras incluyendo el token Bearer
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return headers;
+    return this.http.get<ResponseApi>(`${this.urlAPI}RangeDatesSummary?startDate=${startDate}&endDate=${endDate}`);
   }
 }

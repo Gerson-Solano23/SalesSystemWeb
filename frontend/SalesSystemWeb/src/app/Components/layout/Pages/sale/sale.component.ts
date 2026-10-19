@@ -66,7 +66,6 @@ export class SaleComponent{
       
       this.formSale.get('product')?.valueChanges.subscribe(value=>{
         this.filterListProducts = this.getProductFiltered(value); 
-        console.log('Lista Filtrada', this.filterListProducts);
       });
   }
   // ngOnInit(): void {
