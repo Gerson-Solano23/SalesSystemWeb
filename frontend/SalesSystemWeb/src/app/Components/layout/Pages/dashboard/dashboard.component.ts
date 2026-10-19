@@ -58,12 +58,13 @@ export const MY_CUSTOM_FORMATS = {
 };
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css', '../../../../../styles.scss'],
-  providers: [provideMomentDateAdapter(MY_FORMATS),
-    provideMomentDateAdapter(MY_CUSTOM_FORMATS)
-  ]
+    selector: 'app-dashboard',
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.css', '../../../../../styles.scss'],
+    providers: [provideMomentDateAdapter(MY_FORMATS),
+        provideMomentDateAdapter(MY_CUSTOM_FORMATS)
+    ],
+    standalone: false
 })
 export class DashboardComponent {
   searchform: FormGroup;

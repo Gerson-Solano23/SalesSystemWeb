@@ -11,9 +11,10 @@ import { ProductService } from '../../../../Services/product.service';
 import { UtilityService } from '../../../../Reusable/utility.service';
 
 @Component({
-  selector: 'app-modal-product',
-  templateUrl: './modal-product.component.html',
-  styleUrl: './modal-product.component.css'
+    selector: 'app-modal-product',
+    templateUrl: './modal-product.component.html',
+    styleUrl: './modal-product.component.css',
+    standalone: false
 })
 export class ModalProductComponent implements OnInit{
   

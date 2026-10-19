@@ -15,9 +15,10 @@ import Swal from 'sweetalert2';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 @Component({
-  selector: 'app-sale',
-  templateUrl: './sale.component.html',
-  styleUrls: ['./sale.component.css', '../../../../../styles.scss']
+    selector: 'app-sale',
+    templateUrl: './sale.component.html',
+    styleUrls: ['./sale.component.css', '../../../../../styles.scss'],
+    standalone: false
 })
 export class SaleComponent{
 

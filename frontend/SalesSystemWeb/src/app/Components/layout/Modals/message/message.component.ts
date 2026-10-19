@@ -6,9 +6,10 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { ViewChild } from '@angular/core';
 import { Product } from '../../../../Interfaces/product';
 @Component({
-  selector: 'app-message',
-  templateUrl: './message.component.html',
-  styleUrl: './message.component.css'
+    selector: 'app-message',
+    templateUrl: './message.component.html',
+    styleUrl: './message.component.css',
+    standalone: false
 })
 export class MessageComponent {
   productsList: Product[] = [];

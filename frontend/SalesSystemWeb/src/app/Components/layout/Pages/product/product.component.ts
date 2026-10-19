@@ -12,9 +12,10 @@ import Swal from 'sweetalert2';
 import { MessageComponent } from '../../Modals/message/message.component';
 import { MessageModal } from '../../../../Interfaces/messaModal';
 @Component({
-  selector: 'app-product',
-  templateUrl: './product.component.html',
-  styleUrls: ['./product.component.css', '../../../../../styles.scss'],
+    selector: 'app-product',
+    templateUrl: './product.component.html',
+    styleUrls: ['./product.component.css', '../../../../../styles.scss'],
+    standalone: false
 })
 export class ProductComponent implements OnInit, AfterViewInit {
   columsTable: string[] = ['Consecutivo', 'Name', 'Category', 'Stock', 'Price', 'Status', 'Actions'];

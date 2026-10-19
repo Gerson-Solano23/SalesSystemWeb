@@ -10,9 +10,10 @@ import { UtilityService } from '../../Reusable/utility.service';
 
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css', '../../../styles.scss']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css', '../../../styles.scss'],
+    standalone: false
 })
 export class LoginComponent {
   formLogin: FormGroup;

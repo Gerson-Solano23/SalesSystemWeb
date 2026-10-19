@@ -24,12 +24,13 @@ export const MY_FORMATS = {
   }
 }
 @Component({
-  selector: 'app-sale-history',
-  templateUrl: './sale-history.component.html',
-  styleUrls: ['./sale-history.component.css', '../../../../../styles.scss'],
-  providers:[
-    {provide: MAT_DATE_FORMATS, useValue: MY_FORMATS}
-  ]
+    selector: 'app-sale-history',
+    templateUrl: './sale-history.component.html',
+    styleUrls: ['./sale-history.component.css', '../../../../../styles.scss'],
+    providers: [
+        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }
+    ],
+    standalone: false
 })
 export class SaleHistoryComponent implements OnInit, AfterViewInit{
 

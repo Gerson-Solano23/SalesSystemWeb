@@ -7,9 +7,10 @@ import { LoadingService } from '../../Services/loading.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-layout',
-  templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.css', '../../../styles.scss']
+    selector: 'app-layout',
+    templateUrl: './layout.component.html',
+    styleUrls: ['./layout.component.css', '../../../styles.scss'],
+    standalone: false
 })
 export class LayoutComponent {
     // En tu componente

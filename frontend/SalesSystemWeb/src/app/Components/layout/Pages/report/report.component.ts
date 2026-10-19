@@ -24,13 +24,14 @@ export const MY_FORMATS = {
 }
 
 @Component({
-  selector: 'app-report',
-  templateUrl: './report.component.html',
-  styleUrls: ['./report.component.css', '../../../../../styles.scss'],
-  template: '<p>Fecha actual: {{ formattedDate }}</p>',
-  providers:[
-    {provide: MAT_DATE_FORMATS, useValue: MY_FORMATS}
-  ]
+    selector: 'app-report',
+    templateUrl: './report.component.html',
+    styleUrls: ['./report.component.css', '../../../../../styles.scss'],
+    template: '<p>Fecha actual: {{ formattedDate }}</p>',
+    providers: [
+        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }
+    ],
+    standalone: false
 })
 export class ReportComponent {
   searchform: FormGroup;

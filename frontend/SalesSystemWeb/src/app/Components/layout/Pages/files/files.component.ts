@@ -10,9 +10,10 @@ import { UtilityService } from '../../../../Reusable/utility.service';
 
 
 @Component({
-  selector: 'app-files',
-  templateUrl: './files.component.html',
-  styleUrls: ['./files.component.css', '../../../../../styles.scss'],
+    selector: 'app-files',
+    templateUrl: './files.component.html',
+    styleUrls: ['./files.component.css', '../../../../../styles.scss'],
+    standalone: false
 })
 
 export class FilesComponent implements OnInit {

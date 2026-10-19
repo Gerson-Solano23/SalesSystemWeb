@@ -10,9 +10,10 @@ import { UserService } from '../../../../Services/user.service';
 import { UtilityService } from '../../../../Reusable/utility.service';
 
 @Component({
-  selector: 'app-modal-user',
-  templateUrl: './modal-user.component.html',
-  styleUrls: ['./modal-user.component.css', '../../../../../styles.scss']
+    selector: 'app-modal-user',
+    templateUrl: './modal-user.component.html',
+    styleUrls: ['./modal-user.component.css', '../../../../../styles.scss'],
+    standalone: false
 })
 export class ModalUserComponent implements OnInit {
   formUser: FormGroup;

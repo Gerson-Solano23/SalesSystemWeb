@@ -6,9 +6,10 @@ import { SaleDetail } from '../../../../Interfaces/sale-detail';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 @Component({
-  selector: 'app-modal-sale-detail',
-  templateUrl: './modal-sale-detail.component.html',
-  styleUrl: './modal-sale-detail.component.css'
+    selector: 'app-modal-sale-detail',
+    templateUrl: './modal-sale-detail.component.html',
+    styleUrl: './modal-sale-detail.component.css',
+    standalone: false
 })
 export class ModalSaleDetailComponentm implements OnInit {
   

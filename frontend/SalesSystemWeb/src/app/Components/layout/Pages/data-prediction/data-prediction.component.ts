@@ -7,9 +7,10 @@ import { SalesForecast } from '../../../../Interfaces/sales-forecast';
 Chart.register(...registerables);
 
 @Component({
-  selector: 'app-data-prediction',
-  templateUrl: './data-prediction.component.html',
-  styleUrls: ['./data-prediction.component.css', '../../../../../styles.scss']
+    selector: 'app-data-prediction',
+    templateUrl: './data-prediction.component.html',
+    styleUrls: ['./data-prediction.component.css', '../../../../../styles.scss'],
+    standalone: false
 })
 export class DataPredictionComponent implements OnInit, OnDestroy {
   readonly monthOptions = [1, 3, 6, 12];

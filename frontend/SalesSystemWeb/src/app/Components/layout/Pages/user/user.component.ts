@@ -10,9 +10,10 @@ import { UtilityService } from '../../../../Reusable/utility.service';
 import Swal from 'sweetalert2';
 
 @Component({
-  selector: 'app-user',
-  templateUrl: './user.component.html',
-  styleUrls: ['./user.component.css', '../../../../../styles.scss']
+    selector: 'app-user',
+    templateUrl: './user.component.html',
+    styleUrls: ['./user.component.css', '../../../../../styles.scss'],
+    standalone: false
 })
 export class UserComponent implements OnInit, AfterViewInit {
 
